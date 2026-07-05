@@ -185,7 +185,7 @@
 <script>
     // THAY ĐƯỜNG LINK WEB APP APPSCRIPT CỦA BẠN VÀO ĐÂY
     
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwZiUp10uDbSPPKEXIcGGR4bVjxLKt-s_zZfIYSFlZmBlQZrzCTVK6Sxy--kOxFFIeChw/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-kJ_k4mXSB20CEgLwYI7qlb4tI_i1AfKOH_yhAjMvonPeJPafyfvUeZq3MZ1sNWgv9g/exec";
 
     let globalBase64Image = ""; // Lưu chuỗi ảnh đã nén tạm thời
     let currentCarRowIndex = null; // Lưu vị trí dòng của xe đang gọi ra
@@ -277,7 +277,7 @@
                 currentCarRowIndex = res.rowIndex; // Lưu lại số dòng của xe này
                 document.getElementById('resTime').innerText = res.entryTime;
                 document.getElementById('resImg').src = res.entryImg;
-                document.getElementById('searchResult').style.style.display = 'block';
+                document.getElementById('searchResult').style.display = 'block';
                 document.getElementById('searchResult').style.display = 'block';
                 globalBase64Image = ""; // Reset biến ảnh để chuẩn bị chụp ảnh lúc ra
             } else {
