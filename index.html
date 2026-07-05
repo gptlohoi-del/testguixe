@@ -245,14 +245,54 @@
         try {
             const response = await fetch(WEB_APP_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Sử dụng chế độ no-cors để tránh lỗi bảo mật trình duyệt tĩnh
-                headers: { 'Content-Type': 'application/json' },
+                // Đã xóa mode: 'no-cors'
+                headers: { 'Content-Type': 'text/plain' }, // Sửa thành text/plain để vượt qua bảo mật CORS
                 body: JSON.stringify({ action: 'IN', licensePlate: plate, image: globalBase64Image })
             });
-            alert('Gửi yêu cầu thành công! Kiểm tra Google Sheet sau vài giây.');
-            resetForm();
+            const res = await response.json(); // Lắng nghe câu trả lời thật từ Google
+            
+            if (res.status === 'success') {
+                alert('Ghi nhận XE VÀO thành công! Dữ liệu đã vào Sheet.');
+                resetForm();
+            } else {
+                // Nếu có lỗi, nó sẽ hiện rõ lên màn hình
+                alert('Google báo lỗi: ' + res.message); 
+            }
         } catch (error) {
-            alert('Có lỗi xảy ra: ' + error.message);
+            alert('Lỗi kết nối mạng: ' + error.message);
+        }
+        toggleLoading(false);
+    }
+
+    // Xử lý gửi dữ liệu XE RA
+    async function handleXeRa() {
+        const plate = document.getElementById('plateSearch').value.trim();
+        if (!globalBase64Image) return alert('Vui lòng chụp hình xe lúc ra!');
+        if (!currentCarRowIndex) return alert('Thiếu dữ liệu định vị dòng, hãy tìm kiếm lại!');
+
+        toggleLoading(true);
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                // Đã xóa mode: 'no-cors'
+                headers: { 'Content-Type': 'text/plain' }, // Sửa thành text/plain
+                body: JSON.stringify({ 
+                    action: 'OUT', 
+                    licensePlate: plate, 
+                    image: globalBase64Image,
+                    rowIndex: currentCarRowIndex 
+                })
+            });
+            const res = await response.json(); 
+            
+            if (res.status === 'success') {
+                alert('Ghi nhận XE RA thành công! Trạng thái đã được chuyển sang [Đã xong].');
+                resetForm();
+            } else {
+                alert('Google báo lỗi: ' + res.message);
+            }
+        } catch (error) {
+            alert('Lỗi khi cho xe ra: ' + error.message);
         }
         toggleLoading(false);
     }
@@ -289,32 +329,7 @@
         toggleLoading(false);
     }
 
-    // Xử lý gửi dữ liệu XE RA (Cập nhật cùng dòng)
-    async function handleXeRa() {
-        const plate = document.getElementById('plateSearch').value.trim();
-        if (!globalBase64Image) return alert('Vui lòng chụp hình xe lúc ra!');
-        if (!currentCarRowIndex) return alert('Thiếu dữ liệu định vị dòng, hãy tìm kiếm lại!');
-
-        toggleLoading(true);
-        try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    action: 'OUT', 
-                    licensePlate: plate, 
-                    image: globalBase64Image,
-                    rowIndex: currentCarRowIndex 
-                })
-            });
-            alert('Gửi dữ liệu xe ra thành công! Trạng thái đã được chuyển sang [Đã xong].');
-            resetForm();
-        } catch (error) {
-            alert('Có lỗi xảy ra khi cho xe ra: ' + error.message);
-        }
-        toggleLoading(false);
-    }
+    
 
     // Bật/tắt màn hình chờ Loading và vô hiệu hóa nút bấm chống click đúp
     function toggleLoading(show) {
