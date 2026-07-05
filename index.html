@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Bãi Xe Thông Minh</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #c0392b;
+            --background-color: #f4f6f7;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 15px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="text"] {
+            text-transform: uppercase;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+        .btn-in { background-color: var(--success-color); }
+        .btn-search { background-color: var(--primary-color); }
+        .btn-out { background-color: var(--danger-color); }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        /* Hiển thị xem trước ảnh */
+        .preview-box {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .preview-box img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            display: none;
+        }
+        /* Khu vực kết quả tìm kiếm */
+        .result-box {
+            background: #eef2f3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+            border-left: 5px solid var(--warning-color);
+        }
+        /* Hiệu ứng loading */
+        .loading {
+            display: none;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hệ Thống Quản Lý Bãi Xe</h1>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-vao')">XE VÀO</button>
+        <button class="tab-btn" onclick="switchTab('tab-ra')">XE RA</button>
+    </div>
+
+    <div id="loading" class="loading">Đang xử lý dữ liệu, vui lòng đợi...</div>
+
+    <div id="tab-vao" class="tab-content active">
+        <div class="form-group">
+            <label for="plateIn">Nhập Biển Số Xe:</label>
+            <input type="text" id="plateIn" placeholder="Ví dụ: 59X3-12345">
+        </div>
+        <div class="form-group">
+            <label for="cameraIn">Chụp Hình Ảnh Xe Vào:</label>
+            <input type="file" id="cameraIn" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewIn')">
+        </div>
+        <div class="preview-box">
+            <img id="previewIn" alt="Ảnh xem trước xe vào">
+        </div>
+        <button class="btn-in" id="btnSubmitIn" onclick="handleXeVao()">XÁC NHẬN XE VÀO</button>
+    </div>
+
+    <div id="tab-ra" class="tab-content">
+        <div class="form-group">
+            <label for="plateSearch">Nhập Biển Số Xe Ra Để Tìm:</label>
+            <input type="text" id="plateSearch" placeholder="Ví dụ: 59X3-12345">
+        </div>
+        <button class="btn-search" onclick="handleSearch()">TÌM KIẾM XE</button>
+
+        <div id="searchResult" class="result-box">
+            <h3>Thông tin xe trong bãi:</h3>
+            <p><strong>Thời gian vào:</strong> <span id="resTime"></span></p>
+            <p><strong>Hình ảnh lúc vào:</strong></p>
+            <div style="text-align:center;"><img id="resImg" src="" style="max-width:100%; max-height:150px; border-radius:4px;"></div>
+            
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+            
+            <div class="form-group">
+                <label for="cameraOut">Chụp Hình Ảnh Xe Ra:</label>
+                <input type="file" id="cameraOut" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewOut')">
+            </div>
+            <div class="preview-box">
+                <img id="previewOut" alt="Ảnh xem trước xe ra">
+            </div>
+            <button class="btn-out" id="btnSubmitOut" onclick="handleXeRa()">XÁC NHẬN XE RA & HOÀN THÀNH</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // THAY ĐƯỜNG LINK WEB APP APPSCRIPT CỦA BẠN VÀO ĐÂY
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzlV4DGhvD7ev7IjHFevvISYyBzmdpBKynvsuKa8XDgWhwQ2evfRB95jxcb_j1aqfySwQ/exec";
+
+    let globalBase64Image = ""; // Lưu chuỗi ảnh đã nén tạm thời
+    let currentCarRowIndex = null; // Lưu vị trí dòng của xe đang gọi ra
+
+    // Chuyển đổi qua lại giữa các TAB
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        resetForm();
+    }
+
+    // Hàm tự động nén dung lượng và hiển thị ảnh xem trước (Giới hạn max 800px)
+    function previewAndCompress(input, previewId) {
+        const file = input.files[0];
+        const preview = document.getElementById(previewId);
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX_SIZE = 800; // Giới hạn chiều lớn nhất là 800px để tối ưu dung lượng bãi xe
+
+                if (width > height) {
+                    if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                } else {
+                    if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Nén ảnh định dạng JPEG chất lượng 0.7 (giảm ~80% dung lượng gốc mà vẫn rõ biển số)
+                globalBase64Image = canvas.toDataURL('image/jpeg', 0.7);
+                preview.src = globalBase64Image;
+                preview.style.display = 'block';
+            }
+            img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+
+    // Xử lý gửi dữ liệu XE VÀO
+    async function handleXeVao() {
+        const plate = document.getElementById('plateIn').value.trim();
+        if (!plate) return alert('Vui lòng nhập biển số xe!');
+        if (!globalBase64Image) return alert('Vui lòng chụp hình xe vào!');
+
+        toggleLoading(true);
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Sử dụng chế độ no-cors để tránh lỗi bảo mật trình duyệt tĩnh
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'IN', licensePlate: plate, image: globalBase64Image })
+            });
+            alert('Gửi yêu cầu thành công! Kiểm tra Google Sheet sau vài giây.');
+            resetForm();
+        } catch (error) {
+            alert('Có lỗi xảy ra: ' + error.message);
+        }
+        toggleLoading(false);
+    }
+
+    // Xử lý TÌM KIẾM XE
+    async function handleSearch() {
+        const plate = document.getElementById('plateSearch').value.trim();
+        if (!plate) return alert('Vui lòng nhập biển số xe cần tìm!');
+
+        toggleLoading(true);
+        document.getElementById('searchResult').style.display = 'none';
+        
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' }, // Tránh kích hoạt preflight CORS tinh vi
+                body: JSON.stringify({ action: 'SEARCH', licensePlate: plate })
+            });
+            const res = await response.json();
+            
+            if (res.status === 'success' && res.found) {
+                currentCarRowIndex = res.rowIndex; // Lưu lại số dòng của xe này
+                document.getElementById('resTime').innerText = res.entryTime;
+                document.getElementById('resImg').src = res.entryImg;
+                document.getElementById('searchResult').style.style.display = 'block';
+                document.getElementById('searchResult').style.display = 'block';
+                globalBase64Image = ""; // Reset biến ảnh để chuẩn bị chụp ảnh lúc ra
+            } else {
+                alert(res.message || 'Không tìm thấy xe.');
+            }
+        } catch (error) {
+            alert('Lỗi tìm kiếm: ' + error.message);
+        }
+        toggleLoading(false);
+    }
+
+    // Xử lý gửi dữ liệu XE RA (Cập nhật cùng dòng)
+    async function handleXeRa() {
+        const plate = document.getElementById('plateSearch').value.trim();
+        if (!globalBase64Image) return alert('Vui lòng chụp hình xe lúc ra!');
+        if (!currentCarRowIndex) return alert('Thiếu dữ liệu định vị dòng, hãy tìm kiếm lại!');
+
+        toggleLoading(true);
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: 'OUT', 
+                    licensePlate: plate, 
+                    image: globalBase64Image,
+                    rowIndex: currentCarRowIndex 
+                })
+            });
+            alert('Gửi dữ liệu xe ra thành công! Trạng thái đã được chuyển sang [Đã xong].');
+            resetForm();
+        } catch (error) {
+            alert('Có lỗi xảy ra khi cho xe ra: ' + error.message);
+        }
+        toggleLoading(false);
+    }
+
+    // Bật/tắt màn hình chờ Loading và vô hiệu hóa nút bấm chống click đúp
+    function toggleLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+        document.querySelectorAll('button').forEach(btn => btn.disabled = show);
+    }
+
+    // Reset lại form làm sạch dữ liệu sau mỗi lượt
+    function resetForm() {
+        document.getElementById('plateIn').value = "";
+        document.getElementById('cameraIn').value = "";
+        document.getElementById('previewIn').style.display = 'none';
+        document.getElementById('plateSearch').value = "";
+        document.getElementById('cameraOut').value = "";
+        document.getElementById('previewOut').style.display = 'none';
+        document.getElementById('searchResult').style.display = 'none';
+        globalBase64Image = "";
+        currentCarRowIndex = null;
+    }
+</script>
+</body>
+</html>
