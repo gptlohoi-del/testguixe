@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quản Lý Bãi Xe</title>
     
-    <!-- CẤU HÌNH PWA (BIẾN WEB THÀNH APP) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <link rel="apple-touch-icon" href="icon.png">
@@ -13,67 +12,73 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Bãi Xe">
 
-    <!-- ĐĂNG KÝ SERVICE WORKER -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW config error', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
             });
         }
     </script>
 
     <style>
+        /* Đã thiết lập Box-sizing để triệt tiêu lỗi tràn viền */
+        * { box-sizing: border-box; }
         :root {
             --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --danger: #dc2626;
             --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
         }
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; }
-        .container { max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        h1 { text-align: center; color: var(--text-main); font-size: 22px; margin-top: 0; margin-bottom: 24px;}
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
         
-        /* Giao diện Tabs */
-        .tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 24px; }
-        .tab-btn { flex: 1; padding: 10px; text-align: center; background: none; border: none; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
+        /* Chỉnh Container full bề ngang trên điện thoại */
+        .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 20px 15px; min-height: 100vh; }
+        @media (min-width: 600px) {
+            body { padding: 15px; }
+            .container { min-height: auto; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        }
+
+        h1 { text-align: center; color: var(--text-main); font-size: 22px; margin-top: 0; margin-bottom: 20px;}
+        
+        /* Chỉnh Tabs nhỏ lại, ép nằm gọn 1 hàng trên đt nhỏ */
+        .tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 24px; gap: 2px;}
+        .tab-btn { flex: 1; padding: 10px 2px; text-align: center; background: none; border: none; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap; letter-spacing: -0.3px;}
         .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Giao diện Form */
         .form-group { margin-bottom: 16px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: var(--text-main); }
-        input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 16px; text-transform: uppercase; background: var(--bg); outline: none; transition: 0.2s; }
+        input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; text-transform: uppercase; background: var(--bg); outline: none; transition: 0.2s; }
         input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         button.action-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         .btn-in { background-color: var(--success); } .btn-search { background-color: var(--primary); } .btn-out { background-color: var(--danger); }
         button:disabled { opacity: 0.7; cursor: not-allowed; }
         
-        /* Hình ảnh và Loading */
         .preview-box { margin-top: 12px; text-align: center; }
         .preview-box img { max-width: 100%; max-height: 180px; border-radius: 8px; border: 1px solid var(--border); display: none; margin: 0 auto; }
         .loading { display: none; text-align: center; font-weight: 600; color: var(--primary); margin: 15px 0; font-size: 14px;}
         
-        /* Danh sách tìm kiếm & Thống kê */
         .result-box { background: var(--bg); padding: 16px; border-radius: 8px; margin-top: 16px; display: none; border: 1px solid var(--border); }
         .list-cars { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
         .car-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
         .car-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin: 10px 0; border: 1px solid #eee;}
         .btn-select { background-color: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; width: 100%; cursor: pointer;}
+        
         .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);}
         .stats-header h3 { margin: 0; font-size: 16px; color: var(--text-main); }
         .badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px;}
         .badge-danger { background: var(--danger); color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px;}
         .btn-refresh { background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-muted);}
         
-        .stat-item-today { display: flex; align-items: center; gap: 12px; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
-        .stat-item-today img { width: 70px; height: 50px; object-fit: cover; border-radius: 4px; }
+        /* Hiệu ứng Nút bấm cho thẻ Thống kê */
+        .stat-item { display: flex; align-items: center; gap: 12px; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.1s; position: relative;}
+        .stat-item:active { background: #f1f5f9; transform: scale(0.98); }
+        .stat-item img { width: 75px; height: 55px; object-fit: cover; border-radius: 6px; }
         .stat-info { flex: 1; text-align: left;}
-        .stat-info strong { display: block; font-size: 15px; color: var(--primary); }
-        .stat-info span { font-size: 12px; color: var(--text-muted); display: block;}
-        
-        .stat-item-night { display: flex; justify-content: space-between; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; }
-        .stat-item-night strong { color: var(--danger); font-size: 15px;}
-        .stat-item-night span { font-size: 13px; color: var(--text-muted); display:block; text-align: right;}
+        .stat-info strong { display: block; font-size: 15px; color: var(--primary); margin-bottom: 2px;}
+        .stat-info .time { font-size: 12px; color: var(--text-muted); display: block;}
+        .stat-info .emp { font-size: 12px; color: var(--success); display: block;}
+        .icon-out { position: absolute; right: 10px; color: var(--danger); font-weight: bold; font-size: 12px; background: #fee2e2; padding: 4px 8px; border-radius: 10px;}
     </style>
 </head>
 <body>
@@ -81,12 +86,11 @@
 <div class="container">
     <h1>Quản Lý Bãi Xe</h1>
     
-    <!-- THANH ĐIỀU HƯỚNG TABS -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
-        <button class="tab-btn" onclick="switchTab('tab-ra')">XUẤT BẾN</button>
-        <button class="tab-btn" onclick="switchTab('tab-trong')">TRONG NGÀY</button>
-        <button class="tab-btn" onclick="switchTab('tab-dem')">QUA ĐÊM</button>
+        <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
+        <button id="btn-tab-ra" class="tab-btn" onclick="switchTab('tab-ra')">XUẤT BẾN</button>
+        <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG NGÀY</button>
+        <button id="btn-tab-dem" class="tab-btn" onclick="switchTab('tab-dem')">QUA ĐÊM</button>
     </div>
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
@@ -152,11 +156,9 @@
         </div>
     </div>
 
-    <!-- AUDIO: Trình phát âm thanh ẩn -->
     <audio id="soundSuccess" src="success.mp3" preload="auto"></audio>
     <audio id="soundError" src="error.mp3" preload="auto"></audio>
 
-    <!-- BẢO MẬT: Hiển thị mã thiết bị -->
     <div style="text-align:center; margin-top:30px; padding-top:15px; border-top:1px dashed #ccc; font-size:13px; color:var(--text-muted);">
         Mã thiết bị của bạn: <span id="displayDeviceId" style="font-weight:bold; color:var(--danger); letter-spacing: 1px;">ĐANG TẠO...</span>
     </div>
@@ -168,7 +170,6 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-kJ_k4mXSB20CEgLwYI7qlb4tI_i1AfKOH_yhAjMvonPeJPafyfvUeZq3MZ1sNWgv9g/exec";
     // ==========================================
 
-    // HÀM QUẢN LÝ MÃ THIẾT BỊ BẢO MẬT
     function getDeviceId() {
         let deviceId = localStorage.getItem('parking_device_id');
         if (!deviceId) {
@@ -180,33 +181,30 @@
     const myDeviceId = getDeviceId();
     document.getElementById('displayDeviceId').innerText = myDeviceId;
 
-    // HÀM PHÁT ÂM THANH
     function playSound(type) {
         try {
-            if (type === 'success') {
-                const s = document.getElementById('soundSuccess');
-                s.currentTime = 0; s.play();
-            } else {
-                const e = document.getElementById('soundError');
-                e.currentTime = 0; e.play();
-            }
-        } catch (err) { console.log("Trình duyệt chặn autoplay âm thanh"); }
+            if (type === 'success') { const s = document.getElementById('soundSuccess'); s.currentTime = 0; s.play(); } 
+            else { const e = document.getElementById('soundError'); e.currentTime = 0; e.play(); }
+        } catch (err) {}
     }
 
     let globalBase64Image = ""; let currentCarRowIndex = null; let currentMatches = []; let isDataLoaded = false;
+    
+    // Mảng lưu trữ dữ liệu để phục vụ tính năng "Bấm xuất bến nhanh"
+    let listDataToday = [];
+    let listDataOvernight = [];
 
-    // HÀM CHUYỂN TAB
-    function switchTab(tabId) {
+    // HÀM CHUYỂN TAB (Đã tối ưu không reset form nếu gọi từ Xuất bến nhanh)
+    function switchTab(tabId, preventReset = false) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        document.getElementById('btn-' + tabId).classList.add('active');
         
         if ((tabId === 'tab-trong' || tabId === 'tab-dem') && !isDataLoaded) loadParkedCars();
-        if (tabId === 'tab-vao' || tabId === 'tab-ra') resetForm();
+        if ((tabId === 'tab-vao' || tabId === 'tab-ra') && !preventReset) resetForm();
     }
 
-    // HÀM XỬ LÝ ẢNH
     function previewAndCompress(input, previewId) {
         const file = input.files[0]; const preview = document.getElementById(previewId);
         if (!file) return;
@@ -228,7 +226,6 @@
         reader.readAsDataURL(file);
     }
 
-    // 1. XỬ LÝ XE VÀO
     async function handleXeVao() {
         const plate = document.getElementById('plateIn').value.trim();
         if (!plate) return alert('Vui lòng nhập biển số xe!');
@@ -242,29 +239,18 @@
             });
             const res = await response.json(); 
             if (res.status === 'success') { 
-                playSound('success');
-                alert('Ghi nhận vào bến thành công!'); 
-                isDataLoaded = false; 
-                resetForm(); 
-            } else {
-                playSound('error');
-                alert(res.message); 
-            }
-        } catch (error) { 
-            playSound('error');
-            alert('Lỗi kết nối mạng: ' + error.message); 
-        }
+                playSound('success'); alert('Ghi nhận vào bến thành công!'); isDataLoaded = false; resetForm(); 
+            } else { playSound('error'); alert(res.message); }
+        } catch (error) { playSound('error'); alert('Lỗi kết nối mạng: ' + error.message); }
         toggleLoading(false);
     }
 
-    // 2. TÌM KIẾM XE
     async function handleSearch() {
         const plate = document.getElementById('plateSearch').value.trim();
         if (!plate) return alert('Vui lòng nhập biển số!');
 
         toggleLoading(true);
-        document.getElementById('listResults').style.display = 'none'; 
-        document.getElementById('searchResult').style.display = 'none';
+        document.getElementById('listResults').style.display = 'none'; document.getElementById('searchResult').style.display = 'none';
         
         try {
             const response = await fetch(WEB_APP_URL, {
@@ -272,25 +258,16 @@
                 body: JSON.stringify({ action: 'SEARCH', licensePlate: plate, deviceId: myDeviceId })
             });
             const res = await response.json();
-            if (res.status === 'success' && res.found) { 
-                currentMatches = res.matches; 
-                renderSearchList(); 
-            } else {
-                playSound('error');
-                alert(res.message);
-            }
-        } catch (error) { 
-            playSound('error');
-            alert('Lỗi kết nối: ' + error.message); 
-        }
+            if (res.status === 'success' && res.found) { currentMatches = res.matches; renderSearchList(); } 
+            else { playSound('error'); alert(res.message); }
+        } catch (error) { playSound('error'); alert('Lỗi kết nối: ' + error.message); }
         toggleLoading(false);
     }
 
     function renderSearchList() {
         const listDiv = document.getElementById('listResults'); listDiv.innerHTML = ''; 
-        if (currentMatches.length === 1) { 
-            selectCar(0); 
-        } else {
+        if (currentMatches.length === 1) { selectCarFromSearch(0); } 
+        else {
             let html = `<div style="font-weight:600; color:var(--primary); text-align:center;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
             currentMatches.forEach((car, index) => {
                 html += `
@@ -299,25 +276,43 @@
                     <p style="margin:5px 0; font-size:13px; color:#666;">${car.entryTime}</p>
                     <p style="margin:0 0 10px 0; font-size:12px; color:var(--success);">Nhận bởi: ${car.employeeIn}</p>
                     <img src="${car.entryImg}">
-                    <button class="btn-select" onclick="selectCar(${index})">CHỌN XE NÀY</button>
+                    <button class="btn-select" onclick="selectCarFromSearch(${index})">CHỌN XE NÀY</button>
                 </div>`;
             });
             listDiv.innerHTML = html; listDiv.style.display = 'flex';
         }
     }
 
-    function selectCar(index) {
-        const car = currentMatches[index]; currentCarRowIndex = car.rowIndex; 
+    function selectCarFromSearch(index) {
+        const car = currentMatches[index]; 
+        setupCheckoutForm(car);
+    }
+
+    // TÍNH NĂNG MỚI: BẤM LÀ XUẤT BẾN TỪ TAB THỐNG KÊ
+    function quickCheckout(type, index) {
+        const car = (type === 'today') ? listDataToday[index] : listDataOvernight[index];
+        setupCheckoutForm(car);
+        // Chuyển sang Tab Xuất bến nhưng KHÔNG xóa form
+        switchTab('tab-ra', true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Hàm dùng chung để đẩy dữ liệu vào form Xuất bến
+    function setupCheckoutForm(car) {
+        currentCarRowIndex = car.rowIndex; 
         document.getElementById('selectedPlate').innerText = car.plate;
         document.getElementById('resTime').innerText = car.entryTime;
         document.getElementById('resEmp').innerText = car.employeeIn; 
         document.getElementById('resImg').src = car.entryImg;
+        
         document.getElementById('listResults').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'block';
+        
         globalBase64Image = ""; 
+        document.getElementById('cameraOut').value = ""; 
+        document.getElementById('previewOut').style.display = 'none'; 
     }
 
-    // 3. XỬ LÝ XE RA
     async function handleXeRa() {
         const plate = document.getElementById('selectedPlate').innerText;
         if (!globalBase64Image) return alert('Vui lòng chụp hình xe lúc ra!');
@@ -331,22 +326,12 @@
             });
             const res = await response.json(); 
             if (res.status === 'success') { 
-                playSound('success');
-                alert('Xuất bến thành công!'); 
-                isDataLoaded = false; 
-                resetForm(); 
-            } else {
-                playSound('error');
-                alert(res.message);
-            }
-        } catch (error) { 
-            playSound('error');
-            alert('Lỗi kết nối: ' + error.message); 
-        }
+                playSound('success'); alert('Xuất bến thành công!'); isDataLoaded = false; resetForm(); 
+            } else { playSound('error'); alert(res.message); }
+        } catch (error) { playSound('error'); alert('Lỗi kết nối: ' + error.message); }
         toggleLoading(false);
     }
 
-    // 4. TẢI THỐNG KÊ
     async function loadParkedCars() {
         toggleLoading(true);
         try {
@@ -360,63 +345,53 @@
                 document.getElementById('countToday').innerText = res.todayCars.length;
                 document.getElementById('countOvernight').innerText = res.overnightCars.length;
                 
+                listDataToday = res.todayCars;
+                listDataOvernight = res.overnightCars;
+                
                 // Render Tab Trong Ngày
                 let htmlToday = '';
-                if(res.todayCars.length === 0) htmlToday = '<div style="text-align:center; color:#666; font-size:14px;">Chưa có xe nào.</div>';
-                res.todayCars.forEach(car => {
+                if(listDataToday.length === 0) htmlToday = '<div style="text-align:center; color:#666; font-size:14px;">Chưa có xe nào.</div>';
+                listDataToday.forEach((car, index) => {
                     htmlToday += `
-                    <div class="stat-item-today">
+                    <div class="stat-item" onclick="quickCheckout('today', ${index})">
                         <img src="${car.entryImg}" alt="Xe" loading="lazy">
                         <div class="stat-info">
                             <strong>${car.plate}</strong>
-                            <span>Vào: ${car.entryTime}</span>
-                            <span style="color:var(--success);">Nhận bởi: ${car.employeeIn}</span>
+                            <span class="time">Vào: ${car.entryTime}</span>
+                            <span class="emp">Nhận: ${car.employeeIn}</span>
                         </div>
+                        <div class="icon-out">CHO RA</div>
                     </div>`;
                 });
                 document.getElementById('listToday').innerHTML = htmlToday;
 
-                // Render Tab Qua Đêm
+                // Render Tab Qua Đêm (Đã thêm ảnh)
                 let htmlNight = '';
-                if(res.overnightCars.length === 0) htmlNight = '<div style="text-align:center; color:#666; font-size:14px;">Bãi đã trống, không có xe tồn.</div>';
-                res.overnightCars.forEach(car => {
+                if(listDataOvernight.length === 0) htmlNight = '<div style="text-align:center; color:#666; font-size:14px;">Bãi đã trống, không có xe tồn.</div>';
+                listDataOvernight.forEach((car, index) => {
                     htmlNight += `
-                    <div class="stat-item-night">
-                        <div style="text-align:left;">
-                            <strong>${car.plate}</strong>
-                            <span style="color:var(--success);">Nhận bởi: ${car.employeeIn}</span>
+                    <div class="stat-item" onclick="quickCheckout('night', ${index})">
+                        <img src="${car.entryImg}" alt="Xe" loading="lazy">
+                        <div class="stat-info">
+                            <strong style="color:var(--danger);">${car.plate}</strong>
+                            <span class="time">Vào: ${car.entryTime}</span>
+                            <span class="emp">Nhận: ${car.employeeIn}</span>
                         </div>
-                        <span>${car.entryTime}</span>
+                        <div class="icon-out">CHO RA</div>
                     </div>`;
                 });
                 document.getElementById('listOvernight').innerHTML = htmlNight;
                 isDataLoaded = true; 
-            } else {
-                playSound('error');
-                alert(res.message);
-            }
-        } catch (error) { 
-            playSound('error');
-            alert('Lỗi kết nối: ' + error.message); 
-        }
+            } else { playSound('error'); alert(res.message); }
+        } catch (error) { playSound('error'); alert('Lỗi kết nối: ' + error.message); }
         toggleLoading(false);
     }
 
-    // CÁC HÀM TIỆN ÍCH
-    function toggleLoading(show) { 
-        document.getElementById('loading').style.display = show ? 'block' : 'none'; 
-        document.querySelectorAll('button').forEach(btn => btn.disabled = show); 
-    }
-    
+    function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'block' : 'none'; document.querySelectorAll('button').forEach(btn => btn.disabled = show); }
     function resetForm() { 
-        document.getElementById('plateIn').value = ""; 
-        document.getElementById('cameraIn').value = ""; 
-        document.getElementById('previewIn').style.display = 'none'; 
-        document.getElementById('plateSearch').value = ""; 
-        document.getElementById('cameraOut').value = ""; 
-        document.getElementById('previewOut').style.display = 'none'; 
-        document.getElementById('searchResult').style.display = 'none'; 
-        document.getElementById('listResults').style.display = 'none'; 
+        document.getElementById('plateIn').value = ""; document.getElementById('cameraIn').value = ""; document.getElementById('previewIn').style.display = 'none'; 
+        document.getElementById('plateSearch').value = ""; document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
+        document.getElementById('searchResult').style.display = 'none'; document.getElementById('listResults').style.display = 'none'; 
         globalBase64Image = ""; currentCarRowIndex = null; currentMatches = []; 
     }
 </script>
