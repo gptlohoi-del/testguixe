@@ -12,31 +12,28 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Bãi Xe">
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
-            });
-        }
-    </script>
-
     <style>
         * { box-sizing: border-box; }
         :root {
             --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --danger: #dc2626; 
-            --warning: #f59e0b; /* Thêm màu cam cho nút sửa */
-            --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
+            --warning: #f59e0b; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
         }
         body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
-        
-        .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 20px 15px; min-height: 100vh; }
-        @media (min-width: 600px) {
-            body { padding: 15px; }
-            .container { min-height: auto; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        }
+        .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 20px 15px; min-height: 100vh; position: relative; overflow-x: hidden;}
+        @media (min-width: 600px) { body { padding: 15px; } .container { min-height: auto; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); } }
 
         h1 { text-align: center; color: var(--text-main); font-size: 22px; margin-top: 0; margin-bottom: 20px;}
         
+        /* HÀNG ĐỢI ĐỒNG BỘ NỀN */
+        .sync-badge { display: none; background-color: var(--warning); color: #fff; text-align: center; padding: 6px; font-size: 12px; font-weight: bold; border-radius: 20px; margin-bottom: 15px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        /* THÔNG BÁO TOAST KHÔNG CẦN BẤM OK */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; visibility: hidden; transition: 0.3s; white-space: nowrap; }
+        .toast.show { opacity: 1; visibility: visible; top: 30px; }
+        .toast.success { background-color: var(--success); }
+        .toast.error { background-color: var(--danger); }
+
         .tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 24px; gap: 2px;}
         .tab-btn { flex: 1; padding: 10px 2px; text-align: center; background: none; border: none; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap; letter-spacing: -0.3px;}
         .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -77,16 +74,18 @@
         .stat-info .emp { font-size: 12px; color: var(--success); display: block;}
         .icon-out { position: absolute; right: 10px; color: var(--danger); font-weight: bold; font-size: 12px; background: #fee2e2; padding: 4px 8px; border-radius: 10px;}
         
-        /* CSS cho nút SỬA BIỂN */
         .btn-edit { background-color: var(--warning); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .btn-edit:active { background-color: #d97706; }
     </style>
 </head>
 <body>
 
+<div id="toast" class="toast">Đã xử lý!</div>
+
 <div class="container">
     <h1>Quản Lý Bãi Xe</h1>
     
+    <div id="syncBadge" class="sync-badge">Đang đồng bộ: 1 xe lên hệ thống...</div>
+
     <div class="tabs">
         <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
         <button id="btn-tab-ra" class="tab-btn" onclick="switchTab('tab-ra')">XUẤT BẾN</button>
@@ -178,6 +177,18 @@
     const myDeviceId = getDeviceId();
     document.getElementById('displayDeviceId').innerText = myDeviceId;
 
+    // HÀM HIỂN THỊ THÔNG BÁO TOAST KHÔNG CẦN BẤM OK
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.className = 'toast show ' + type;
+        
+        if (type === 'success') playSound('success');
+        else playSound('error');
+
+        setTimeout(() => { toast.classList.remove('show'); }, 2500); // Tự động ẩn sau 2.5s
+    }
+
     function playSound(type) {
         try {
             if (type === 'success') { const s = document.getElementById('soundSuccess'); s.currentTime = 0; s.play(); } 
@@ -187,6 +198,22 @@
 
     let globalBase64Image = ""; let currentCarRowIndex = null; let currentMatches = []; let isDataLoaded = false;
     let listDataToday = []; let listDataOvernight = [];
+    
+    // BIẾN QUẢN LÝ HÀNG ĐỢI NGẦM (BACKGROUND SYNC)
+    let syncQueue = [];
+    let isSyncing = false;
+
+    // ==========================================
+    // CẢNH BÁO KHI THOÁT TRANG MÀ CHƯA ĐỒNG BỘ XONG
+    // ==========================================
+    window.addEventListener('beforeunload', function (e) {
+        if (syncQueue.length > 0) {
+            // Hủy lệnh thoát ngay lập tức
+            e.preventDefault(); 
+            // Hiển thị cảnh báo chặn người dùng (Các trình duyệt hiện đại sẽ hiện câu cảnh báo mặc định của hệ thống)
+            e.returnValue = 'Dữ liệu xe đang được đồng bộ lên hệ thống. Nếu thoát bây giờ, các xe chưa lưu sẽ bị mất. Bạn có chắc muốn thoát?';
+        }
+    });
 
     function switchTab(tabId, preventReset = false) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -219,28 +246,80 @@
         reader.readAsDataURL(file);
     }
 
-    async function handleXeVao() {
-        const plate = document.getElementById('plateIn').value.trim();
-        if (!plate) return alert('Vui lòng nhập biển số xe!');
-        if (!globalBase64Image) return alert('Vui lòng chụp hình!');
+    // CẬP NHẬT GIAO DIỆN HÀNG ĐỢI
+    function updateSyncBadge() {
+        const badge = document.getElementById('syncBadge');
+        if (syncQueue.length > 0) {
+            badge.style.display = 'block';
+            badge.innerText = `Đang tải ${syncQueue.length} xe lên hệ thống...`;
+        } else {
+            badge.style.display = 'none';
+        }
+    }
 
-        toggleLoading(true);
+    // THUẬT TOÁN ĐỒNG BỘ NGẦM (CHẠY ẨN SAU LƯNG NGƯỜI DÙNG)
+    async function processQueue() {
+        if (isSyncing || syncQueue.length === 0) return;
+        isSyncing = true;
+        updateSyncBadge();
+
+        const currentTask = syncQueue[0];
         try {
             const response = await fetch(WEB_APP_URL, {
                 method: 'POST', headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'IN', licensePlate: plate, image: globalBase64Image, deviceId: myDeviceId })
+                body: JSON.stringify(currentTask)
             });
             const res = await response.json(); 
+            
             if (res.status === 'success') { 
-                playSound('success'); alert('Ghi nhận vào bến thành công!'); isDataLoaded = false; resetForm(); 
-            } else { playSound('error'); alert(res.message); }
-        } catch (error) { playSound('error'); alert('Lỗi kết nối mạng: ' + error.message); }
-        toggleLoading(false);
+                syncQueue.shift(); // Xóa khỏi hàng đợi khi thành công
+                isDataLoaded = false; // Đánh dấu để cập nhật lại bảng thống kê
+            } else { 
+                syncQueue.shift(); // Vẫn xóa để không kẹt xe khác
+                showToast('Lỗi tải lên: ' + res.message, 'error'); 
+            }
+        } catch (error) { 
+            // Nếu rớt mạng, giữ nguyên xe trong hàng đợi và chờ 3 giây thử lại
+            showToast('Mất mạng! Tự động thử lại...', 'error'); 
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        
+        isSyncing = false;
+        updateSyncBadge();
+        processQueue(); // Tiếp tục xử lý xe tiếp theo
     }
 
+    // XE VÀO: ĐƯA VÀO HÀNG ĐỢI VÀ XÓA FORM NGAY LẬP TỨC
+    function handleXeVao() {
+        const plate = document.getElementById('plateIn').value.trim();
+        if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
+        if (!globalBase64Image) return showToast('Vui lòng chụp hình!', 'error');
+
+        // Đẩy vào hàng đợi ngầm
+        syncQueue.push({ action: 'IN', licensePlate: plate, image: globalBase64Image, deviceId: myDeviceId });
+        
+        showToast('Đã lưu! Hãy nhập xe tiếp theo', 'success');
+        resetForm(); // Reset form trong nháy mắt để chụp xe mới
+        processQueue(); // Kích hoạt bộ xử lý ngầm
+    }
+
+    // XE RA: CŨNG DÙNG HÀNG ĐỢI ĐỂ XÓA FORM NHANH
+    function handleXeRa() {
+        const plate = document.getElementById('selectedPlate').innerText;
+        if (!globalBase64Image) return showToast('Vui lòng chụp hình!', 'error');
+        if (!currentCarRowIndex) return;
+
+        syncQueue.push({ action: 'OUT', licensePlate: plate, image: globalBase64Image, rowIndex: currentCarRowIndex, deviceId: myDeviceId });
+        
+        showToast('Cho xe ra thành công!', 'success');
+        resetForm();
+        processQueue();
+    }
+
+    // TÌM KIẾM XE (Cái này bắt buộc phải đợi để lấy kết quả)
     async function handleSearch() {
         const plate = document.getElementById('plateSearch').value.trim();
-        if (!plate) return alert('Vui lòng nhập biển số!');
+        if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
 
         toggleLoading(true);
         document.getElementById('listResults').style.display = 'none'; document.getElementById('searchResult').style.display = 'none';
@@ -252,8 +331,8 @@
             });
             const res = await response.json();
             if (res.status === 'success' && res.found) { currentMatches = res.matches; renderSearchList(); } 
-            else { playSound('error'); alert(res.message); }
-        } catch (error) { playSound('error'); alert('Lỗi kết nối: ' + error.message); }
+            else { showToast(res.message, 'error'); }
+        } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
         toggleLoading(false);
     }
 
@@ -303,30 +382,8 @@
         document.getElementById('previewOut').style.display = 'none'; 
     }
 
-    async function handleXeRa() {
-        const plate = document.getElementById('selectedPlate').innerText;
-        if (!globalBase64Image) return alert('Vui lòng chụp hình xe lúc ra!');
-        if (!currentCarRowIndex) return;
-
-        toggleLoading(true);
-        try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'OUT', licensePlate: plate, image: globalBase64Image, rowIndex: currentCarRowIndex, deviceId: myDeviceId })
-            });
-            const res = await response.json(); 
-            if (res.status === 'success') { 
-                playSound('success'); alert('Xuất bến thành công!'); isDataLoaded = false; resetForm(); 
-            } else { playSound('error'); alert(res.message); }
-        } catch (error) { playSound('error'); alert('Lỗi kết nối: ' + error.message); }
-        toggleLoading(false);
-    }
-
-    // TÍNH NĂNG MỚI: HÀM SỬA BIỂN SỐ XE
     async function editPlate(rowIndex, oldPlate) {
         const newPlate = prompt(`Nhập biển số chính xác thay cho xe [ ${oldPlate} ]:`, oldPlate);
-        
-        // Nếu nhấn Cancel hoặc để trống hoặc số không đổi thì bỏ qua
         if (newPlate === null || newPlate.trim() === "" || newPlate.trim().toUpperCase() === oldPlate) return;
         
         toggleLoading(true);
@@ -336,19 +393,11 @@
                 body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: rowIndex, newPlate: newPlate, deviceId: myDeviceId })
             });
             const res = await response.json(); 
-            
             if (res.status === 'success') { 
-                playSound('success'); 
-                alert('Đã cập nhật biển số mới!'); 
-                loadParkedCars(); // Cập nhật lại danh sách ngay lập tức
-            } else { 
-                playSound('error'); 
-                alert(res.message); 
-            }
-        } catch (error) { 
-            playSound('error'); 
-            alert('Lỗi kết nối: ' + error.message); 
-        }
+                showToast('Đã cập nhật biển số mới!', 'success'); 
+                loadParkedCars(); 
+            } else { showToast(res.message, 'error'); }
+        } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
         toggleLoading(false);
     }
 
@@ -368,7 +417,6 @@
                 listDataToday = res.todayCars;
                 listDataOvernight = res.overnightCars;
                 
-                // Render Tab Trong Ngày (Đã thêm nút SỬA BIỂN)
                 let htmlToday = '';
                 if(listDataToday.length === 0) htmlToday = '<div style="text-align:center; color:#666; font-size:14px;">Chưa có xe nào.</div>';
                 listDataToday.forEach((car, index) => {
@@ -379,14 +427,13 @@
                             <strong>${car.plate}</strong>
                             <span class="time">Vào: ${car.entryTime}</span>
                             <span class="emp">Nhận: ${car.employeeIn}</span>
-                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN SỐ XE</button>
+                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN</button>
                         </div>
                         <div class="icon-out">CHO RA</div>
                     </div>`;
                 });
                 document.getElementById('listToday').innerHTML = htmlToday;
 
-                // Render Tab Qua Đêm (Đã thêm nút SỬA BIỂN)
                 let htmlNight = '';
                 if(listDataOvernight.length === 0) htmlNight = '<div style="text-align:center; color:#666; font-size:14px;">Bãi đã trống, không có xe tồn.</div>';
                 listDataOvernight.forEach((car, index) => {
@@ -397,15 +444,15 @@
                             <strong style="color:var(--danger);">${car.plate}</strong>
                             <span class="time">Vào: ${car.entryTime}</span>
                             <span class="emp">Nhận: ${car.employeeIn}</span>
-                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN SỐ XE</button>
+                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN</button>
                         </div>
                         <div class="icon-out">CHO RA</div>
                     </div>`;
                 });
                 document.getElementById('listOvernight').innerHTML = htmlNight;
                 isDataLoaded = true; 
-            } else { playSound('error'); alert(res.message); }
-        } catch (error) { playSound('error'); alert('Lỗi kết nối: ' + error.message); }
+            } else { showToast(res.message, 'error'); }
+        } catch (error) { showToast('Lỗi kết nối: ' + error.message, 'error'); }
         toggleLoading(false);
     }
 
