@@ -21,15 +21,14 @@
     </script>
 
     <style>
-        /* Đã thiết lập Box-sizing để triệt tiêu lỗi tràn viền */
         * { box-sizing: border-box; }
         :root {
-            --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --danger: #dc2626;
+            --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --danger: #dc2626; 
+            --warning: #f59e0b; /* Thêm màu cam cho nút sửa */
             --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
         }
         body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
         
-        /* Chỉnh Container full bề ngang trên điện thoại */
         .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 20px 15px; min-height: 100vh; }
         @media (min-width: 600px) {
             body { padding: 15px; }
@@ -38,7 +37,6 @@
 
         h1 { text-align: center; color: var(--text-main); font-size: 22px; margin-top: 0; margin-bottom: 20px;}
         
-        /* Chỉnh Tabs nhỏ lại, ép nằm gọn 1 hàng trên đt nhỏ */
         .tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 24px; gap: 2px;}
         .tab-btn { flex: 1; padding: 10px 2px; text-align: center; background: none; border: none; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap; letter-spacing: -0.3px;}
         .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -70,7 +68,6 @@
         .badge-danger { background: var(--danger); color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px;}
         .btn-refresh { background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-muted);}
         
-        /* Hiệu ứng Nút bấm cho thẻ Thống kê */
         .stat-item { display: flex; align-items: center; gap: 12px; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.1s; position: relative;}
         .stat-item:active { background: #f1f5f9; transform: scale(0.98); }
         .stat-item img { width: 75px; height: 55px; object-fit: cover; border-radius: 6px; }
@@ -79,6 +76,10 @@
         .stat-info .time { font-size: 12px; color: var(--text-muted); display: block;}
         .stat-info .emp { font-size: 12px; color: var(--success); display: block;}
         .icon-out { position: absolute; right: 10px; color: var(--danger); font-weight: bold; font-size: 12px; background: #fee2e2; padding: 4px 8px; border-radius: 10px;}
+        
+        /* CSS cho nút SỬA BIỂN */
+        .btn-edit { background-color: var(--warning); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .btn-edit:active { background-color: #d97706; }
     </style>
 </head>
 <body>
@@ -95,11 +96,10 @@
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
 
-    <!-- TAB 1: XE VÀO -->
     <div id="tab-vao" class="tab-content active">
         <div class="form-group">
             <label for="plateIn">Biển số xe vào</label>
-            <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ 55H12345">
+            <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ: 59X3-123.45">
         </div>
         <div class="form-group">
             <label for="cameraIn">Hình ảnh đối chiếu</label>
@@ -109,11 +109,10 @@
         <button class="action-btn btn-in" onclick="handleXeVao()">GHI NHẬN XE VÀO</button>
     </div>
 
-    <!-- TAB 2: XE RA -->
     <div id="tab-ra" class="tab-content">
         <div class="form-group">
             <label for="plateSearch">Tìm biển số xe ra</label>
-            <input type="text" id="plateSearch" inputmode="numeric" placeholder="Nhập biển số xe...">
+            <input type="text" id="plateSearch" inputmode="numeric" placeholder="Nhập số cuối...">
         </div>
         <button class="action-btn btn-search" onclick="handleSearch()">TÌM KIẾM DỮ LIỆU</button>
         
@@ -134,7 +133,6 @@
         </div>
     </div>
 
-    <!-- TAB 3: TRONG NGÀY -->
     <div id="tab-trong" class="tab-content">
         <div class="stats-header">
             <h3>Xe gửi hôm nay <span id="countToday" class="badge">0</span></h3>
@@ -145,7 +143,6 @@
         </div>
     </div>
 
-    <!-- TAB 4: QUA ĐÊM -->
     <div id="tab-dem" class="tab-content">
         <div class="stats-header">
             <h3>Xe gửi qua đêm <span id="countOvernight" class="badge-danger">0</span></h3>
@@ -189,12 +186,8 @@
     }
 
     let globalBase64Image = ""; let currentCarRowIndex = null; let currentMatches = []; let isDataLoaded = false;
-    
-    // Mảng lưu trữ dữ liệu để phục vụ tính năng "Bấm xuất bến nhanh"
-    let listDataToday = [];
-    let listDataOvernight = [];
+    let listDataToday = []; let listDataOvernight = [];
 
-    // HÀM CHUYỂN TAB (Đã tối ưu không reset form nếu gọi từ Xuất bến nhanh)
     function switchTab(tabId, preventReset = false) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -288,16 +281,13 @@
         setupCheckoutForm(car);
     }
 
-    // TÍNH NĂNG MỚI: BẤM LÀ XUẤT BẾN TỪ TAB THỐNG KÊ
     function quickCheckout(type, index) {
         const car = (type === 'today') ? listDataToday[index] : listDataOvernight[index];
         setupCheckoutForm(car);
-        // Chuyển sang Tab Xuất bến nhưng KHÔNG xóa form
         switchTab('tab-ra', true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Hàm dùng chung để đẩy dữ liệu vào form Xuất bến
     function setupCheckoutForm(car) {
         currentCarRowIndex = car.rowIndex; 
         document.getElementById('selectedPlate').innerText = car.plate;
@@ -332,6 +322,36 @@
         toggleLoading(false);
     }
 
+    // TÍNH NĂNG MỚI: HÀM SỬA BIỂN SỐ XE
+    async function editPlate(rowIndex, oldPlate) {
+        const newPlate = prompt(`Nhập biển số chính xác thay cho xe [ ${oldPlate} ]:`, oldPlate);
+        
+        // Nếu nhấn Cancel hoặc để trống hoặc số không đổi thì bỏ qua
+        if (newPlate === null || newPlate.trim() === "" || newPlate.trim().toUpperCase() === oldPlate) return;
+        
+        toggleLoading(true);
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST', headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: rowIndex, newPlate: newPlate, deviceId: myDeviceId })
+            });
+            const res = await response.json(); 
+            
+            if (res.status === 'success') { 
+                playSound('success'); 
+                alert('Đã cập nhật biển số mới!'); 
+                loadParkedCars(); // Cập nhật lại danh sách ngay lập tức
+            } else { 
+                playSound('error'); 
+                alert(res.message); 
+            }
+        } catch (error) { 
+            playSound('error'); 
+            alert('Lỗi kết nối: ' + error.message); 
+        }
+        toggleLoading(false);
+    }
+
     async function loadParkedCars() {
         toggleLoading(true);
         try {
@@ -348,7 +368,7 @@
                 listDataToday = res.todayCars;
                 listDataOvernight = res.overnightCars;
                 
-                // Render Tab Trong Ngày
+                // Render Tab Trong Ngày (Đã thêm nút SỬA BIỂN)
                 let htmlToday = '';
                 if(listDataToday.length === 0) htmlToday = '<div style="text-align:center; color:#666; font-size:14px;">Chưa có xe nào.</div>';
                 listDataToday.forEach((car, index) => {
@@ -359,13 +379,14 @@
                             <strong>${car.plate}</strong>
                             <span class="time">Vào: ${car.entryTime}</span>
                             <span class="emp">Nhận: ${car.employeeIn}</span>
+                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN</button>
                         </div>
-                        <div class="icon-out">TRẢ XE</div>
+                        <div class="icon-out">CHO RA</div>
                     </div>`;
                 });
                 document.getElementById('listToday').innerHTML = htmlToday;
 
-                // Render Tab Qua Đêm (Đã thêm ảnh)
+                // Render Tab Qua Đêm (Đã thêm nút SỬA BIỂN)
                 let htmlNight = '';
                 if(listDataOvernight.length === 0) htmlNight = '<div style="text-align:center; color:#666; font-size:14px;">Bãi đã trống, không có xe tồn.</div>';
                 listDataOvernight.forEach((car, index) => {
@@ -376,8 +397,9 @@
                             <strong style="color:var(--danger);">${car.plate}</strong>
                             <span class="time">Vào: ${car.entryTime}</span>
                             <span class="emp">Nhận: ${car.employeeIn}</span>
+                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN</button>
                         </div>
-                        <div class="icon-out">TRẢ XE</div>
+                        <div class="icon-out">CHO RA</div>
                     </div>`;
                 });
                 document.getElementById('listOvernight').innerHTML = htmlNight;
