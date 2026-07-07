@@ -24,11 +24,9 @@
 
         h1 { text-align: center; color: var(--text-main); font-size: 22px; margin-top: 0; margin-bottom: 20px;}
         
-        /* HÀNG ĐỢI ĐỒNG BỘ NỀN */
         .sync-badge { display: none; background-color: var(--warning); color: #fff; text-align: center; padding: 6px; font-size: 12px; font-weight: bold; border-radius: 20px; margin-bottom: 15px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* THÔNG BÁO TOAST KHÔNG CẦN BẤM OK */
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; visibility: hidden; transition: 0.3s; white-space: nowrap; }
         .toast.show { opacity: 1; visibility: visible; top: 30px; }
         .toast.success { background-color: var(--success); }
@@ -50,7 +48,7 @@
         button:disabled { opacity: 0.7; cursor: not-allowed; }
         
         .preview-box { margin-top: 12px; text-align: center; }
-        .preview-box img { max-width: 100%; max-height: 180px; border-radius: 8px; border: 1px solid var(--border); display: none; margin: 0 auto; }
+        .preview-box img { max-width: 100%; max-height: 140px; border-radius: 8px; border: 1px solid var(--border); display: none; margin: 0 auto; object-fit: cover;}
         .loading { display: none; text-align: center; font-weight: 600; color: var(--primary); margin: 15px 0; font-size: 14px;}
         
         .result-box { background: var(--bg); padding: 16px; border-radius: 8px; margin-top: 16px; display: none; border: 1px solid var(--border); }
@@ -98,20 +96,29 @@
     <div id="tab-vao" class="tab-content active">
         <div class="form-group">
             <label for="plateIn">Biển số xe vào</label>
-            <input type="text" id="plateIn" inputmode="numeric" placeholder="Nhập biển số xe">
+            <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ: 59X3-123.45">
         </div>
-        <div class="form-group">
-            <label for="cameraIn">Hình ảnh đối chiếu</label>
-            <input type="file" id="cameraIn" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewIn')">
+        
+        <div style="display:flex; gap:10px;">
+            <div class="form-group" style="flex:1;">
+                <label>Ảnh TRƯỚC xe</label>
+                <input type="file" id="cameraInFront" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewInFront', 'front')">
+                <div class="preview-box"><img id="previewInFront"></div>
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label>Ảnh SAU xe (Biển)</label>
+                <input type="file" id="cameraInBack" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewInBack', 'back')">
+                <div class="preview-box"><img id="previewInBack"></div>
+            </div>
         </div>
-        <div class="preview-box"><img id="previewIn" alt="Ảnh xe vào"></div>
+        
         <button class="action-btn btn-in" onclick="handleXeVao()">GHI NHẬN XE VÀO</button>
     </div>
 
     <div id="tab-ra" class="tab-content">
         <div class="form-group">
             <label for="plateSearch">Tìm biển số xe ra</label>
-            <input type="text" id="plateSearch" inputmode="numeric" placeholder="Nhập biển số xe...">
+            <input type="text" id="plateSearch" inputmode="numeric" placeholder="Nhập số cuối...">
         </div>
         <button class="action-btn btn-search" onclick="handleSearch()">TÌM KIẾM DỮ LIỆU</button>
         
@@ -121,11 +128,22 @@
             <h3 style="margin-top:0;">Xe xuất bến: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
             <p style="margin:5px 0; font-size:14px;"><strong>Giờ vào:</strong> <span id="resTime"></span></p>
             <p style="margin:5px 0; font-size:14px;"><strong>Người nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></p>
-            <div style="text-align:center; margin-top:10px;"><img id="resImg" src="" style="max-width:100%; max-height:150px; border-radius:6px;"></div>
+            
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <div style="flex:1; text-align:center;">
+                    <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh TRƯỚC</p>
+                    <img id="resImgFront" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover;">
+                </div>
+                <div style="flex:1; text-align:center;">
+                    <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh SAU</p>
+                    <img id="resImgBack" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover;">
+                </div>
+            </div>
+            
             <hr style="margin: 16px 0; border: 0; border-top: 1px solid var(--border);">
             <div class="form-group">
                 <label for="cameraOut">Chụp hình xe ra</label>
-                <input type="file" id="cameraOut" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewOut')">
+                <input type="file" id="cameraOut" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewOut', 'out')">
             </div>
             <div class="preview-box"><img id="previewOut" alt="Ảnh xe ra"></div>
             <button class="action-btn btn-out" onclick="handleXeRa()">XÁC NHẬN HOÀN THÀNH</button>
@@ -137,9 +155,7 @@
             <h3>Xe gửi hôm nay <span id="countToday" class="badge">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
         </div>
-        <div id="listToday" class="list-cars">
-            <div style="text-align:center; font-size:14px; color:#666;">Bấm 'Làm mới' để tải dữ liệu</div>
-        </div>
+        <div id="listToday" class="list-cars"></div>
     </div>
 
     <div id="tab-dem" class="tab-content">
@@ -147,9 +163,7 @@
             <h3>Xe gửi qua đêm <span id="countOvernight" class="badge-danger">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
         </div>
-        <div id="listOvernight" class="list-cars">
-            <div style="text-align:center; font-size:14px; color:#666;">Bấm 'Làm mới' để tải dữ liệu</div>
-        </div>
+        <div id="listOvernight" class="list-cars"></div>
     </div>
 
     <audio id="soundSuccess" src="success.mp3" preload="auto"></audio>
@@ -168,25 +182,17 @@
 
     function getDeviceId() {
         let deviceId = localStorage.getItem('parking_device_id');
-        if (!deviceId) {
-            deviceId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            localStorage.setItem('parking_device_id', deviceId);
-        }
+        if (!deviceId) { deviceId = Math.random().toString(36).substring(2, 8).toUpperCase(); localStorage.setItem('parking_device_id', deviceId); }
         return deviceId;
     }
     const myDeviceId = getDeviceId();
     document.getElementById('displayDeviceId').innerText = myDeviceId;
 
-    // HÀM HIỂN THỊ THÔNG BÁO TOAST KHÔNG CẦN BẤM OK
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
-        toast.innerText = message;
-        toast.className = 'toast show ' + type;
-        
-        if (type === 'success') playSound('success');
-        else playSound('error');
-
-        setTimeout(() => { toast.classList.remove('show'); }, 2500); // Tự động ẩn sau 2.5s
+        toast.innerText = message; toast.className = 'toast show ' + type;
+        if (type === 'success') playSound('success'); else playSound('error');
+        setTimeout(() => { toast.classList.remove('show'); }, 2500); 
     }
 
     function playSound(type) {
@@ -196,22 +202,18 @@
         } catch (err) {}
     }
 
-    let globalBase64Image = ""; let currentCarRowIndex = null; let currentMatches = []; let isDataLoaded = false;
+    // Biến lưu trữ ảnh (hỗ trợ 3 ảnh)
+    let capturedImages = { front: "", back: "", out: "" };
+    
+    let currentCarRowIndex = null; let currentMatches = []; let isDataLoaded = false;
     let listDataToday = []; let listDataOvernight = [];
     
-    // BIẾN QUẢN LÝ HÀNG ĐỢI NGẦM (BACKGROUND SYNC)
-    let syncQueue = [];
-    let isSyncing = false;
+    let syncQueue = []; let isSyncing = false;
 
-    // ==========================================
-    // CẢNH BÁO KHI THOÁT TRANG MÀ CHƯA ĐỒNG BỘ XONG
-    // ==========================================
     window.addEventListener('beforeunload', function (e) {
         if (syncQueue.length > 0) {
-            // Hủy lệnh thoát ngay lập tức
             e.preventDefault(); 
-            // Hiển thị cảnh báo chặn người dùng (Các trình duyệt hiện đại sẽ hiện câu cảnh báo mặc định của hệ thống)
-            e.returnValue = 'Dữ liệu xe đang được đồng bộ lên hệ thống. Nếu thoát bây giờ, các xe chưa lưu sẽ bị mất. Bạn có chắc muốn thoát?';
+            e.returnValue = 'Dữ liệu xe đang được đồng bộ lên hệ thống. Thoát bây giờ sẽ mất dữ liệu.';
         }
     });
 
@@ -220,12 +222,12 @@
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         document.getElementById('btn-' + tabId).classList.add('active');
-        
         if ((tabId === 'tab-trong' || tabId === 'tab-dem') && !isDataLoaded) loadParkedCars();
         if ((tabId === 'tab-vao' || tabId === 'tab-ra') && !preventReset) resetForm();
     }
 
-    function previewAndCompress(input, previewId) {
+    // Nén ảnh và gán vào biến key tương ứng
+    function previewAndCompress(input, previewId, key) {
         const file = input.files[0]; const preview = document.getElementById(previewId);
         if (!file) return;
         const reader = new FileReader();
@@ -238,85 +240,61 @@
                 else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                 canvas.width = width; canvas.height = height;
                 const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                globalBase64Image = canvas.toDataURL('image/jpeg', 0.7);
-                preview.src = globalBase64Image; preview.style.display = 'block';
+                
+                capturedImages[key] = canvas.toDataURL('image/jpeg', 0.7);
+                preview.src = capturedImages[key]; preview.style.display = 'block';
             }
             img.src = e.target.result;
         }
         reader.readAsDataURL(file);
     }
 
-    // CẬP NHẬT GIAO DIỆN HÀNG ĐỢI
     function updateSyncBadge() {
         const badge = document.getElementById('syncBadge');
-        if (syncQueue.length > 0) {
-            badge.style.display = 'block';
-            badge.innerText = `Đang tải ${syncQueue.length} xe lên hệ thống...`;
-        } else {
-            badge.style.display = 'none';
-        }
+        if (syncQueue.length > 0) { badge.style.display = 'block'; badge.innerText = `Đang tải ${syncQueue.length} xe lên hệ thống...`; } 
+        else { badge.style.display = 'none'; }
     }
 
-    // THUẬT TOÁN ĐỒNG BỘ NGẦM (CHẠY ẨN SAU LƯNG NGƯỜI DÙNG)
     async function processQueue() {
         if (isSyncing || syncQueue.length === 0) return;
-        isSyncing = true;
-        updateSyncBadge();
-
+        isSyncing = true; updateSyncBadge();
         const currentTask = syncQueue[0];
         try {
             const response = await fetch(WEB_APP_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(currentTask)
+                method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(currentTask)
             });
             const res = await response.json(); 
-            
-            if (res.status === 'success') { 
-                syncQueue.shift(); // Xóa khỏi hàng đợi khi thành công
-                isDataLoaded = false; // Đánh dấu để cập nhật lại bảng thống kê
-            } else { 
-                syncQueue.shift(); // Vẫn xóa để không kẹt xe khác
-                showToast('Lỗi tải lên: ' + res.message, 'error'); 
-            }
+            if (res.status === 'success') { syncQueue.shift(); isDataLoaded = false; } 
+            else { syncQueue.shift(); showToast('Lỗi tải lên: ' + res.message, 'error'); }
         } catch (error) { 
-            // Nếu rớt mạng, giữ nguyên xe trong hàng đợi và chờ 3 giây thử lại
             showToast('Mất mạng! Tự động thử lại...', 'error'); 
             await new Promise(resolve => setTimeout(resolve, 3000));
         }
-        
-        isSyncing = false;
-        updateSyncBadge();
-        processQueue(); // Tiếp tục xử lý xe tiếp theo
+        isSyncing = false; updateSyncBadge(); processQueue(); 
     }
 
-    // XE VÀO: ĐƯA VÀO HÀNG ĐỢI VÀ XÓA FORM NGAY LẬP TỨC
     function handleXeVao() {
         const plate = document.getElementById('plateIn').value.trim();
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
-        if (!globalBase64Image) return showToast('Vui lòng chụp hình!', 'error');
+        if (!capturedImages.front || !capturedImages.back) return showToast('Vui lòng chụp đủ 2 ảnh Trước và Sau xe!', 'error');
 
-        // Đẩy vào hàng đợi ngầm
-        syncQueue.push({ action: 'IN', licensePlate: plate, image: globalBase64Image, deviceId: myDeviceId });
+        // Gửi 2 biến ảnh imageFront và imageBack
+        syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
         
         showToast('Đã lưu! Hãy nhập xe tiếp theo', 'success');
-        resetForm(); // Reset form trong nháy mắt để chụp xe mới
-        processQueue(); // Kích hoạt bộ xử lý ngầm
+        resetForm(); processQueue(); 
     }
 
-    // XE RA: CŨNG DÙNG HÀNG ĐỢI ĐỂ XÓA FORM NHANH
     function handleXeRa() {
         const plate = document.getElementById('selectedPlate').innerText;
-        if (!globalBase64Image) return showToast('Vui lòng chụp hình!', 'error');
+        if (!capturedImages.out) return showToast('Vui lòng chụp hình lúc ra!', 'error');
         if (!currentCarRowIndex) return;
 
-        syncQueue.push({ action: 'OUT', licensePlate: plate, image: globalBase64Image, rowIndex: currentCarRowIndex, deviceId: myDeviceId });
-        
+        syncQueue.push({ action: 'OUT', licensePlate: plate, image: capturedImages.out, rowIndex: currentCarRowIndex, deviceId: myDeviceId });
         showToast('Cho xe ra thành công!', 'success');
-        resetForm();
-        processQueue();
+        resetForm(); processQueue();
     }
 
-    // TÌM KIẾM XE (Cái này bắt buộc phải đợi để lấy kết quả)
     async function handleSearch() {
         const plate = document.getElementById('plateSearch').value.trim();
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
@@ -367,17 +345,26 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // Hiển thị cả 2 hình lúc lấy xe ra
     function setupCheckoutForm(car) {
         currentCarRowIndex = car.rowIndex; 
         document.getElementById('selectedPlate').innerText = car.plate;
         document.getElementById('resTime').innerText = car.entryTime;
         document.getElementById('resEmp').innerText = car.employeeIn; 
-        document.getElementById('resImg').src = car.entryImg;
+        
+        document.getElementById('resImgFront').src = car.entryImg;
+        // Nếu xe cũ không có hình sau, hệ thống sẽ ẩn khung hình sau đi để tránh bị xấu
+        if (car.entryImgBack) {
+            document.getElementById('resImgBack').src = car.entryImgBack;
+            document.getElementById('resImgBack').style.display = 'inline-block';
+        } else {
+            document.getElementById('resImgBack').style.display = 'none';
+        }
         
         document.getElementById('listResults').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'block';
         
-        globalBase64Image = ""; 
+        capturedImages.out = ""; 
         document.getElementById('cameraOut').value = ""; 
         document.getElementById('previewOut').style.display = 'none'; 
     }
@@ -393,10 +380,8 @@
                 body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: rowIndex, newPlate: newPlate, deviceId: myDeviceId })
             });
             const res = await response.json(); 
-            if (res.status === 'success') { 
-                showToast('Đã cập nhật biển số mới!', 'success'); 
-                loadParkedCars(); 
-            } else { showToast(res.message, 'error'); }
+            if (res.status === 'success') { showToast('Đã cập nhật biển số mới!', 'success'); loadParkedCars(); } 
+            else { showToast(res.message, 'error'); }
         } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
         toggleLoading(false);
     }
@@ -413,9 +398,7 @@
             if (res.status === 'success') {
                 document.getElementById('countToday').innerText = res.todayCars.length;
                 document.getElementById('countOvernight').innerText = res.overnightCars.length;
-                
-                listDataToday = res.todayCars;
-                listDataOvernight = res.overnightCars;
+                listDataToday = res.todayCars; listDataOvernight = res.overnightCars;
                 
                 let htmlToday = '';
                 if(listDataToday.length === 0) htmlToday = '<div style="text-align:center; color:#666; font-size:14px;">Chưa có xe nào.</div>';
@@ -458,10 +441,13 @@
 
     function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'block' : 'none'; document.querySelectorAll('button').forEach(btn => btn.disabled = show); }
     function resetForm() { 
-        document.getElementById('plateIn').value = ""; document.getElementById('cameraIn').value = ""; document.getElementById('previewIn').style.display = 'none'; 
-        document.getElementById('plateSearch').value = ""; document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
+        document.getElementById('plateIn').value = ""; 
+        document.getElementById('cameraInFront').value = ""; document.getElementById('previewInFront').style.display = 'none'; 
+        document.getElementById('cameraInBack').value = ""; document.getElementById('previewInBack').style.display = 'none'; 
+        document.getElementById('plateSearch').value = ""; 
+        document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'none'; document.getElementById('listResults').style.display = 'none'; 
-        globalBase64Image = ""; currentCarRowIndex = null; currentMatches = []; 
+        capturedImages = { front: "", back: "", out: "" }; currentCarRowIndex = null; currentMatches = []; 
     }
 </script>
 </body>
