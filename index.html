@@ -7,7 +7,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link class="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Bãi Xe">
@@ -44,9 +44,6 @@
         input[type="text"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; text-transform: uppercase; background: var(--bg); outline: none; transition: 0.2s; }
         input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         
-        /* ---------------------------------------------------
-           TÙY CHỈNH NÚT CAMERA 
-           --------------------------------------------------- */
         .file-input-hidden { display: none !important; }
         .camera-btn { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; background-color: #eff6ff; border: 2px dashed #93c5fd; color: var(--primary); padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; transition: 0.2s; margin-bottom: 5px; }
         .camera-btn:active { background-color: #dbeafe; border-color: var(--primary); }
@@ -72,9 +69,6 @@
         .stat-item { display: flex; align-items: center; gap: 12px; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.1s; position: relative;}
         .stat-item:active { background: #f1f5f9; transform: scale(0.98); }
         
-        .img-group { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
-        .img-group img { width: 75px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: zoom-in; }
-        
         .stat-info { flex: 1; text-align: left;}
         .stat-info strong { display: block; font-size: 15px; color: var(--primary); margin-bottom: 2px;}
         .stat-info .time { font-size: 12px; color: var(--text-muted); display: block;}
@@ -89,6 +83,37 @@
         .modal-zoom { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
         .modal-zoom img { max-width: 95%; max-height: 95%; border-radius: 8px; object-fit: contain; }
         .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; line-height: 1; padding: 10px;}
+
+        /* ---------------------------------------------------
+           TÙY CHỈNH KHUNG VUỐT ẢNH 
+           --------------------------------------------------- */
+        .img-swipe-container {
+            position: relative;
+            width: 75px; 
+            height: 50px;
+            flex-shrink: 0;
+            touch-action: pan-y; /* Cho phép cuộn dọc trang, bắt sự kiện vuốt ngang */
+        }
+        .img-swipe-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            cursor: zoom-in;
+        }
+        .swipe-hint {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            pointer-events: none;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -157,15 +182,12 @@
             <p style="margin:5px 0; font-size:14px;"><strong>Giờ vào:</strong> <span id="resTime"></span></p>
             <p style="margin:5px 0; font-size:14px;"><strong>Người nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></p>
             
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <div style="flex:1; text-align:center;">
-                    <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh TRƯỚC</p>
-                    <img id="resImgFront" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;" onclick="openModal(this.src)">
-                </div>
-                <div style="flex:1; text-align:center;">
-                    <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh SAU</p>
-                    <img id="resImgBack" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;" onclick="openModal(this.src)">
-                </div>
+            <!-- KHUNG VUỐT ẢNH CHI TIẾT -->
+            <div id="resSwipeContainer" style="text-align:center; position:relative; margin-top:10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff;"
+                 ontouchstart="handleSwipeStart(event)" 
+                 ontouchend="handleSwipeEnd(event, this, document.getElementById('resImgDisplay').dataset.front, document.getElementById('resImgDisplay').dataset.back)">
+                <p class="swipe-label" style="margin:0 0 8px; font-size:13px; font-weight:bold; color: var(--primary);">Ảnh TRƯỚC (Vuốt ngang để xem ảnh SAU)</p>
+                <img id="resImgDisplay" data-is-front="true" data-front="" data-back="" src="" style="width:100%; max-height:160px; border-radius:6px; object-fit:cover; cursor:zoom-in;" onclick="openModal(this.src)">
             </div>
             
             <hr style="margin: 16px 0; border: 0; border-top: 1px solid var(--border);">
@@ -349,26 +371,59 @@
         toggleLoading(false);
     }
 
+    // --- BIẾN VÀ HÀM XỬ LÝ VUỐT ẢNH ---
+    let swipeStartX = 0;
+
+    function handleSwipeStart(e) {
+        swipeStartX = e.touches[0].clientX;
+    }
+
+    function handleSwipeEnd(e, container, frontSrc, backSrc) {
+        if (!backSrc || backSrc === 'undefined' || backSrc === 'null' || backSrc === '') return;
+        
+        let swipeEndX = e.changedTouches[0].clientX;
+        let diffX = swipeStartX - swipeEndX;
+
+        if (Math.abs(diffX) > 40) {
+            let imgEl = container.querySelector('img');
+            let labelEl = container.querySelector('.swipe-label');
+            let isFront = imgEl.getAttribute('data-is-front') !== 'false';
+
+            if (isFront) {
+                imgEl.src = backSrc;
+                imgEl.setAttribute('data-is-front', 'false');
+                if (labelEl) labelEl.innerText = "Ảnh SAU (Vuốt để xem TRƯỚC)";
+            } else {
+                imgEl.src = frontSrc;
+                imgEl.setAttribute('data-is-front', 'true');
+                if (labelEl) labelEl.innerText = "Ảnh TRƯỚC (Vuốt để xem SAU)";
+            }
+        }
+    }
+
     function renderSearchList() {
         const listDiv = document.getElementById('listResults'); listDiv.innerHTML = ''; 
         if (currentMatches.length === 1) { selectCarFromSearch(0); } 
         else {
             let html = `<div style="font-weight:600; color:var(--primary); text-align:center;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
             currentMatches.forEach((car, index) => {
-                // Sự kiện onclick mở ảnh (Dùng event.stopPropagation để ngăn việc bấm vào ảnh bị chuyển sang form xuất bến)
-                let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" onclick="openModal('${car.entryImgBack}'); event.stopPropagation();">` : '';
+                let imgBackParam = car.entryImgBack ? car.entryImgBack : '';
+                let swipeHint = car.entryImgBack ? `<div class="swipe-hint">↔ Vuốt</div>` : '';
+                
                 html += `
                 <div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
-                    <div class="img-group">
-                        <img src="${car.entryImg}" alt="Trước" onclick="openModal('${car.entryImg}'); event.stopPropagation();">
-                        ${imgBackHtml}
+                    <div class="img-swipe-container" 
+                         ontouchstart="handleSwipeStart(event)" 
+                         ontouchend="handleSwipeEnd(event, this, '${car.entryImg}', '${imgBackParam}')">
+                        <img src="${car.entryImg}" data-is-front="true" alt="Trước" onclick="openModal(this.src); event.stopPropagation();">
+                        ${swipeHint}
                     </div>
                     <div class="stat-info">
                         <strong style="color:var(--danger); font-size:18px;">${car.plate}</strong>
                         <span class="time">Vào: ${car.entryTime}</span>
                         <span class="emp">Nhận: ${car.employeeIn}</span>
                     </div>
-                    <button class="btn-select" style="width: auto;">CHỌN XE NÀY</button>
+                    <div class="icon-out">CHO RA</div>
                 </div>`;
             });
             listDiv.innerHTML = html; listDiv.style.display = 'flex';
@@ -393,12 +448,17 @@
         document.getElementById('resTime').innerText = car.entryTime;
         document.getElementById('resEmp').innerText = car.employeeIn; 
         
-        document.getElementById('resImgFront').src = car.entryImg;
+        let resImg = document.getElementById('resImgDisplay');
+        resImg.src = car.entryImg;
+        resImg.setAttribute('data-is-front', 'true');
+        resImg.dataset.front = car.entryImg;
+        resImg.dataset.back = car.entryImgBack || '';
+        
+        let label = document.querySelector('#resSwipeContainer .swipe-label');
         if (car.entryImgBack) {
-            document.getElementById('resImgBack').src = car.entryImgBack;
-            document.getElementById('resImgBack').style.display = 'inline-block';
+            label.innerText = "Ảnh TRƯỚC (Vuốt ngang để xem ảnh SAU)";
         } else {
-            document.getElementById('resImgBack').style.display = 'none';
+            label.innerText = "Ảnh TRƯỚC";
         }
         
         document.getElementById('listResults').style.display = 'none'; 
@@ -443,12 +503,16 @@
                 let htmlToday = '';
                 if(listDataToday.length === 0) htmlToday = '<div style="text-align:center; color:#666; font-size:14px;">Chưa có xe nào.</div>';
                 listDataToday.forEach((car, index) => {
-                    let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal('${car.entryImgBack}'); event.stopPropagation();">` : '';
+                    let imgBackParam = car.entryImgBack ? car.entryImgBack : '';
+                    let swipeHint = car.entryImgBack ? `<div class="swipe-hint">↔ Vuốt</div>` : '';
+                    
                     htmlToday += `
                     <div class="stat-item" onclick="quickCheckout('today', ${index})">
-                        <div class="img-group">
-                            <img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal('${car.entryImg}'); event.stopPropagation();">
-                            ${imgBackHtml}
+                        <div class="img-swipe-container" 
+                             ontouchstart="handleSwipeStart(event)" 
+                             ontouchend="handleSwipeEnd(event, this, '${car.entryImg}', '${imgBackParam}')">
+                            <img src="${car.entryImg}" data-is-front="true" alt="Trước" loading="lazy" onclick="openModal(this.src); event.stopPropagation();">
+                            ${swipeHint}
                         </div>
                         <div class="stat-info">
                             <strong>${car.plate}</strong>
@@ -464,12 +528,16 @@
                 let htmlNight = '';
                 if(listDataOvernight.length === 0) htmlNight = '<div style="text-align:center; color:#666; font-size:14px;">Bãi đã trống, không có xe tồn.</div>';
                 listDataOvernight.forEach((car, index) => {
-                    let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal('${car.entryImgBack}'); event.stopPropagation();">` : '';
+                    let imgBackParam = car.entryImgBack ? car.entryImgBack : '';
+                    let swipeHint = car.entryImgBack ? `<div class="swipe-hint">↔ Vuốt</div>` : '';
+                    
                     htmlNight += `
                     <div class="stat-item" onclick="quickCheckout('night', ${index})">
-                        <div class="img-group">
-                            <img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal('${car.entryImg}'); event.stopPropagation();">
-                            ${imgBackHtml}
+                        <div class="img-swipe-container" 
+                             ontouchstart="handleSwipeStart(event)" 
+                             ontouchend="handleSwipeEnd(event, this, '${car.entryImg}', '${imgBackParam}')">
+                            <img src="${car.entryImg}" data-is-front="true" alt="Trước" loading="lazy" onclick="openModal(this.src); event.stopPropagation();">
+                            ${swipeHint}
                         </div>
                         <div class="stat-info">
                             <strong style="color:var(--danger);">${car.plate}</strong>
