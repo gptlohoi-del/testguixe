@@ -116,7 +116,12 @@
     <div id="tab-vao" class="tab-content active">
         <div class="form-group">
             <label for="plateIn">Biển số xe vào</label>
-            <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ: 59X3-123.45">
+            <!-- Thêm thẻ div bọc ngoài với display: flex để dàn hàng ngang -->
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ: 59X3-123.45" style="flex: 1;">
+                <!-- Đưa nút GHI NHẬN lên đây, điều chỉnh lại margin và padding -->
+                <button class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 16px; font-size: 14px;">GHI NHẬN VÀO</button>
+            </div>
         </div>
         
         <div style="display:flex; gap:10px;">
@@ -138,10 +143,8 @@
                 <div class="preview-box"><img id="previewInBack" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
             </div>
         </div>
-        
-        <button class="action-btn btn-in" onclick="handleXeVao()">GHI NHẬN XE VÀO</button>
+        <!-- Đã xóa nút "GHI NHẬN XE VÀO" cũ ở dưới cùng -->
     </div>
-
     <div id="tab-ra" class="tab-content">
         <div class="form-group">
             <label for="plateSearch">Tìm biển số xe ra</label>
