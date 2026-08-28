@@ -63,7 +63,7 @@
         .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);}
         .stats-header h3 { margin: 0; font-size: 16px; color: var(--text-main); }
         .badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px;}
-        .badge-danger { background: var(--danger); color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px;}
+        .badge-success { background: var(--success); color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px;}
         .btn-refresh { background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-muted);}
         
         .stat-item { display: flex; align-items: center; gap: 12px; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.1s; position: relative;}
@@ -77,6 +77,7 @@
         .stat-info .time { font-size: 12px; color: var(--text-muted); display: block;}
         .stat-info .emp { font-size: 12px; color: var(--success); display: block;}
         .icon-out { position: absolute; right: 10px; top: 10px; color: var(--danger); font-weight: bold; font-size: 11px; background: #fee2e2; padding: 4px 8px; border-radius: 10px;}
+        .icon-done { position: absolute; right: 10px; top: 10px; color: var(--success); font-weight: bold; font-size: 11px; background: #dcfce7; padding: 4px 8px; border-radius: 10px;}
         
         .btn-edit { background-color: var(--warning); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
@@ -107,8 +108,8 @@
     <!-- TABS -->
     <div class="tabs">
         <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
-        <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG NGÀY</button>
-        <button id="btn-tab-dem" class="tab-btn" onclick="switchTab('tab-dem')">QUA ĐÊM</button>
+        <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG BÃI</button>
+        <button id="btn-tab-tra" class="tab-btn" onclick="switchTab('tab-tra')">ĐÃ TRẢ</button>
     </div>
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
@@ -144,7 +145,7 @@
         </div>
     </div>
 
-    <!-- TAB 2: TRONG NGÀY (Gộp Tìm Kiếm & Chụp Ảnh Ra) -->
+    <!-- TAB 2: TRONG BÃI (Gộp Tìm Kiếm & Chụp Ảnh Ra) -->
     <div id="tab-trong" class="tab-content">
         <!-- KHU VỰC TÌM KIẾM BIỂN SỐ XE CHO RA -->
         <div class="search-container">
@@ -186,19 +187,19 @@
         </div>
 
         <div class="stats-header">
-            <h3>Xe gửi hôm nay <span id="countToday" class="badge">0</span></h3>
+            <h3>Xe trong bãi <span id="countParked" class="badge">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
         </div>
-        <div id="listToday" class="list-cars"></div>
+        <div id="listParked" class="list-cars"></div>
     </div>
 
-    <!-- TAB 3: QUA ĐÊM -->
-    <div id="tab-dem" class="tab-content">
+    <!-- TAB 3: ĐÃ TRẢ -->
+    <div id="tab-tra" class="tab-content">
         <div class="stats-header">
-            <h3>Xe gửi qua đêm <span id="countOvernight" class="badge-danger">0</span></h3>
+            <h3>Xe đã xuất bến <span id="countReturned" class="badge-success">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
         </div>
-        <div id="listOvernight" class="list-cars"></div>
+        <div id="listReturned" class="list-cars"></div>
     </div>
 
     <audio id="soundSuccess" src="success.mp3" preload="auto"></audio>
@@ -223,102 +224,81 @@
     const myDeviceId = getDeviceId();
     document.getElementById('displayDeviceId').innerText = myDeviceId;
 
-    let modalFrontSrc = "";
-    let modalBackSrc = "";
-    let isModalShowingFront = true;
-    let modalSwipeStartX = 0;
-    let modalSwipeStartY = 0;
+    let modalFrontSrc = ""; let modalBackSrc = ""; let isModalShowingFront = true;
+    let modalSwipeStartX = 0; let modalSwipeStartY = 0;
 
-    function openModal(currentSrc, frontSrc, backSrc) {
-        if (!currentSrc) return;
-        modalFrontSrc = frontSrc || currentSrc;
-        modalBackSrc = backSrc || "";
-        isModalShowingFront = (currentSrc === modalFrontSrc);
-
-        const modalImg = document.getElementById('modalImage');
-        modalImg.src = currentSrc;
-        
-        const hint = document.getElementById('modalHint');
-        if (modalBackSrc && modalBackSrc !== 'undefined' && modalBackSrc !== 'null' && modalBackSrc !== '') {
-            hint.style.display = 'block';
-        } else {
-            hint.style.display = 'none';
-        }
-
-        document.getElementById('imageModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('imageModal').style.display = 'none';
-    }
-
-    function handleModalSwipeStart(e) {
-        modalSwipeStartX = e.touches[0].clientX;
-        modalSwipeStartY = e.touches[0].clientY;
-    }
-
-    function handleModalSwipeEnd(e) {
-        let modalSwipeEndX = e.changedTouches[0].clientX;
-        let modalSwipeEndY = e.changedTouches[0].clientY;
-        let diffX = modalSwipeStartX - modalSwipeEndX;
-        let diffY = modalSwipeStartY - modalSwipeEndY;
-
-        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
-            if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) {
-                closeModal();
-            }
-            return;
-        }
-
-        if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
-            if (!modalBackSrc || modalBackSrc === 'undefined' || modalBackSrc === 'null' || modalBackSrc === '') return;
-            
-            const modalImg = document.getElementById('modalImage');
-            if (isModalShowingFront) {
-                modalImg.src = modalBackSrc;
-                isModalShowingFront = false;
-            } else {
-                modalImg.src = modalFrontSrc;
-                isModalShowingFront = true;
-            }
-        }
-    }
-
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('toast');
-        toast.innerText = message; toast.className = 'toast show ' + type;
-        if (type === 'success') playSound('success'); else playSound('error');
-        setTimeout(() => { toast.classList.remove('show'); }, 2500); 
-    }
-
-    function playSound(type) {
-        try {
-            if (type === 'success') { const s = document.getElementById('soundSuccess'); s.currentTime = 0; s.play(); } 
-            else { const e = document.getElementById('soundError'); e.currentTime = 0; e.play(); }
-        } catch (err) {}
-    }
-
+    // Khởi tạo dữ liệu từ bộ nhớ máy
+    let listDataParked = JSON.parse(localStorage.getItem('saved_cars_parked')) || [];
+    let listDataReturned = JSON.parse(localStorage.getItem('saved_cars_returned')) || [];
+    
+    let isDataLoaded = false;
     let capturedImages = { front: "", back: "", out: "" };
-    let currentCarRowIndex = null; let currentMatches = []; let isDataLoaded = false;
-    let listDataToday = []; let listDataOvernight = [];
+    let currentCarRowIndex = null; let currentMatches = [];
     let syncQueue = []; let isSyncing = false;
 
-    window.addEventListener('beforeunload', function (e) {
-        if (syncQueue.length > 0) {
-            e.preventDefault(); 
-            e.returnValue = 'Dữ liệu xe đang được đồng bộ lên hệ thống. Thoát bây giờ sẽ mất dữ liệu.';
+    // Chạy khi trang web vừa tải xong
+    window.onload = function() {
+        const savedTab = localStorage.getItem('saved_active_tab') || 'tab-vao';
+        
+        if (listDataParked.length > 0 || listDataReturned.length > 0) {
+            renderParkedCarsData();
+            renderReturnedCarsData();
+            isDataLoaded = true;
         }
-    });
+        
+        switchTab(savedTab, true);
+    };
 
     function switchTab(tabId, preventReset = false) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         document.getElementById('btn-' + tabId).classList.add('active');
-        if ((tabId === 'tab-trong' || tabId === 'tab-dem') && !isDataLoaded) loadParkedCars();
-        // Reset form khi qua tab-vao hoac tab-trong (để xóa ô tìm kiếm & form)
+        
+        localStorage.setItem('saved_active_tab', tabId); 
+
+        if ((tabId === 'tab-trong' || tabId === 'tab-tra') && !isDataLoaded) loadParkedCars();
         if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
+
+    function openModal(currentSrc, frontSrc, backSrc) {
+        if (!currentSrc) return;
+        modalFrontSrc = frontSrc || currentSrc; modalBackSrc = backSrc || "";
+        isModalShowingFront = (currentSrc === modalFrontSrc);
+        document.getElementById('modalImage').src = currentSrc;
+        const hint = document.getElementById('modalHint');
+        hint.style.display = (modalBackSrc && modalBackSrc !== 'undefined' && modalBackSrc !== 'null' && modalBackSrc !== '') ? 'block' : 'none';
+        document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('imageModal').style.display = 'none'; }
+
+    function handleModalSwipeStart(e) { modalSwipeStartX = e.touches[0].clientX; modalSwipeStartY = e.touches[0].clientY; }
+    function handleModalSwipeEnd(e) {
+        let diffX = modalSwipeStartX - e.changedTouches[0].clientX;
+        let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
+            if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal();
+            return;
+        }
+        if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
+            if (!modalBackSrc || modalBackSrc === 'undefined' || modalBackSrc === 'null' || modalBackSrc === '') return;
+            const modalImg = document.getElementById('modalImage');
+            if (isModalShowingFront) { modalImg.src = modalBackSrc; isModalShowingFront = false; } 
+            else { modalImg.src = modalFrontSrc; isModalShowingFront = true; }
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.innerText = message; toast.className = 'toast show ' + type;
+        try { document.getElementById(type === 'success' ? 'soundSuccess' : 'soundError').play(); } catch (err) {}
+        setTimeout(() => { toast.classList.remove('show'); }, 2500); 
+    }
+
+    window.addEventListener('beforeunload', function (e) {
+        if (syncQueue.length > 0) { e.preventDefault(); e.returnValue = 'Đang đồng bộ dữ liệu...'; }
+    });
 
     function previewAndCompress(input, previewId, key) {
         const file = input.files[0]; const preview = document.getElementById(previewId);
@@ -333,7 +313,6 @@
                 else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                 canvas.width = width; canvas.height = height;
                 const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                
                 capturedImages[key] = canvas.toDataURL('image/jpeg', 0.7);
                 preview.src = capturedImages[key]; preview.style.display = 'block';
             }
@@ -353,9 +332,7 @@
         isSyncing = true; updateSyncBadge();
         const currentTask = syncQueue[0];
         try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(currentTask)
-            });
+            const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(currentTask) });
             const res = await response.json(); 
             if (res.status === 'success') { syncQueue.shift(); isDataLoaded = false; } 
             else { syncQueue.shift(); showToast('Lỗi tải lên: ' + res.message, 'error'); }
@@ -370,7 +347,6 @@
         const plate = document.getElementById('plateIn').value.trim();
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
         if (!capturedImages.front || !capturedImages.back) return showToast('Vui lòng chụp đủ 2 ảnh Trước và Sau xe!', 'error');
-
         syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
         showToast('Đã lưu! Hãy nhập xe tiếp theo', 'success');
         resetForm(); processQueue(); 
@@ -380,39 +356,23 @@
         const plate = document.getElementById('selectedPlate').innerText;
         if (!capturedImages.out) return showToast('Vui lòng chụp hình lúc ra!', 'error');
         if (!currentCarRowIndex) return;
-
         syncQueue.push({ action: 'OUT', licensePlate: plate, image: capturedImages.out, rowIndex: currentCarRowIndex, deviceId: myDeviceId });
         showToast('Cho xe ra thành công!', 'success');
         resetForm(); processQueue();
     }
 
-    // --- TÌM KIẾM CỤC BỘ (LIVE SEARCH TRỰC TIẾP TRÊN MÁY) ---
     function handleSearch() {
         const plate = document.getElementById('plateSearch').value.trim().toUpperCase();
-        
-        const listDiv = document.getElementById('listResults');
-        const searchResultDiv = document.getElementById('searchResult');
-
-        // Nếu ô tìm kiếm trống, tự động ẩn kết quả
-        if (!plate) {
-            listDiv.style.display = 'none';
-            searchResultDiv.style.display = 'none';
-            return;
-        }
-
-        // Ẩn bảng chi tiết xe ra (nếu đang mở) để nhường chỗ cho danh sách tìm kiếm
+        const listDiv = document.getElementById('listResults'); const searchResultDiv = document.getElementById('searchResult');
+        if (!plate) { listDiv.style.display = 'none'; searchResultDiv.style.display = 'none'; return; }
         searchResultDiv.style.display = 'none';
         
-        // Gộp chung danh sách xe gửi hôm nay và qua đêm
-        const allParkedCars = [...listDataToday, ...listDataOvernight];
-        
-        // Lọc dữ liệu trực tiếp bằng JavaScript
-        currentMatches = allParkedCars.filter(car => car.plate.toUpperCase().includes(plate));
+        // Tìm kiếm tập trung vào các xe TRONG BÃI
+        currentMatches = listDataParked.filter(car => car.plate.toUpperCase().includes(plate));
 
-        if (currentMatches.length > 0) {
-            renderSearchList();
-        } else {
-            listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:14px; padding: 10px 0;">Không có xe nào khớp với số này...</div>';
+        if (currentMatches.length > 0) { renderSearchList(); } 
+        else {
+            listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:14px; padding: 10px 0;">Không có xe nào khớp...</div>';
             listDiv.style.display = 'block';
         }
     }
@@ -426,15 +386,8 @@
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
                 html += `
                 <div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
-                    <div class="img-group">
-                        <img src="${car.entryImg}" alt="Trước" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
-                        ${imgBackHtml}
-                    </div>
-                    <div class="stat-info">
-                        <strong style="color:var(--danger); font-size:18px;">${car.plate}</strong>
-                        <span class="time">Vào: ${car.entryTime}</span>
-                        <span class="emp">Nhận: ${car.employeeIn}</span>
-                    </div>
+                    <div class="img-group"><img src="${car.entryImg}" alt="Trước" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
+                    <div class="stat-info"><strong style="color:var(--danger); font-size:18px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
                     <div class="icon-out">CHO RA</div>
                 </div>`;
             });
@@ -442,16 +395,15 @@
         }
     }
 
-    function selectCarFromSearch(index) {
-        const car = currentMatches[index]; 
-        setupCheckoutForm(car);
-    }
-
-    function quickCheckout(type, index) {
-        const car = (type === 'today') ? listDataToday[index] : listDataOvernight[index];
-        setupCheckoutForm(car);
-        switchTab('tab-trong', true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    function selectCarFromSearch(index) { setupCheckoutForm(currentMatches[index]); }
+    
+    function quickCheckout(rowIndex) { 
+        const car = listDataParked.find(c => c.rowIndex === rowIndex);
+        if(car) {
+            setupCheckoutForm(car); 
+            switchTab('tab-trong', true); 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        }
     }
 
     function setupCheckoutForm(car) {
@@ -459,41 +411,25 @@
         document.getElementById('selectedPlate').innerText = car.plate;
         document.getElementById('resTime').innerText = car.entryTime;
         document.getElementById('resEmp').innerText = car.employeeIn; 
-        
         document.getElementById('resImgFront').src = car.entryImg;
-        document.getElementById('resImgFront').onclick = function() {
-            openModal(this.src, car.entryImg, car.entryImgBack);
-        };
-
+        document.getElementById('resImgFront').onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); };
         const resImgBack = document.getElementById('resImgBack');
         if (car.entryImgBack) {
-            resImgBack.src = car.entryImgBack;
-            resImgBack.style.display = 'inline-block';
-            resImgBack.onclick = function() {
-                openModal(this.src, car.entryImg, car.entryImgBack);
-            };
-        } else {
-            resImgBack.style.display = 'none';
-        }
+            resImgBack.src = car.entryImgBack; resImgBack.style.display = 'inline-block';
+            resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); };
+        } else { resImgBack.style.display = 'none'; }
         
         document.getElementById('listResults').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'block';
-        
-        capturedImages.out = ""; 
-        document.getElementById('cameraOut').value = ""; 
-        document.getElementById('previewOut').style.display = 'none'; 
+        capturedImages.out = ""; document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
     }
 
     async function editPlate(rowIndex, oldPlate) {
         const newPlate = prompt(`Nhập biển số chính xác thay cho xe [ ${oldPlate} ]:`, oldPlate);
         if (newPlate === null || newPlate.trim() === "" || newPlate.trim().toUpperCase() === oldPlate) return;
-        
         toggleLoading(true);
         try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: rowIndex, newPlate: newPlate, deviceId: myDeviceId })
-            });
+            const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: rowIndex, newPlate: newPlate, deviceId: myDeviceId }) });
             const res = await response.json(); 
             if (res.status === 'success') { showToast('Đã cập nhật biển số mới!', 'success'); loadParkedCars(); } 
             else { showToast(res.message, 'error'); }
@@ -504,72 +440,86 @@
     async function loadParkedCars() {
         toggleLoading(true);
         try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'LOAD_PARKED_CARS', deviceId: myDeviceId })
-            });
+            const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'LOAD_PARKED_CARS', deviceId: myDeviceId }) });
             const res = await response.json();
             
             if (res.status === 'success') {
-                document.getElementById('countToday').innerText = res.todayCars.length;
-                document.getElementById('countOvernight').innerText = res.overnightCars.length;
-                listDataToday = res.todayCars; listDataOvernight = res.overnightCars;
-                
-                let htmlToday = '';
-                if(listDataToday.length === 0) htmlToday = '<div style="text-align:center; color:#666; font-size:14px;">Chưa có xe nào.</div>';
-                listDataToday.forEach((car, index) => {
-                    let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
-                    htmlToday += `
-                    <div class="stat-item" onclick="quickCheckout('today', ${index})">
-                        <div class="img-group">
-                            <img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
-                            ${imgBackHtml}
-                        </div>
-                        <div class="stat-info">
-                            <strong>${car.plate}</strong>
-                            <span class="time">Vào: ${car.entryTime}</span>
-                            <span class="emp">Nhận: ${car.employeeIn}</span>
-                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN</button>
-                        </div>
-                        <div class="icon-out">CHO RA</div>
-                    </div>`;
-                });
-                document.getElementById('listToday').innerHTML = htmlToday;
+                // Tương thích: Nếu GAS gửi mảng parkedCars (đã gộp) hoặc nếu gửi todayCars & overnightCars riêng thì tự gộp
+                if (res.parkedCars) {
+                    listDataParked = res.parkedCars;
+                } else if (res.todayCars && res.overnightCars) {
+                    listDataParked = [...res.todayCars, ...res.overnightCars];
+                } else {
+                    listDataParked = [];
+                }
 
-                let htmlNight = '';
-                if(listDataOvernight.length === 0) htmlNight = '<div style="text-align:center; color:#666; font-size:14px;">Bãi đã trống, không có xe tồn.</div>';
-                listDataOvernight.forEach((car, index) => {
-                    let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
-                    htmlNight += `
-                    <div class="stat-item" onclick="quickCheckout('night', ${index})">
-                        <div class="img-group">
-                            <img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
-                            ${imgBackHtml}
-                        </div>
-                        <div class="stat-info">
-                            <strong style="color:var(--danger);">${car.plate}</strong>
-                            <span class="time">Vào: ${car.entryTime}</span>
-                            <span class="emp">Nhận: ${car.employeeIn}</span>
-                            <button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN</button>
-                        </div>
-                        <div class="icon-out">CHO RA</div>
-                    </div>`;
-                });
-                document.getElementById('listOvernight').innerHTML = htmlNight;
+                // Nhận mảng returnedCars từ server
+                listDataReturned = res.returnedCars || [];
+                
+                // Lưu vào bộ nhớ máy
+                localStorage.setItem('saved_cars_parked', JSON.stringify(listDataParked));
+                localStorage.setItem('saved_cars_returned', JSON.stringify(listDataReturned));
+                
+                renderParkedCarsData(); 
+                renderReturnedCarsData();
                 isDataLoaded = true; 
             } else { showToast(res.message, 'error'); }
         } catch (error) { showToast('Lỗi kết nối: ' + error.message, 'error'); }
         toggleLoading(false);
     }
 
+    // In danh sách xe trong bãi (Mới trên - Cũ dưới)
+    function renderParkedCarsData() {
+        document.getElementById('countParked').innerText = listDataParked.length;
+        let html = '';
+        if(listDataParked.length === 0) {
+            html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Bãi đang trống, không có xe.</div>';
+        } else {
+            // Dùng .slice().reverse() để đảo ngược mảng in ra (xe mới nằm trên cùng)
+            let reversedParked = listDataParked.slice().reverse();
+            reversedParked.forEach((car) => {
+                let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
+                html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
+                            <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
+                            <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN</button></div>
+                            <div class="icon-out">CHO RA</div>
+                        </div>`;
+            });
+        }
+        document.getElementById('listParked').innerHTML = html;
+    }
+
+    // In danh sách xe ĐÃ TRẢ (Mới trên - Cũ dưới)
+    function renderReturnedCarsData() {
+        document.getElementById('countReturned').innerText = listDataReturned.length;
+        let html = '';
+        if(listDataReturned.length === 0) {
+            html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Chưa có xe nào xuất bến.</div>';
+        } else {
+            let reversedReturned = listDataReturned.slice().reverse();
+            reversedReturned.forEach((car) => {
+                let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
+                html += `<div class="stat-item" style="cursor: default;">
+                            <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
+                            <div class="stat-info">
+                                <strong style="color:var(--text-main);">${car.plate}</strong>
+                                <span class="time">Vào: ${car.entryTime}</span>
+                                <span class="time" style="color:var(--danger)">Ra: ${car.exitTime || 'Đã ra'}</span>
+                                <span class="emp">Nhận: ${car.employeeIn}</span>
+                            </div>
+                            <div class="icon-done">HOÀN THÀNH</div>
+                        </div>`;
+            });
+        }
+        document.getElementById('listReturned').innerHTML = html;
+    }
+
     function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'block' : 'none'; document.querySelectorAll('button').forEach(btn => btn.disabled = show); }
     
     function resetForm() { 
-        document.getElementById('plateIn').value = ""; 
-        document.getElementById('cameraInFront').value = ""; document.getElementById('previewInFront').style.display = 'none'; 
+        document.getElementById('plateIn').value = ""; document.getElementById('cameraInFront').value = ""; document.getElementById('previewInFront').style.display = 'none'; 
         document.getElementById('cameraInBack').value = ""; document.getElementById('previewInBack').style.display = 'none'; 
-        document.getElementById('plateSearch').value = ""; 
-        document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
+        document.getElementById('plateSearch').value = ""; document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'none'; document.getElementById('listResults').style.display = 'none'; 
         capturedImages = { front: "", back: "", out: "" }; currentCarRowIndex = null; currentMatches = []; 
     }
