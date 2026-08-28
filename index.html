@@ -50,7 +50,7 @@
         .camera-btn svg { width: 28px; height: 28px; fill: currentColor; }
 
         button.action-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        .btn-in { background-color: var(--success); } .btn-search { background-color: var(--primary); } .btn-out { background-color: var(--danger); }
+        .btn-in { background-color: var(--success); } .btn-out { background-color: var(--danger); }
         button:disabled { opacity: 0.7; cursor: not-allowed; }
         
         .preview-box { text-align: center; }
@@ -80,9 +80,9 @@
         
         .btn-edit { background-color: var(--warning); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        /* ---------------------------------------------------
-           POPUP PHÓNG TO ẢNH FULL MÀN HÌNH MỚI
-           --------------------------------------------------- */
+        .search-container { background: #fff; padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        /* POPUP PHÓNG TO ẢNH FULL MÀN HÌNH */
         .modal-zoom { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center; touch-action: none; }
         .modal-zoom img { max-width: 95%; max-height: 85%; border-radius: 8px; object-fit: contain; }
         .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; line-height: 1; padding: 10px; z-index: 10002;}
@@ -104,22 +104,21 @@
     
     <div id="syncBadge" class="sync-badge">Đang đồng bộ: 1 xe lên hệ thống...</div>
 
+    <!-- TABS -->
     <div class="tabs">
         <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
-        <button id="btn-tab-ra" class="tab-btn" onclick="switchTab('tab-ra')">XUẤT BẾN</button>
         <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG NGÀY</button>
         <button id="btn-tab-dem" class="tab-btn" onclick="switchTab('tab-dem')">QUA ĐÊM</button>
     </div>
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
 
+    <!-- TAB 1: VÀO BẾN -->
     <div id="tab-vao" class="tab-content active">
         <div class="form-group">
             <label for="plateIn">Biển số xe vào</label>
-            <!-- Thêm thẻ div bọc ngoài với display: flex để dàn hàng ngang -->
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ: 59X3-123.45" style="flex: 1;">
-                <!-- Đưa nút GHI NHẬN lên đây, điều chỉnh lại margin và padding -->
                 <button class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 16px; font-size: 14px;">GHI NHẬN VÀO</button>
             </div>
         </div>
@@ -143,47 +142,49 @@
                 <div class="preview-box"><img id="previewInBack" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
             </div>
         </div>
-        <!-- Đã xóa nút "GHI NHẬN XE VÀO" cũ ở dưới cùng -->
-    </div>
-    <div id="tab-ra" class="tab-content">
-        <div class="form-group">
-            <label for="plateSearch">Tìm biển số xe ra</label>
-            <input type="text" id="plateSearch" inputmode="numeric" placeholder="Nhập số cuối...">
-        </div>
-        <button class="action-btn btn-search" onclick="handleSearch()">TÌM KIẾM DỮ LIỆU</button>
-        
-        <div id="listResults" class="list-cars" style="display: none;"></div>
-
-        <div id="searchResult" class="result-box">
-            <h3 style="margin-top:0;">Xe xuất bến: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
-            <p style="margin:5px 0; font-size:14px;"><strong>Giờ vào:</strong> <span id="resTime"></span></p>
-            <p style="margin:5px 0; font-size:14px;"><strong>Người nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></p>
-            
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <div style="flex:1; text-align:center;">
-                    <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh TRƯỚC</p>
-                    <img id="resImgFront" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
-                </div>
-                <div style="flex:1; text-align:center;">
-                    <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh SAU</p>
-                    <img id="resImgBack" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
-                </div>
-            </div>
-            
-            <hr style="margin: 16px 0; border: 0; border-top: 1px solid var(--border);">
-            <div class="form-group">
-                <label class="camera-btn" for="cameraOut">
-                    <svg viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm8 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
-                    CHỤP ẢNH RA
-                </label>
-                <input type="file" id="cameraOut" class="file-input-hidden" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewOut', 'out')">
-            </div>
-            <div class="preview-box"><img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '')"></div>
-            <button class="action-btn btn-out" onclick="handleXeRa()">XÁC NHẬN HOÀN THÀNH</button>
-        </div>
     </div>
 
+    <!-- TAB 2: TRONG NGÀY (Gộp Tìm Kiếm & Chụp Ảnh Ra) -->
     <div id="tab-trong" class="tab-content">
+        <!-- KHU VỰC TÌM KIẾM BIỂN SỐ XE CHO RA -->
+        <div class="search-container">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="plateSearch">Tìm biển số xe ra</label>
+                <!-- Tìm kiếm Live (gõ đến đâu lọc đến đó) bằng sự kiện oninput -->
+                <input type="text" id="plateSearch" inputmode="numeric" placeholder="Nhập số xe để tìm..." oninput="handleSearch()">
+            </div>
+            
+            <div id="listResults" class="list-cars" style="display: none;"></div>
+
+            <div id="searchResult" class="result-box">
+                <h3 style="margin-top:0;">Xe xuất bến: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
+                <p style="margin:5px 0; font-size:14px;"><strong>Giờ vào:</strong> <span id="resTime"></span></p>
+                <p style="margin:5px 0; font-size:14px;"><strong>Người nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></p>
+                
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <div style="flex:1; text-align:center;">
+                        <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh TRƯỚC</p>
+                        <img id="resImgFront" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
+                    </div>
+                    <div style="flex:1; text-align:center;">
+                        <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh SAU</p>
+                        <img id="resImgBack" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
+                    </div>
+                </div>
+                
+                <hr style="margin: 16px 0; border: 0; border-top: 1px solid var(--border);">
+                <div class="form-group">
+                    <label class="camera-btn" for="cameraOut">
+                        <svg viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm8 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
+                        CHỤP ẢNH RA
+                    </label>
+                    <input type="file" id="cameraOut" class="file-input-hidden" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewOut', 'out')">
+                </div>
+                <div class="preview-box"><img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '')"></div>
+                <button class="action-btn btn-out" onclick="handleXeRa()">XÁC NHẬN HOÀN THÀNH</button>
+            </div>
+        </div>
+
         <div class="stats-header">
             <h3>Xe gửi hôm nay <span id="countToday" class="badge">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
@@ -191,6 +192,7 @@
         <div id="listToday" class="list-cars"></div>
     </div>
 
+    <!-- TAB 3: QUA ĐÊM -->
     <div id="tab-dem" class="tab-content">
         <div class="stats-header">
             <h3>Xe gửi qua đêm <span id="countOvernight" class="badge-danger">0</span></h3>
@@ -221,7 +223,6 @@
     const myDeviceId = getDeviceId();
     document.getElementById('displayDeviceId').innerText = myDeviceId;
 
-    // --- CÁC BIẾN LƯU TRỮ VÀ XỬ LÝ VUỐT ẢNH TRÊN MODAL PHÓNG TO ---
     let modalFrontSrc = "";
     let modalBackSrc = "";
     let isModalShowingFront = true;
@@ -237,7 +238,6 @@
         const modalImg = document.getElementById('modalImage');
         modalImg.src = currentSrc;
         
-        // Hiện gợi ý nếu dòng dữ liệu có đủ 2 ảnh trước và sau
         const hint = document.getElementById('modalHint');
         if (modalBackSrc && modalBackSrc !== 'undefined' && modalBackSrc !== 'null' && modalBackSrc !== '') {
             hint.style.display = 'block';
@@ -263,7 +263,6 @@
         let diffX = modalSwipeStartX - modalSwipeEndX;
         let diffY = modalSwipeStartY - modalSwipeEndY;
 
-        // Phân biệt thao tác chạm nhẹ (Tap) để đóng khung ảnh phóng to
         if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
             if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) {
                 closeModal();
@@ -271,7 +270,6 @@
             return;
         }
 
-        // Bắt sự kiện vuốt ngang (Trái hay Phải đều hoán đổi ảnh nếu có đủ 2 hình)
         if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
             if (!modalBackSrc || modalBackSrc === 'undefined' || modalBackSrc === 'null' || modalBackSrc === '') return;
             
@@ -318,7 +316,8 @@
         document.getElementById(tabId).classList.add('active');
         document.getElementById('btn-' + tabId).classList.add('active');
         if ((tabId === 'tab-trong' || tabId === 'tab-dem') && !isDataLoaded) loadParkedCars();
-        if ((tabId === 'tab-vao' || tabId === 'tab-ra') && !preventReset) resetForm();
+        // Reset form khi qua tab-vao hoac tab-trong (để xóa ô tìm kiếm & form)
+        if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
 
     function previewAndCompress(input, previewId, key) {
@@ -387,23 +386,35 @@
         resetForm(); processQueue();
     }
 
-    async function handleSearch() {
-        const plate = document.getElementById('plateSearch').value.trim();
-        if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
-
-        toggleLoading(true);
-        document.getElementById('listResults').style.display = 'none'; document.getElementById('searchResult').style.display = 'none';
+    // --- TÌM KIẾM CỤC BỘ (LIVE SEARCH TRỰC TIẾP TRÊN MÁY) ---
+    function handleSearch() {
+        const plate = document.getElementById('plateSearch').value.trim().toUpperCase();
         
-        try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'SEARCH', licensePlate: plate, deviceId: myDeviceId })
-            });
-            const res = await response.json();
-            if (res.status === 'success' && res.found) { currentMatches = res.matches; renderSearchList(); } 
-            else { showToast(res.message, 'error'); }
-        } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
-        toggleLoading(false);
+        const listDiv = document.getElementById('listResults');
+        const searchResultDiv = document.getElementById('searchResult');
+
+        // Nếu ô tìm kiếm trống, tự động ẩn kết quả
+        if (!plate) {
+            listDiv.style.display = 'none';
+            searchResultDiv.style.display = 'none';
+            return;
+        }
+
+        // Ẩn bảng chi tiết xe ra (nếu đang mở) để nhường chỗ cho danh sách tìm kiếm
+        searchResultDiv.style.display = 'none';
+        
+        // Gộp chung danh sách xe gửi hôm nay và qua đêm
+        const allParkedCars = [...listDataToday, ...listDataOvernight];
+        
+        // Lọc dữ liệu trực tiếp bằng JavaScript
+        currentMatches = allParkedCars.filter(car => car.plate.toUpperCase().includes(plate));
+
+        if (currentMatches.length > 0) {
+            renderSearchList();
+        } else {
+            listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:14px; padding: 10px 0;">Không có xe nào khớp với số này...</div>';
+            listDiv.style.display = 'block';
+        }
     }
 
     function renderSearchList() {
@@ -413,8 +424,6 @@
             let html = `<div style="font-weight:600; color:var(--primary); text-align:center;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
             currentMatches.forEach((car, index) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
-                
-                // Đồng bộ nút CHỌN XE NÀY thành dạng thẻ tag <div class="icon-out">CHO RA</div> như yêu cầu
                 html += `
                 <div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
                     <div class="img-group">
@@ -441,7 +450,7 @@
     function quickCheckout(type, index) {
         const car = (type === 'today') ? listDataToday[index] : listDataOvernight[index];
         setupCheckoutForm(car);
-        switchTab('tab-ra', true);
+        switchTab('tab-trong', true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
