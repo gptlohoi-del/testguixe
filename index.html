@@ -19,11 +19,9 @@
             --warning: #f59e0b; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
         }
         body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
-        /* Tối ưu padding container để tiết kiệm diện tích */
         .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 12px; min-height: 100vh; position: relative; overflow-x: hidden;}
         @media (min-width: 600px) { body { padding: 10px; } .container { min-height: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); } }
 
-        /* Tối ưu chiều cao tiêu đề */
         h1 { text-align: center; color: var(--text-main); font-size: 18px; margin-top: 0; margin-bottom: 10px;}
         
         .sync-badge { display: none; background-color: var(--warning); color: #fff; text-align: center; padding: 4px; font-size: 12px; font-weight: bold; border-radius: 20px; margin-bottom: 10px; animation: pulse 1.5s infinite; }
@@ -34,7 +32,6 @@
         .toast.success { background-color: var(--success); }
         .toast.error { background-color: var(--danger); }
 
-        /* Tối ưu tabs */
         .tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; margin-bottom: 12px; gap: 2px;}
         .tab-btn { flex: 1; padding: 8px 2px; text-align: center; background: none; border: none; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: all 0.2s; white-space: nowrap; letter-spacing: -0.3px;}
         .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -42,18 +39,15 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Tối ưu form nhập liệu */
         .form-group { margin-bottom: 10px; }
         label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px; color: var(--text-main); }
         input[type="text"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; text-transform: uppercase; background: var(--bg); outline: none; transition: 0.2s; }
         input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         
-        /* Tối ưu nút bấm chung */
         button.action-btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; margin-top: 5px; transition: 0.2s; }
         .btn-in { background-color: var(--success); } .btn-out { background-color: var(--danger); }
         button:disabled { opacity: 0.7; cursor: not-allowed; }
         
-        /* Tối ưu khu vực xem trước ảnh */
         .preview-box { text-align: center; }
         .preview-box img { max-width: 100%; max-height: 100px; border-radius: 8px; border: 1px solid var(--border); display: none; margin: 0 auto; object-fit: cover; cursor: zoom-in;}
         .loading { display: none; text-align: center; font-weight: 600; color: var(--primary); margin: 10px 0; font-size: 13px;}
@@ -122,13 +116,13 @@
             <label for="plateIn">Biển số xe vào</label>
             <div style="display: flex; gap: 8px;">
                 <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ: 59X3-123.45" style="flex: 1;">
-                <button class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px;">GHI NHẬN</button>
+                <!-- Cấp ID cho nút GHI NHẬN để xử lý logic đổi trạng thái -->
+                <button id="btnSubmitIn" class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px;">GHI NHẬN</button>
             </div>
         </div>
         
         <!-- KHU VỰC CAMERA VÀ NÚT CHỤP MỚI -->
         <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
-            <!-- Dùng max-height 45vh để linh hoạt theo màn hình, object-fit contain để không cắt viền -->
             <video id="liveCamera" autoplay playsinline style="width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; display: none;"></video>
             
             <!-- Hai nút chia đôi -->
@@ -314,7 +308,6 @@
 
     async function startCamera() {
         try {
-            // Đã đổi ngược Width và Height để ưu tiên khung dọc (Portrait)
             stream = await navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1920 } } 
             });
@@ -326,7 +319,6 @@
             if (camBtns) camBtns.style.display = 'none';
             
             const snapBtn = document.getElementById('snapBtn');
-            snapBtn.style.display = 'block';
             document.getElementById('previewArea').style.display = 'flex';
 
             if (currentCaptureStep === 'front') {
@@ -336,6 +328,15 @@
                 snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)';
                 snapBtn.style.backgroundColor = 'var(--warning)';
             }
+
+            snapBtn.style.display = 'block';
+
+            // Nếu người dùng đang thực hiện luồng "Chụp Sau Trước", 
+            // và đã tới bước bật camera TRƯỚC (bằng cách ấn Ghi Nhận lần 1), 
+            // Ẩn nút Chụp đi để ép người dùng bấm nút [Chụp & Lưu] (Ghi nhận lần 2).
+            if (currentFlow === 'back' && capturedImages.back && currentCaptureStep === 'front') {
+                snapBtn.style.display = 'none';
+            }
         } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
     }
 
@@ -343,7 +344,6 @@
         if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
         document.getElementById('liveCamera').style.display = 'none';
         
-        // Hiện lại 2 nút chụp nếu chưa chụp bức ảnh nào
         const camBtns = document.getElementById('camControlBtns');
         if (camBtns && !capturedImages.front && !capturedImages.back) {
             camBtns.style.display = 'flex';
@@ -351,78 +351,82 @@
         document.getElementById('snapBtn').style.display = 'none';
     }
 
+    // HÀM GỘP CẮT ẢNH: Xử lý cắt Center-Crop cho cả Cam Trước và Trả Xe
+    function cropAndCapture(videoId) {
+        const video = document.getElementById(videoId);
+        const canvas = document.createElement('canvas');
+        
+        const targetAspectRatio = 3 / 4; 
+        let vWidth = video.videoWidth; 
+        let vHeight = video.videoHeight;
+        let drawWidth, drawHeight, offsetX, offsetY;
+
+        if (vWidth / vHeight > targetAspectRatio) {
+            drawHeight = vHeight;
+            drawWidth = vHeight * targetAspectRatio;
+            offsetX = (vWidth - drawWidth) / 2;
+            offsetY = 0;
+        } else {
+            drawWidth = vWidth;
+            drawHeight = vWidth / targetAspectRatio;
+            offsetX = 0;
+            offsetY = (vHeight - drawHeight) / 2;
+        }
+
+        canvas.width = 960; 
+        canvas.height = 1280;
+        const ctx = canvas.getContext('2d'); 
+        ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
+        
+        return canvas.toDataURL('image/jpeg', 0.8);
+    }
+
     function takeSnapshot() {
-    const video = document.getElementById('liveCamera');
-    const canvas = document.createElement('canvas');
-    
-    // Ép tỷ lệ khung hình dọc (3:4)
-    const targetAspectRatio = 3 / 4; 
-    let vWidth = video.videoWidth; 
-    let vHeight = video.videoHeight;
-    let drawWidth, drawHeight, offsetX, offsetY;
+        const base64Img = cropAndCapture('liveCamera');
+        const snapBtn = document.getElementById('snapBtn');
 
-    // Tính toán cắt bỏ hai bên hoặc trên/dưới để lấy đúng tỷ lệ 3:4 ở trung tâm
-    if (vWidth / vHeight > targetAspectRatio) {
-        drawHeight = vHeight;
-        drawWidth = vHeight * targetAspectRatio;
-        offsetX = (vWidth - drawWidth) / 2;
-        offsetY = 0;
-    } else {
-        drawWidth = vWidth;
-        drawHeight = vWidth / targetAspectRatio;
-        offsetX = 0;
-        offsetY = (vHeight - drawHeight) / 2;
-    }
-
-    // Cố định kích thước đầu ra để ảnh nhẹ, dễ upload (Ví dụ: 960x1280)
-    canvas.width = 960; 
-    canvas.height = 1280;
-    const ctx = canvas.getContext('2d'); 
-    
-    // Vẽ phần đã cắt lên canvas
-    ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
-    
-    const snapBtn = document.getElementById('snapBtn');
-
-    if (currentCaptureStep === 'front') {
-        capturedImages.front = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('previewInFront').src = capturedImages.front;
-        document.getElementById('previewInFront').style.display = 'block';
-        document.getElementById('retakeFrontBtn').style.display = 'block';
-        
-        if (currentFlow === 'front') {
-            currentCaptureStep = 'back';
-            snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; 
-            snapBtn.style.backgroundColor = 'var(--warning)';
-        } else if (currentFlow === 'back') {
-            snapBtn.style.display = 'none'; 
-            stopCamera(); 
-            document.getElementById('plateIn').focus();
-        }
-    } else if (currentCaptureStep === 'back') {
-        capturedImages.back = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('previewInBack').src = capturedImages.back;
-        document.getElementById('previewInBack').style.display = 'block';
-        document.getElementById('retakeBackBtn').style.display = 'block';
-        
-        if (currentFlow === 'front') {
-            snapBtn.style.display = 'none'; 
-            stopCamera(); 
-            document.getElementById('plateIn').focus();
-        } else if (currentFlow === 'back') {
-            stopCamera(); 
-            document.getElementById('plateIn').focus();
-            setTimeout(() => {
-                currentCaptureStep = 'front';
-                startCamera();
-            }, 500);
+        if (currentCaptureStep === 'front') {
+            capturedImages.front = base64Img;
+            document.getElementById('previewInFront').src = capturedImages.front;
+            document.getElementById('previewInFront').style.display = 'block';
+            document.getElementById('retakeFrontBtn').style.display = 'block';
+            
+            if (currentFlow === 'front') {
+                currentCaptureStep = 'back';
+                snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; 
+                snapBtn.style.backgroundColor = 'var(--warning)';
+            } else if (currentFlow === 'back') {
+                snapBtn.style.display = 'none'; 
+                stopCamera(); 
+                document.getElementById('plateIn').focus();
+            }
+        } else if (currentCaptureStep === 'back') {
+            capturedImages.back = base64Img;
+            document.getElementById('previewInBack').src = capturedImages.back;
+            document.getElementById('previewInBack').style.display = 'block';
+            document.getElementById('retakeBackBtn').style.display = 'block';
+            
+            if (currentFlow === 'front') {
+                snapBtn.style.display = 'none'; 
+                stopCamera(); 
+                document.getElementById('plateIn').focus();
+            } else if (currentFlow === 'back') {
+                // Đã loại bỏ hoàn toàn setTimeout ở đây. Chỉ cần tắt cam và focus bàn phím
+                snapBtn.style.display = 'none'; 
+                stopCamera(); 
+                document.getElementById('plateIn').focus();
+            }
         }
     }
-}
 
     async function retakePhoto(type) {
         if (!stream) await startCamera();
         const snapBtn = document.getElementById('snapBtn'); snapBtn.style.display = 'block';
+        
+        // Trả nút GHI NHẬN về mặc định nếu đang bị kẹt ở text "Chụp & Lưu"
+        const btnSubmit = document.getElementById('btnSubmitIn');
+        if (btnSubmit) btnSubmit.innerText = 'GHI NHẬN';
+
         if (type === 'front') {
             capturedImages.front = "";
             currentCaptureStep = 'front';
@@ -461,40 +465,13 @@
     }
 
     function takeSnapshotOut() {
-    const video = document.getElementById('liveCameraOut');
-    const canvas = document.createElement('canvas');
-    
-    // Ép tỷ lệ khung hình dọc (3:4)
-    const targetAspectRatio = 3 / 4; 
-    let vWidth = video.videoWidth; 
-    let vHeight = video.videoHeight;
-    let drawWidth, drawHeight, offsetX, offsetY;
-
-    if (vWidth / vHeight > targetAspectRatio) {
-        drawHeight = vHeight;
-        drawWidth = vHeight * targetAspectRatio;
-        offsetX = (vWidth - drawWidth) / 2;
-        offsetY = 0;
-    } else {
-        drawWidth = vWidth;
-        drawHeight = vWidth / targetAspectRatio;
-        offsetX = 0;
-        offsetY = (vHeight - drawHeight) / 2;
+        capturedImages.out = cropAndCapture('liveCameraOut');
+        document.getElementById('previewOut').src = capturedImages.out;
+        document.getElementById('previewAreaOut').style.display = 'block'; 
+        
+        stopCameraOut();
+        document.getElementById('startCamOutBtn').style.display = 'none';
     }
-
-    // Cố định kích thước đầu ra
-    canvas.width = 960; 
-    canvas.height = 1280;
-    const ctx = canvas.getContext('2d'); 
-    ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
-
-    capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
-    document.getElementById('previewOut').src = capturedImages.out;
-    document.getElementById('previewAreaOut').style.display = 'block'; 
-    
-    stopCameraOut();
-    document.getElementById('startCamOutBtn').style.display = 'none';
-}
 
     function retakePhotoOut() {
         capturedImages.out = "";
@@ -502,7 +479,7 @@
         startCameraOut();
     }
 
-    // ----- CÁC HÀM PHỤ TRỢ (Giữ nguyên) -----
+    // ----- CÁC HÀM PHỤ TRỢ -----
     function openModal(currentSrc, frontSrc, backSrc) {
         if (!currentSrc) return;
         modalFrontSrc = frontSrc || currentSrc; modalBackSrc = backSrc || "";
@@ -573,6 +550,27 @@
     function handleXeVao() {
         const plate = document.getElementById('plateIn').value.trim();
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
+        
+        // --- LOGIC KÉP CHO NÚT GHI NHẬN NẾU LÀ LUỒNG CHỤP SAU TRƯỚC ---
+        if (currentFlow === 'back' && capturedImages.back && !capturedImages.front) {
+            if (!stream) {
+                // Nhấn GHI NHẬN Lần 1: Bỏ focus (hạ bàn phím số xuống), bật camera cho ảnh Trước
+                document.getElementById('plateIn').blur();
+                currentCaptureStep = 'front';
+                startCamera();
+                // Đổi nút GHI NHẬN thành CHỤP & LƯU
+                document.getElementById('btnSubmitIn').innerText = '📸 CHỤP & LƯU';
+                return; // Ngừng chạy code bên dưới, đợi thao tác bấm lần 2
+            } else {
+                // Nhấn GHI NHẬN Lần 2 (khi cam đang xem trực tiếp): Tiến hành chụp ảnh Trước
+                capturedImages.front = cropAndCapture('liveCamera');
+                document.getElementById('previewInFront').src = capturedImages.front;
+                document.getElementById('previewInFront').style.display = 'block';
+                stopCamera();
+                // Tiếp tục luồng Ghi nhận bên dưới vì lúc này đã đủ 2 ảnh
+            }
+        }
+
         if (!capturedImages.front || !capturedImages.back) return showToast('Vui lòng chụp đủ 2 ảnh!', 'error');
         
         syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
@@ -742,6 +740,10 @@
         document.getElementById('previewInBack').style.display = 'none'; 
         document.getElementById('retakeFrontBtn').style.display = 'none';
         document.getElementById('retakeBackBtn').style.display = 'none';
+        
+        // Đặt lại Text cho nút Ghi Nhận
+        const btnSubmit = document.getElementById('btnSubmitIn');
+        if (btnSubmit) btnSubmit.innerText = 'GHI NHẬN';
         
         const previewArea = document.getElementById('previewArea'); 
         if(previewArea) previewArea.style.display = 'none';
