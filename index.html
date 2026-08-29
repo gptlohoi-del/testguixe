@@ -119,7 +119,6 @@
             </div>
         </div>
         
-        <!-- KHUNG CAMERA TRỰC TIẾP LÚC VÀO -->
         <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
             <video id="liveCamera" autoplay playsinline style="width: 100%; max-height: 300px; object-fit: cover; display: none;"></video>
             <button id="startCamBtn" onclick="startCamera()" style="padding: 40px 20px; width: 100%; background: #334155; color: white; border: none; font-weight: bold; font-size: 14px; cursor: pointer;">
@@ -156,45 +155,48 @@
             
             <div id="listResults" class="list-cars" style="display: none;"></div>
 
-            <!-- PHẦN XỬ LÝ CHO XE RA -->
+            <!-- PHẦN XỬ LÝ CHO XE RA (LAYOUT MỚI: NÚT NẰM TRÊN CAMERA) -->
             <div id="searchResult" class="result-box">
                 <h3 style="margin-top:0;">Xe xuất bến: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
-                <p style="margin:5px 0; font-size:14px;"><strong>Giờ vào:</strong> <span id="resTime"></span></p>
-                <p style="margin:5px 0; font-size:14px;"><strong>Người nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></p>
-                
-                <hr style="margin: 16px 0; border: 0; border-top: 1px dashed var(--border);">
-
-                <!-- CỤM CAMERA LIVE LÚC RA (MỚI THÊM) -->
-                <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
-                    <video id="liveCameraOut" autoplay playsinline style="width: 100%; max-height: 300px; object-fit: cover; display: none;"></video>
-                    
-                    <button id="startCamOutBtn" onclick="startCameraOut()" type="button" style="padding: 20px; width: 100%; background: #fee2e2; color: var(--danger); border: 2px dashed #fca5a5; font-weight: bold; font-size: 14px; cursor: pointer;">
-                        📷 CHẠM ĐỂ MỞ CAMERA TRẢ XE
-                    </button>
+                <div style="display: flex; justify-content: space-between; font-size:14px; margin-bottom: 12px;">
+                    <span><strong>Vào lúc:</strong> <span id="resTime"></span></span>
+                    <span><strong>Người nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></span>
                 </div>
+                
+                <hr style="margin: 10px 0 15px 0; border: 0; border-top: 1px dashed var(--border);">
 
-                <!-- Nút Chụp Ảnh & Đóng Camera -->
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button id="snapOutBtn" onclick="takeSnapshotOut()" type="button" style="display: none; flex: 1; font-size: 15px; font-weight: bold; padding: 15px; background-color: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer;">
-                        📸 CHỤP ẢNH LÚC RA
+                <!-- CỤM NÚT ĐƯỢC ĐẨY LÊN TRÊN CÙNG -->
+                <button id="startCamOutBtn" onclick="startCameraOut()" type="button" style="width: 100%; padding: 15px; background: #fee2e2; color: var(--danger); border: 2px dashed #fca5a5; font-weight: bold; font-size: 14px; cursor: pointer; border-radius: 8px; margin-bottom: 10px;">
+                    📷 CHẠM ĐỂ MỞ CAMERA TRẢ XE
+                </button>
+
+                <div id="actionButtonsOut" style="display: none; gap: 10px; margin-bottom: 10px;">
+                    <button id="snapOutBtn" onclick="takeSnapshotOut()" type="button" style="flex: 2; font-size: 15px; font-weight: bold; padding: 14px; background-color: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        📸 CHỤP ẢNH RA
                     </button>
-                    <button id="closeCamOutBtn" onclick="stopCameraOut()" type="button" style="display: none; font-size: 14px; font-weight: bold; padding: 15px 20px; background-color: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <button id="closeCamOutBtn" onclick="stopCameraOut()" type="button" style="flex: 1; font-size: 14px; font-weight: bold; padding: 14px; background-color: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
                         ĐÓNG
                     </button>
                 </div>
 
-                <!-- Khu vực xem trước ảnh đã chụp (Lúc ra) -->
+                <!-- GIAO DIỆN XÁC NHẬN CŨNG NẰM PHÍA TRÊN ẢNH -->
                 <div id="previewAreaOut" style="display:none; text-align:center; margin-bottom: 15px;">
-                    <div class="preview-box" style="margin-bottom: 8px;">
-                        <img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '')" style="max-height: 160px; width: 100%; object-fit: cover; display: inline-block;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button class="action-btn btn-out" onclick="handleXeRa()" style="flex: 2; margin-top: 0; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">XÁC NHẬN HOÀN THÀNH</button>
+                        <button id="retakeOutBtn" onclick="retakePhotoOut()" type="button" style="flex: 1; padding: 14px; font-size: 13px; font-weight: bold; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; color: var(--danger);">🔄 Chụp lại</button>
                     </div>
-                    <button id="retakeOutBtn" onclick="retakePhotoOut()" type="button" style="padding: 8px 16px; font-size: 13px; font-weight: bold; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; color: var(--danger);">🔄 Chụp lại ảnh ra</button>
+                    <div class="preview-box">
+                        <img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '')" style="max-height: 180px; width: 100%; object-fit: cover; display: inline-block; border-radius: 8px;">
+                    </div>
                 </div>
-                
-                <button class="action-btn btn-out" onclick="handleXeRa()" style="margin-top: 5px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">XÁC NHẬN HOÀN THÀNH</button>
 
-                <!-- Cụm ẢNH CŨ được kéo XUỐNG DƯỚI để tham khảo -->
-                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                <!-- CAMERA LIVE NẰM BÊN DƯỚI NÚT CHỤP -->
+                <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
+                    <video id="liveCameraOut" autoplay playsinline style="width: 100%; max-height: 250px; object-fit: cover; display: none;"></video>
+                </div>
+
+                <!-- Cụm ẢNH CŨ được đưa xuống đáy để không cản trở thao tác -->
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px;">
                     <p style="margin:0 0 10px; text-align:center; font-size:13px; font-weight:600; color:var(--text-muted);">HÌNH ẢNH LÚC VÀO (Tham khảo)</p>
                     <div style="display:flex; gap:10px;">
                         <div style="flex:1; text-align:center;">
@@ -249,7 +251,7 @@
     document.getElementById('displayDeviceId').innerText = myDeviceId;
 
     let stream = null; 
-    let streamOut = null; // Biến giữ luồng camera khi ra
+    let streamOut = null;
     let modalFrontSrc = ""; let modalBackSrc = ""; let isModalShowingFront = true;
     let modalSwipeStartX = 0; let modalSwipeStartY = 0;
 
@@ -263,13 +265,7 @@
 
     window.onload = function() {
         const savedTab = localStorage.getItem('saved_active_tab') || 'tab-vao';
-        
-        if (listDataParked.length > 0 || listDataReturned.length > 0) {
-            renderParkedCarsData();
-            renderReturnedCarsData();
-            isDataLoaded = true;
-        }
-        
+        if (listDataParked.length > 0 || listDataReturned.length > 0) { renderParkedCarsData(); renderReturnedCarsData(); isDataLoaded = true; }
         switchTab(savedTab, true);
     };
 
@@ -281,7 +277,6 @@
         
         localStorage.setItem('saved_active_tab', tabId); 
 
-        // Nếu chuyển khỏi tab, hãy tắt camera đang chạy để tiết kiệm pin
         if (tabId !== 'tab-vao') stopCamera();
         if (tabId !== 'tab-trong') stopCameraOut();
 
@@ -289,30 +284,20 @@
         if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
 
-    // --- CÁC HÀM XỬ LÝ CAMERA TRỰC TIẾP VÀO BẾN ---
+    // --- CAMERA VÀO BẾN ---
     async function startCamera() {
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
-            });
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
             const video = document.getElementById('liveCamera');
-            video.srcObject = stream;
-            video.style.display = 'block';
-            
+            video.srcObject = stream; video.style.display = 'block';
             document.getElementById('startCamBtn').style.display = 'none';
             document.getElementById('snapBtn').style.display = 'block';
             document.getElementById('previewArea').style.display = 'flex';
-        } catch (err) {
-            alert("Không thể mở camera. Vui lòng cấp quyền camera cho trình duyệt!");
-            console.error(err);
-        }
+        } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền camera cho trình duyệt!"); console.error(err); }
     }
 
     function stopCamera() {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
-        }
+        if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
         document.getElementById('liveCamera').style.display = 'none';
         document.getElementById('startCamBtn').style.display = 'block';
         document.getElementById('snapBtn').style.display = 'none';
@@ -321,16 +306,12 @@
     function takeSnapshot() {
         const video = document.getElementById('liveCamera');
         const canvas = document.createElement('canvas');
-        
         const MAX_SIZE = 1280;
         let width = video.videoWidth; let height = video.videoHeight;
         if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
         else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-        
         canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, width, height);
-
+        const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, width, height);
         const snapBtn = document.getElementById('snapBtn');
 
         if (!capturedImages.front) {
@@ -338,95 +319,69 @@
             document.getElementById('previewInFront').src = capturedImages.front;
             document.getElementById('previewInFront').style.display = 'block';
             document.getElementById('retakeFrontBtn').style.display = 'block';
-            
-            snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)';
-            snapBtn.style.backgroundColor = 'var(--warning)';
+            snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; snapBtn.style.backgroundColor = 'var(--warning)';
         } else if (!capturedImages.back) {
             capturedImages.back = canvas.toDataURL('image/jpeg', 0.8);
             document.getElementById('previewInBack').src = capturedImages.back;
             document.getElementById('previewInBack').style.display = 'block';
             document.getElementById('retakeBackBtn').style.display = 'block';
-            
-            snapBtn.innerHTML = '✅ ĐÃ XONG';
-            snapBtn.style.backgroundColor = 'var(--success)';
-            snapBtn.style.display = 'none'; 
-            
-            stopCamera();
-            document.getElementById('plateIn').focus();
+            snapBtn.innerHTML = '✅ ĐÃ XONG'; snapBtn.style.backgroundColor = 'var(--success)';
+            snapBtn.style.display = 'none'; stopCamera(); document.getElementById('plateIn').focus();
         }
     }
 
     async function retakePhoto(type) {
         if (!stream) await startCamera();
-        
-        const snapBtn = document.getElementById('snapBtn');
-        snapBtn.style.display = 'block';
-
+        const snapBtn = document.getElementById('snapBtn'); snapBtn.style.display = 'block';
         if (type === 'front') {
             capturedImages.front = "";
             document.getElementById('previewInFront').style.display = 'none';
             document.getElementById('retakeFrontBtn').style.display = 'none';
-            snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH TRƯỚC';
-            snapBtn.style.backgroundColor = 'var(--primary)';
+            snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH TRƯỚC'; snapBtn.style.backgroundColor = 'var(--primary)';
         } else if (type === 'back') {
             capturedImages.back = "";
             document.getElementById('previewInBack').style.display = 'none';
             document.getElementById('retakeBackBtn').style.display = 'none';
-            snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH SAU';
-            snapBtn.style.backgroundColor = 'var(--warning)';
+            snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH SAU'; snapBtn.style.backgroundColor = 'var(--warning)';
         }
     }
     
-    // --- CÁC HÀM XỬ LÝ CAMERA TRỰC TIẾP TRẢ XE (OUT) ---
+    // --- CAMERA TRẢ XE (OUT) ---
     async function startCameraOut() {
         try {
-            streamOut = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
-            });
+            streamOut = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
             const video = document.getElementById('liveCameraOut');
-            video.srcObject = streamOut;
-            video.style.display = 'block';
+            video.srcObject = streamOut; video.style.display = 'block';
             
             document.getElementById('startCamOutBtn').style.display = 'none';
-            document.getElementById('snapOutBtn').style.display = 'block';
-            document.getElementById('closeCamOutBtn').style.display = 'block';
+            document.getElementById('actionButtonsOut').style.display = 'flex'; // Hiển thị nút Chụp và Đóng ngay trên video
             document.getElementById('previewAreaOut').style.display = 'none';
-        } catch (err) {
-            alert("Không thể mở camera. Vui lòng cấp quyền!");
-            console.error(err);
-        }
+        } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
     }
 
     function stopCameraOut() {
-        if (streamOut) {
-            streamOut.getTracks().forEach(track => track.stop());
-            streamOut = null;
-        }
+        if (streamOut) { streamOut.getTracks().forEach(track => track.stop()); streamOut = null; }
         document.getElementById('liveCameraOut').style.display = 'none';
         document.getElementById('startCamOutBtn').style.display = 'block';
-        document.getElementById('snapOutBtn').style.display = 'none';
-        document.getElementById('closeCamOutBtn').style.display = 'none';
+        document.getElementById('actionButtonsOut').style.display = 'none';
     }
 
     function takeSnapshotOut() {
         const video = document.getElementById('liveCameraOut');
         const canvas = document.createElement('canvas');
-        
         const MAX_SIZE = 1280;
         let width = video.videoWidth; let height = video.videoHeight;
         if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
         else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-        
         canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, width, height);
+        const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, width, height);
 
         capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
-        
         document.getElementById('previewOut').src = capturedImages.out;
-        document.getElementById('previewAreaOut').style.display = 'block';
+        document.getElementById('previewAreaOut').style.display = 'block'; // Hiển thị khung chứa ảnh và nút xác nhận
         
-        stopCameraOut(); // Chụp xong tắt luồng cho nhẹ máy
+        stopCameraOut(); // Chụp xong tắt video đi
+        document.getElementById('startCamOutBtn').style.display = 'none'; // Ẩn luôn nút mở lại camera (bảo toàn layout cho nút Xác nhận)
     }
 
     function retakePhotoOut() {
@@ -445,22 +400,15 @@
         hint.style.display = (modalBackSrc && modalBackSrc !== 'undefined' && modalBackSrc !== 'null' && modalBackSrc !== '') ? 'block' : 'none';
         document.getElementById('imageModal').style.display = 'flex';
     }
-
     function closeModal() { document.getElementById('imageModal').style.display = 'none'; }
-
     function handleModalSwipeStart(e) { modalSwipeStartX = e.touches[0].clientX; modalSwipeStartY = e.touches[0].clientY; }
     function handleModalSwipeEnd(e) {
-        let diffX = modalSwipeStartX - e.changedTouches[0].clientX;
-        let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
-        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
-            if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal();
-            return;
-        }
+        let diffX = modalSwipeStartX - e.changedTouches[0].clientX; let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) { if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal(); return; }
         if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
             if (!modalBackSrc || modalBackSrc === 'undefined' || modalBackSrc === 'null' || modalBackSrc === '') return;
             const modalImg = document.getElementById('modalImage');
-            if (isModalShowingFront) { modalImg.src = modalBackSrc; isModalShowingFront = false; } 
-            else { modalImg.src = modalFrontSrc; isModalShowingFront = true; }
+            if (isModalShowingFront) { modalImg.src = modalBackSrc; isModalShowingFront = false; } else { modalImg.src = modalFrontSrc; isModalShowingFront = true; }
         }
     }
 
@@ -471,29 +419,21 @@
         setTimeout(() => { toast.classList.remove('show'); }, 2500); 
     }
 
-    window.addEventListener('beforeunload', function (e) {
-        if (syncQueue.length > 0) { e.preventDefault(); e.returnValue = 'Đang đồng bộ dữ liệu...'; }
-    });
+    window.addEventListener('beforeunload', function (e) { if (syncQueue.length > 0) { e.preventDefault(); e.returnValue = 'Đang đồng bộ dữ liệu...'; } });
 
     function updateSyncBadge() {
         const badge = document.getElementById('syncBadge');
-        if (syncQueue.length > 0) { badge.style.display = 'block'; badge.innerText = `Đang tải ${syncQueue.length} xe lên hệ thống...`; } 
-        else { badge.style.display = 'none'; }
+        if (syncQueue.length > 0) { badge.style.display = 'block'; badge.innerText = `Đang tải ${syncQueue.length} xe lên hệ thống...`; } else { badge.style.display = 'none'; }
     }
 
     async function processQueue() {
         if (isSyncing || syncQueue.length === 0) return;
-        isSyncing = true; updateSyncBadge();
-        const currentTask = syncQueue[0];
+        isSyncing = true; updateSyncBadge(); const currentTask = syncQueue[0];
         try {
             const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(currentTask) });
             const res = await response.json(); 
-            if (res.status === 'success') { syncQueue.shift(); isDataLoaded = false; } 
-            else { syncQueue.shift(); showToast('Lỗi tải lên: ' + res.message, 'error'); }
-        } catch (error) { 
-            showToast('Mất mạng! Tự động thử lại...', 'error'); 
-            await new Promise(resolve => setTimeout(resolve, 3000));
-        }
+            if (res.status === 'success') { syncQueue.shift(); isDataLoaded = false; } else { syncQueue.shift(); showToast('Lỗi tải lên: ' + res.message, 'error'); }
+        } catch (error) { showToast('Mất mạng! Tự động thử lại...', 'error'); await new Promise(resolve => setTimeout(resolve, 3000)); }
         isSyncing = false; updateSyncBadge(); processQueue(); 
     }
 
@@ -504,7 +444,6 @@
         
         syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
         showToast('Đã lưu! Hãy nhập xe tiếp theo', 'success');
-        
         resetForm(); processQueue(); 
     }
 
@@ -523,14 +462,10 @@
         const listDiv = document.getElementById('listResults'); const searchResultDiv = document.getElementById('searchResult');
         if (!plate) { listDiv.style.display = 'none'; searchResultDiv.style.display = 'none'; return; }
         searchResultDiv.style.display = 'none';
-        
         currentMatches = listDataParked.filter(car => car.plate.toUpperCase().includes(plate));
 
         if (currentMatches.length > 0) { renderSearchList(); } 
-        else {
-            listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:14px; padding: 10px 0;">Không có xe nào khớp...</div>';
-            listDiv.style.display = 'block';
-        }
+        else { listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:14px; padding: 10px 0;">Không có xe nào khớp...</div>'; listDiv.style.display = 'block'; }
     }
 
     function renderSearchList() {
@@ -540,12 +475,11 @@
             let html = `<div style="font-weight:600; color:var(--primary); text-align:center;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
             currentMatches.forEach((car, index) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
-                html += `
-                <div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
-                    <div class="img-group"><img src="${car.entryImg}" alt="Trước" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
-                    <div class="stat-info"><strong style="color:var(--danger); font-size:18px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
-                    <div class="icon-out">CHO RA</div>
-                </div>`;
+                html += `<div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
+                            <div class="img-group"><img src="${car.entryImg}" alt="Trước" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
+                            <div class="stat-info"><strong style="color:var(--danger); font-size:18px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
+                            <div class="icon-out">CHO RA</div>
+                        </div>`;
             });
             listDiv.innerHTML = html; listDiv.style.display = 'flex';
         }
@@ -555,11 +489,7 @@
     
     function quickCheckout(rowIndex) { 
         const car = listDataParked.find(c => c.rowIndex === rowIndex);
-        if(car) {
-            setupCheckoutForm(car); 
-            switchTab('tab-trong', true); 
-            window.scrollTo({ top: 0, behavior: 'smooth' }); 
-        }
+        if(car) { setupCheckoutForm(car); switchTab('tab-trong', true); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     }
 
     function setupCheckoutForm(car) {
@@ -570,18 +500,16 @@
         document.getElementById('resImgFront').src = car.entryImg;
         document.getElementById('resImgFront').onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); };
         const resImgBack = document.getElementById('resImgBack');
-        if (car.entryImgBack) {
-            resImgBack.src = car.entryImgBack; resImgBack.style.display = 'inline-block';
-            resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); };
-        } else { resImgBack.style.display = 'none'; }
+        if (car.entryImgBack) { resImgBack.src = car.entryImgBack; resImgBack.style.display = 'inline-block'; resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); }; } 
+        else { resImgBack.style.display = 'none'; }
         
         document.getElementById('listResults').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'block';
         
-        // Setup lại trạng thái UI ảnh chụp ra
         capturedImages.out = ""; 
         document.getElementById('previewAreaOut').style.display = 'none'; 
-        stopCameraOut(); // Tắt camera đi để họ tự bật khi cần
+        document.getElementById('actionButtonsOut').style.display = 'none'; 
+        stopCameraOut(); // Reset luồng
     }
 
     async function editPlate(rowIndex, oldPlate) {
@@ -591,8 +519,7 @@
         try {
             const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: rowIndex, newPlate: newPlate, deviceId: myDeviceId }) });
             const res = await response.json(); 
-            if (res.status === 'success') { showToast('Đã cập nhật biển số mới!', 'success'); loadParkedCars(); } 
-            else { showToast(res.message, 'error'); }
+            if (res.status === 'success') { showToast('Đã cập nhật biển số mới!', 'success'); loadParkedCars(); } else { showToast(res.message, 'error'); }
         } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
         toggleLoading(false);
     }
@@ -605,11 +532,8 @@
             
             if (res.status === 'success') {
                 let tempParked = [];
-                if (res.parkedCars) { tempParked = res.parkedCars; } 
-                else if (res.todayCars && res.overnightCars) { tempParked = [...res.todayCars, ...res.overnightCars]; } 
-                
+                if (res.parkedCars) { tempParked = res.parkedCars; } else if (res.todayCars && res.overnightCars) { tempParked = [...res.todayCars, ...res.overnightCars]; } 
                 listDataParked = tempParked.sort((a, b) => b.rowIndex - a.rowIndex);
-
                 let tempReturned = res.returnedCars || [];
                 listDataReturned = tempReturned.sort((a, b) => b.rowIndex - a.rowIndex);
                 
@@ -625,9 +549,8 @@
     function renderParkedCarsData() {
         document.getElementById('countParked').innerText = listDataParked.length;
         let html = '';
-        if(listDataParked.length === 0) {
-            html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Bãi đang trống, không có xe.</div>';
-        } else {
+        if(listDataParked.length === 0) { html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Bãi đang trống, không có xe.</div>'; } 
+        else {
             listDataParked.forEach((car) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
                 html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
@@ -643,9 +566,8 @@
     function renderReturnedCarsData() {
         document.getElementById('countReturned').innerText = listDataReturned.length;
         let html = '';
-        if(listDataReturned.length === 0) {
-            html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Chưa có xe nào xuất bến.</div>';
-        } else {
+        if(listDataReturned.length === 0) { html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Chưa có xe nào xuất bến.</div>'; } 
+        else {
             listDataReturned.forEach((car) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
                 html += `<div class="stat-item" style="cursor: default;">
@@ -668,31 +590,21 @@
     
     function resetForm() { 
         document.getElementById('plateIn').value = ""; 
-        
-        // UI tab VÀO
         document.getElementById('previewInFront').style.display = 'none'; 
         document.getElementById('previewInBack').style.display = 'none'; 
         document.getElementById('retakeFrontBtn').style.display = 'none';
         document.getElementById('retakeBackBtn').style.display = 'none';
-        const previewArea = document.getElementById('previewArea');
-        if(previewArea) previewArea.style.display = 'none';
+        const previewArea = document.getElementById('previewArea'); if(previewArea) previewArea.style.display = 'none';
         const snapBtn = document.getElementById('snapBtn');
-        if (snapBtn) {
-            snapBtn.innerHTML = '📸 CHỤP ẢNH TRƯỚC';
-            snapBtn.style.backgroundColor = 'var(--primary)';
-            snapBtn.style.display = 'none';
-        }
-        const startBtn = document.getElementById('startCamBtn');
-        if(startBtn) startBtn.style.display = 'block';
-        if (document.getElementById('tab-vao').classList.contains('active') && !stream) {
-            startCamera();
-        }
+        if (snapBtn) { snapBtn.innerHTML = '📸 CHỤP ẢNH TRƯỚC'; snapBtn.style.backgroundColor = 'var(--primary)'; snapBtn.style.display = 'none'; }
+        const startBtn = document.getElementById('startCamBtn'); if(startBtn) startBtn.style.display = 'block';
+        if (document.getElementById('tab-vao').classList.contains('active') && !stream) { startCamera(); }
 
-        // UI tab TRONG BÃI
         document.getElementById('plateSearch').value = "";
         document.getElementById('searchResult').style.display = 'none'; 
         document.getElementById('listResults').style.display = 'none'; 
         document.getElementById('previewAreaOut').style.display = 'none'; 
+        document.getElementById('actionButtonsOut').style.display = 'none'; 
         stopCameraOut();
 
         capturedImages = { front: "", back: "", out: "" }; currentCarRowIndex = null; currentMatches = []; 
