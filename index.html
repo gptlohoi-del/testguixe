@@ -320,7 +320,8 @@
     async function startCamera() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1920 } } 
+                // Thay 1080x1920 thành 1080x1440 (hoặc 960x1280) để đúng tỉ lệ 3:4
+                video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1440 } } 
             });
             const video = document.getElementById('liveCamera');
             video.srcObject = stream; video.style.display = 'block';
@@ -443,7 +444,7 @@
     async function startCameraOut() {
         try {
             streamOut = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1920 } } 
+                video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1440 } } 
             });
             const video = document.getElementById('liveCameraOut');
             video.srcObject = streamOut; video.style.display = 'block';
