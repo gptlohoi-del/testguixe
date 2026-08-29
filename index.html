@@ -90,7 +90,7 @@
         .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; line-height: 1; padding: 10px; z-index: 10002;}
         .modal-swipe-hint { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 13px; background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; pointer-events: none; font-weight: 500; letter-spacing: 0.3px; }
 
-        #plateIn::placeholder {
+        #plateIn::placeholder, #editPlateInput::placeholder {
             text-transform: none; 
             font-size: 13px;      
             font-weight: bold;  
@@ -110,7 +110,7 @@
 <div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75);">
     <div style="background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; z-index: 10001; position: relative;">
         <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
-        <input type="text" id="editPlateInput" inputmode="numeric" placeholder="Nhập biển số mới" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;">
+        <input type="text" id="editPlateInput" inputmode="numeric" placeholder="Chỉ nhập số, kết thúc bằng . hoặc ," style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
         <div style="display: flex; gap: 10px;">
             <button onclick="closeEditModal()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: #64748b; color: white; font-weight: bold; cursor: pointer;">HỦY</button>
             <button onclick="confirmEditPlate()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--warning); color: white; font-weight: bold; cursor: pointer;">LƯU LẠI</button>
@@ -464,6 +464,7 @@
         document.getElementById('actionButtonsOut').style.display = 'none';
     }
 
+    // ĐÃ SỬA: Tự động Xác Nhận Xe Ra ngay sau khi chụp xong
     function takeSnapshotOut() {
         const video = document.getElementById('liveCameraOut');
         const canvas = document.createElement('canvas');
@@ -491,10 +492,10 @@
         ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
 
         capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('previewOut').src = capturedImages.out;
-        document.getElementById('previewAreaOut').style.display = 'block'; 
         
         stopCameraOut();
+        // Tự động gọi xử lý xe ra
+        handleXeRa();
     }
 
     function retakePhotoOut() {
@@ -620,6 +621,16 @@
                     handleXeVao();
                 }
             }
+        }
+    }
+
+    // ĐÃ SỬA: Hàm tự động lưu cho ô Sửa Biển Số
+    function checkAutoSubmitEdit(inputElement) {
+        let val = inputElement.value;
+        if (val.endsWith(',') || val.endsWith('.')) {
+            inputElement.value = val.slice(0, -1);
+            inputElement.blur();
+            confirmEditPlate();
         }
     }
 
@@ -797,12 +808,13 @@
             listDataParked.forEach((car) => {
                 let displayImg = car.entryImgBack || car.entryImg;
                 
+                // ĐÃ SỬA: Đổi chữ SỬA thành SỬA BIỂN SỐ
                 html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
                             <div class="img-group">
                                 <img src="${car.entryImg}" style="display:none;" loading="lazy">
                                 <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
-                            <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA</button></div>
+                            <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN SỐ</button></div>
                             <div class="icon-out">CHO RA</div>
                         </div>`;
             });
