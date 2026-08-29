@@ -105,7 +105,6 @@
     
     <div id="syncBadge" class="sync-badge">Đang đồng bộ: 1 xe lên hệ thống...</div>
 
-    <!-- TABS -->
     <div class="tabs">
         <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
         <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG BÃI</button>
@@ -114,7 +113,6 @@
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
 
-    <!-- TAB 1: VÀO BẾN -->
     <div id="tab-vao" class="tab-content active">
         <div class="form-group">
             <label for="plateIn">Biển số xe vào</label>
@@ -124,7 +122,6 @@
             </div>
         </div>
         
-        <!-- KHUNG CAMERA TRỰC TIẾP -->
         <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
             <video id="liveCamera" autoplay playsinline style="width: 100%; max-height: 300px; object-fit: cover; display: none;"></video>
             <button id="startCamBtn" onclick="startCamera()" style="padding: 40px 20px; width: 100%; background: #334155; color: white; border: none; font-weight: bold; font-size: 14px; cursor: pointer;">
@@ -132,12 +129,10 @@
             </button>
         </div>
 
-        <!-- NÚT CHỤP SIÊU TỐC -->
         <button id="snapBtn" onclick="takeSnapshot()" type="button" style="display: none; width: 100%; font-size: 15px; font-weight: bold; padding: 18px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 15px;">
             📸 CHỤP ẢNH TRƯỚC
         </button>
 
-        <!-- KHU VỰC XEM TRƯỚC CÓ KÈM NÚT CHỤP LẠI -->
         <div id="previewArea" style="display:none; gap:10px; margin-bottom: 15px;">
             <div style="flex:1; text-align:center;">
                 <p style="margin: 0 0 5px; font-size: 12px; font-weight: bold; color: var(--text-muted);">ẢNH TRƯỚC</p>
@@ -153,7 +148,6 @@
         </div>
     </div>
 
-    <!-- TAB 2: TRONG BÃI -->
     <div id="tab-trong" class="tab-content">
         <div class="search-container">
             <div class="form-group" style="margin-bottom: 0;">
@@ -168,27 +162,32 @@
                 <p style="margin:5px 0; font-size:14px;"><strong>Giờ vào:</strong> <span id="resTime"></span></p>
                 <p style="margin:5px 0; font-size:14px;"><strong>Người nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></p>
                 
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <div style="flex:1; text-align:center;">
-                        <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh TRƯỚC</p>
-                        <img id="resImgFront" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
-                    </div>
-                    <div style="flex:1; text-align:center;">
-                        <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh SAU</p>
-                        <img id="resImgBack" src="" style="width:100%; max-height:120px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
-                    </div>
-                </div>
-                
-                <hr style="margin: 16px 0; border: 0; border-top: 1px solid var(--border);">
+                <hr style="margin: 16px 0; border: 0; border-top: 1px dashed var(--border);">
+
                 <div class="form-group">
-                    <label class="camera-btn" for="cameraOut">
+                    <label class="camera-btn" for="cameraOut" style="background-color:#fef2f2; border-color:#fca5a5; color:var(--danger);">
                         <svg viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm8 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
-                        CHỤP ẢNH RA
+                        CHỤP ẢNH LÚC RA
                     </label>
                     <input type="file" id="cameraOut" class="file-input-hidden" accept="image/*" capture="camera" onchange="previewAndCompress(this, 'previewOut', 'out')">
                 </div>
                 <div class="preview-box"><img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '')"></div>
-                <button class="action-btn btn-out" onclick="handleXeRa()">XÁC NHẬN HOÀN THÀNH</button>
+                
+                <button class="action-btn btn-out" onclick="handleXeRa()" style="margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">XÁC NHẬN HOÀN THÀNH</button>
+
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                    <p style="margin:0 0 10px; text-align:center; font-size:13px; font-weight:600; color:var(--text-muted);">HÌNH ẢNH LÚC VÀO (Tham khảo)</p>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1; text-align:center;">
+                            <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh TRƯỚC</p>
+                            <img id="resImgFront" src="" style="width:100%; max-height:100px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
+                        </div>
+                        <div style="flex:1; text-align:center;">
+                            <p style="margin:0 0 5px; font-size:12px; font-weight:bold;">Ảnh SAU</p>
+                            <img id="resImgBack" src="" style="width:100%; max-height:100px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -199,7 +198,6 @@
         <div id="listParked" class="list-cars"></div>
     </div>
 
-    <!-- TAB 3: ĐÃ TRẢ -->
     <div id="tab-tra" class="tab-content">
         <div class="stats-header">
             <h3>Xe đã xuất bến <span id="countReturned" class="badge-success">0</span></h3>
@@ -274,7 +272,6 @@
     // --- CÁC HÀM XỬ LÝ CAMERA TRỰC TIẾP ---
     async function startCamera() {
         try {
-            // Yêu cầu camera sau với độ phân giải lý tưởng 1920x1080 (Full HD)
             stream = await navigator.mediaDevices.getUserMedia({ 
                 video: { 
                     facingMode: 'environment',
@@ -309,7 +306,6 @@
         const video = document.getElementById('liveCamera');
         const canvas = document.createElement('canvas');
         
-        // Tăng max_size lên 1280 để lưu ảnh nét hơn
         const MAX_SIZE = 1280;
         let width = video.videoWidth; 
         let height = video.videoHeight;
@@ -338,7 +334,7 @@
             
             snapBtn.innerHTML = '✅ ĐÃ XONG';
             snapBtn.style.backgroundColor = 'var(--success)';
-            snapBtn.style.display = 'none'; // Đã đủ 2 hình thì ẩn nút chụp đi
+            snapBtn.style.display = 'none'; 
             
             stopCamera();
             document.getElementById('plateIn').focus();
@@ -555,11 +551,15 @@
             const res = await response.json();
             
             if (res.status === 'success') {
-                if (res.parkedCars) { listDataParked = res.parkedCars; } 
-                else if (res.todayCars && res.overnightCars) { listDataParked = [...res.todayCars, ...res.overnightCars]; } 
-                else { listDataParked = []; }
+                let tempParked = [];
+                if (res.parkedCars) { tempParked = res.parkedCars; } 
+                else if (res.todayCars && res.overnightCars) { tempParked = [...res.todayCars, ...res.overnightCars]; } 
+                
+                // SẮP XẾP CHUẨN: Dòng số cao (xe mới thêm) luôn nằm trên cùng
+                listDataParked = tempParked.sort((a, b) => b.rowIndex - a.rowIndex);
 
-                listDataReturned = res.returnedCars || [];
+                let tempReturned = res.returnedCars || [];
+                listDataReturned = tempReturned.sort((a, b) => b.rowIndex - a.rowIndex);
                 
                 localStorage.setItem('saved_cars_parked', JSON.stringify(listDataParked));
                 localStorage.setItem('saved_cars_returned', JSON.stringify(listDataReturned));
@@ -576,8 +576,8 @@
         if(listDataParked.length === 0) {
             html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Bãi đang trống, không có xe.</div>';
         } else {
-            let reversedParked = listDataParked.slice().reverse();
-            reversedParked.forEach((car) => {
+            // Mảng đã được sort chuẩn lúc tải về, nên chỉ cần loop trực tiếp
+            listDataParked.forEach((car) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
                 html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
                             <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
@@ -595,8 +595,8 @@
         if(listDataReturned.length === 0) {
             html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Chưa có xe nào xuất bến.</div>';
         } else {
-            let reversedReturned = listDataReturned.slice().reverse();
-            reversedReturned.forEach((car) => {
+            // Mảng đã được sort chuẩn lúc tải về
+            listDataReturned.forEach((car) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
                 html += `<div class="stat-item" style="cursor: default;">
                             <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
@@ -619,7 +619,6 @@
     function resetForm() { 
         document.getElementById('plateIn').value = ""; 
         
-        // Làm sạch UI của Live Camera
         document.getElementById('previewInFront').style.display = 'none'; 
         document.getElementById('previewInBack').style.display = 'none'; 
         document.getElementById('retakeFrontBtn').style.display = 'none';
@@ -638,12 +637,10 @@
         const startBtn = document.getElementById('startCamBtn');
         if(startBtn) startBtn.style.display = 'block';
 
-        // Khởi động lại camera ngay để đón xe tiếp theo (nếu đang ở tab VÀO)
         if (document.getElementById('tab-vao').classList.contains('active') && !stream) {
             startCamera();
         }
 
-        // Làm sạch form cũ
         document.getElementById('plateSearch').value = ""; document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'none'; document.getElementById('listResults').style.display = 'none'; 
         capturedImages = { front: "", back: "", out: "" }; currentCarRowIndex = null; currentMatches = []; 
