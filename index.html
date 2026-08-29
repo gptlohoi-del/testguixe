@@ -19,11 +19,9 @@
             --warning: #f59e0b; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
         }
         body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
-        /* Tối ưu padding container để tiết kiệm diện tích */
         .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 12px; min-height: 100vh; position: relative; overflow-x: hidden;}
         @media (min-width: 600px) { body { padding: 10px; } .container { min-height: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); } }
 
-        /* Tối ưu chiều cao tiêu đề */
         h1 { text-align: center; color: var(--text-main); font-size: 18px; margin-top: 0; margin-bottom: 10px;}
         
         .sync-badge { display: none; background-color: var(--warning); color: #fff; text-align: center; padding: 4px; font-size: 12px; font-weight: bold; border-radius: 20px; margin-bottom: 10px; animation: pulse 1.5s infinite; }
@@ -34,7 +32,6 @@
         .toast.success { background-color: var(--success); }
         .toast.error { background-color: var(--danger); }
 
-        /* Tối ưu tabs */
         .tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; margin-bottom: 12px; gap: 2px;}
         .tab-btn { flex: 1; padding: 8px 2px; text-align: center; background: none; border: none; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: all 0.2s; white-space: nowrap; letter-spacing: -0.3px;}
         .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -42,18 +39,15 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Tối ưu form nhập liệu */
         .form-group { margin-bottom: 10px; }
         label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px; color: var(--text-main); }
         input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; text-transform: uppercase; background: var(--bg); outline: none; transition: 0.2s; }
         input[type="text"]:focus, input[type="number"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         
-        /* Tối ưu nút bấm chung */
         button.action-btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; margin-top: 5px; transition: 0.2s; }
         .btn-in { background-color: var(--success); } .btn-out { background-color: var(--danger); }
         button:disabled { opacity: 0.7; cursor: not-allowed; }
         
-        /* Tối ưu khu vực xem trước ảnh */
         .preview-box { text-align: center; }
         .preview-box img { max-width: 100%; max-height: 100px; border-radius: 8px; border: 1px solid var(--border); display: none; margin: 0 auto; object-fit: cover; cursor: zoom-in;}
         .loading { display: none; text-align: center; font-weight: 600; color: var(--primary); margin: 10px 0; font-size: 13px;}
@@ -70,7 +64,6 @@
         .stat-item { display: flex; align-items: center; gap: 10px; background: #fff; padding: 8px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.1s; position: relative;}
         .stat-item:active { background: #f1f5f9; transform: scale(0.98); }
         
-        /* HÌNH CHỮ NHẬT ĐỨNG TRONG DANH SÁCH */
         .img-group { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
         .img-group img { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: zoom-in; }
         
@@ -81,7 +74,8 @@
         .icon-out { position: absolute; right: 8px; top: 8px; color: var(--danger); font-weight: bold; font-size: 10px; background: #fee2e2; padding: 3px 6px; border-radius: 10px;}
         .icon-done { position: absolute; right: 8px; top: 8px; color: var(--success); font-weight: bold; font-size: 10px; background: #dcfce7; padding: 3px 6px; border-radius: 10px;}
         
-        .btn-edit { background-color: var(--warning); color: #fff; border: none; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        /* Tối ưu lại nút sửa biển số để to và dễ chạm hơn */
+        .btn-edit { position: relative; z-index: 5; background-color: var(--warning); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: 0.2s;}
         
         .search-container { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         
@@ -90,7 +84,7 @@
         .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; line-height: 1; padding: 10px; z-index: 10002;}
         .modal-swipe-hint { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 13px; background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; pointer-events: none; font-weight: 500; letter-spacing: 0.3px; }
 
-        #plateIn::placeholder {
+        #plateIn::placeholder, #editPlateInput::placeholder {
             text-transform: none; 
             font-size: 13px;      
             font-weight: bold;  
@@ -110,7 +104,8 @@
 <div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75);">
     <div style="background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; z-index: 10001; position: relative;">
         <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
-        <input type="text" id="editPlateInput" inputmode="numeric" placeholder="Nhập biển số mới" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;">
+        <!-- Ô input tự động nhận diện phím , hoặc . để lưu -->
+        <input type="text" id="editPlateInput" inputmode="numeric" placeholder="Kết thúc bằng . hoặc ," style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
         <div style="display: flex; gap: 10px;">
             <button onclick="closeEditModal()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: #64748b; color: white; font-weight: bold; cursor: pointer;">HỦY</button>
             <button onclick="confirmEditPlate()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--warning); color: white; font-weight: bold; cursor: pointer;">LƯU LẠI</button>
@@ -196,19 +191,10 @@
                     <button id="closeCamOutBtn" onclick="stopCameraOut()" type="button" style="flex: 1; font-size: 13px; font-weight: bold; padding: 12px; background-color: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
                         ĐÓNG
                     </button>
+                    <!-- Tự động xử lý ngay khi chụp ảnh xong, không hiển thị thêm giao diện xác nhận -->
                     <button id="snapOutBtn" onclick="takeSnapshotOut()" type="button" style="flex: 2; font-size: 14px; font-weight: bold; padding: 12px; background-color: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer;">
                         📸 CHỤP ẢNH RA
                     </button>
-                </div>
-
-                <div id="previewAreaOut" style="display:none; text-align:center; margin-bottom: 12px;">
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <button id="retakeOutBtn" onclick="retakePhotoOut()" type="button" style="flex: 1; padding: 10px; font-size: 12px; font-weight: bold; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; color: var(--danger);">🔄 Chụp lại</button>
-                        <button class="action-btn btn-out" onclick="handleXeRa()" style="flex: 2; margin-top: 0; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">XÁC NHẬN RA</button>
-                    </div>
-                    <div class="preview-box">
-                        <img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '', '')" style="max-height: 150px; width: 100%; object-fit: cover; display: inline-block; border-radius: 8px;">
-                    </div>
                 </div>
 
                 <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
@@ -253,10 +239,7 @@
 </div>
 
 <script>
-    // ==========================================
-    // BẠN HÃY DÁN ĐƯỜNG LINK WEB APP CỦA BẠN VÀO ĐÂY:
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-kJ_k4mXSB20CEgLwYI7qlb4tI_i1AfKOH_yhAjMvonPeJPafyfvUeZq3MZ1sNWgv9g/exec";
-    // ==========================================
 
     function getDeviceId() {
         let deviceId = localStorage.getItem('parking_device_id');
@@ -310,11 +293,6 @@
 
         if (tabId !== 'tab-vao') stopCamera();
         if (tabId !== 'tab-trong') stopCameraOut();
-
-        // LUÔN LUÔN CẬP NHẬT DỮ LIỆU KHI VÀO TAB "TRONG BÃI" HOẶC "ĐÃ TRẢ"
-        if (tabId === 'tab-trong' || tabId === 'tab-tra') {
-            loadParkedCars();
-        }
 
         if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
@@ -454,7 +432,6 @@
             video.srcObject = streamOut; video.style.display = 'block';
             
             document.getElementById('actionButtonsOut').style.display = 'flex';
-            document.getElementById('previewAreaOut').style.display = 'none';
         } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
     }
 
@@ -464,6 +441,7 @@
         document.getElementById('actionButtonsOut').style.display = 'none';
     }
 
+    // Tự động gọi xử lý xe ra sau khi lấy nét chụp ảnh
     function takeSnapshotOut() {
         const video = document.getElementById('liveCameraOut');
         const canvas = document.createElement('canvas');
@@ -491,16 +469,10 @@
         ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
 
         capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('previewOut').src = capturedImages.out;
-        document.getElementById('previewAreaOut').style.display = 'block'; 
         
         stopCameraOut();
-    }
-
-    function retakePhotoOut() {
-        capturedImages.out = "";
-        document.getElementById('previewAreaOut').style.display = 'none';
-        startCameraOut();
+        // Tự động gọi quá trình xuất bến
+        handleXeRa();
     }
 
     function openModal(currentSrc, imgFront, imgBack, imgOut) {
@@ -623,6 +595,16 @@
         }
     }
 
+    // Nhận diện ký tự kết thúc cho form sửa biển số
+    function checkAutoSubmitEdit(inputElement) {
+        let val = inputElement.value;
+        if (val.endsWith(',') || val.endsWith('.')) {
+            inputElement.value = val.slice(0, -1);
+            inputElement.blur();
+            confirmEditPlate();
+        }
+    }
+
     function handleXeVao() {
         const plate = document.getElementById('plateIn').value.trim();
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
@@ -716,8 +698,6 @@
         document.getElementById('searchResult').style.display = 'block';
         
         capturedImages.out = ""; 
-        document.getElementById('previewAreaOut').style.display = 'none'; 
-        
         startCameraOut(); 
     }
 
@@ -802,7 +782,7 @@
                                 <img src="${car.entryImg}" style="display:none;" loading="lazy">
                                 <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
-                            <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA</button></div>
+                            <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN SỐ</button></div>
                             <div class="icon-out">CHO RA</div>
                         </div>`;
             });
@@ -871,7 +851,6 @@
         document.getElementById('plateSearch').value = "";
         document.getElementById('searchResult').style.display = 'none'; 
         document.getElementById('listResults').style.display = 'none'; 
-        document.getElementById('previewAreaOut').style.display = 'none'; 
         document.getElementById('actionButtonsOut').style.display = 'none'; 
         stopCameraOut();
 
