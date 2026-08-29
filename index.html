@@ -45,8 +45,8 @@
         /* Tối ưu form nhập liệu */
         .form-group { margin-bottom: 10px; }
         label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px; color: var(--text-main); }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; text-transform: uppercase; background: var(--bg); outline: none; transition: 0.2s; }
-        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; text-transform: uppercase; background: var(--bg); outline: none; transition: 0.2s; }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         
         /* Tối ưu nút bấm chung */
         button.action-btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; margin-top: 5px; transition: 0.2s; }
@@ -107,12 +107,22 @@
     <div id="modalHint" class="modal-swipe-hint" style="display:none;">↔ Vuốt ngang đổi ảnh</div>
 </div>
 
+<div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75);">
+    <div style="background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; z-index: 10001; position: relative;">
+        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
+        <input type="text" id="editPlateInput" inputmode="numeric" placeholder="Nhập biển số mới" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;">
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeEditModal()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: #64748b; color: white; font-weight: bold; cursor: pointer;">HỦY</button>
+            <button onclick="confirmEditPlate()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--warning); color: white; font-weight: bold; cursor: pointer;">LƯU LẠI</button>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <h1>QUẢN LÝ BÃI XE</h1>
     
     <div id="syncBadge" class="sync-badge">Đang đồng bộ: 1 xe lên hệ thống...</div>
 
-    <!-- TABS -->
     <div class="tabs">
         <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
         <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG BÃI</button>
@@ -121,10 +131,8 @@
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
 
-    <!-- TAB 1: VÀO BẾN -->
     <div id="tab-vao" class="tab-content active">
         
-        <!-- BIỂN SỐ XE -->
         <div class="form-group">
             <label for="plateIn">Biển số xe vào bãi</label>
             <div style="display: flex; gap: 8px;">
@@ -133,7 +141,6 @@
             </div>
         </div>
         
-        <!-- KHU VỰC CAMERA VÀ NÚT CHỤP MỚI -->
         <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
             <video id="liveCamera" autoplay playsinline style="width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; display: none;"></video>
             
@@ -167,7 +174,6 @@
         </div>
     </div>
 
-    <!-- TAB 2: TRONG BÃI -->
     <div id="tab-trong" class="tab-content">
         <div class="search-container">
             <div class="form-group" style="margin-bottom: 0;">
@@ -197,8 +203,8 @@
 
                 <div id="previewAreaOut" style="display:none; text-align:center; margin-bottom: 12px;">
                     <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <button class="action-btn btn-out" onclick="handleXeRa()" style="flex: 2; margin-top: 0; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">XÁC NHẬN RA</button>
                         <button id="retakeOutBtn" onclick="retakePhotoOut()" type="button" style="flex: 1; padding: 10px; font-size: 12px; font-weight: bold; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; color: var(--danger);">🔄 Chụp lại</button>
+                        <button class="action-btn btn-out" onclick="handleXeRa()" style="flex: 2; margin-top: 0; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">XÁC NHẬN RA</button>
                     </div>
                     <div class="preview-box">
                         <img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '', '')" style="max-height: 150px; width: 100%; object-fit: cover; display: inline-block; border-radius: 8px;">
@@ -230,7 +236,6 @@
         <div id="listParked" class="list-cars"></div>
     </div>
 
-    <!-- TAB 3: ĐÃ TRẢ -->
     <div id="tab-tra" class="tab-content">
         <div class="stats-header">
             <h3>Xe đã xuất bến <span id="countReturned" class="badge-success">0</span></h3>
@@ -283,6 +288,10 @@
 
     let syncQueue = JSON.parse(localStorage.getItem('saved_sync_queue')) || []; 
     let isSyncing = false;
+
+    // Các biến phục vụ Modal Sửa biển số
+    let editingRowIndex = null;
+    let editingOldPlate = '';
 
     window.onload = function() {
         const savedTab = localStorage.getItem('saved_active_tab') || 'tab-vao';
@@ -722,15 +731,51 @@
         startCameraOut(); 
     }
 
-    async function editPlate(rowIndex, oldPlate) {
-        const newPlate = prompt(`Nhập biển số mới thay cho [ ${oldPlate} ]:`, oldPlate);
-        if (newPlate === null || newPlate.trim() === "" || newPlate.trim().toUpperCase() === oldPlate) return;
+    // ----- CÁC HÀM XỬ LÝ MODAL SỬA BIỂN SỐ -----
+    function editPlate(rowIndex, oldPlate) {
+        editingRowIndex = rowIndex;
+        editingOldPlate = oldPlate;
+        const modal = document.getElementById('editPlateModal');
+        const input = document.getElementById('editPlateInput');
+        
+        input.value = oldPlate;
+        modal.style.display = 'flex';
+        
+        // Timeout nhẹ để mobile trình duyệt kịp render modal trước khi focus
+        setTimeout(() => {
+            input.focus();
+        }, 100);
+    }
+
+    function closeEditModal() {
+        document.getElementById('editPlateModal').style.display = 'none';
+    }
+
+    async function confirmEditPlate() {
+        const newPlate = document.getElementById('editPlateInput').value;
+        if (!newPlate || newPlate.trim() === "" || newPlate.trim().toUpperCase() === editingOldPlate) {
+            closeEditModal();
+            return;
+        }
+        
+        closeEditModal();
         toggleLoading(true);
         try {
-            const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: rowIndex, newPlate: newPlate, deviceId: myDeviceId }) });
+            const response = await fetch(WEB_APP_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain' }, 
+                body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: editingRowIndex, newPlate: newPlate, deviceId: myDeviceId }) 
+            });
             const res = await response.json(); 
-            if (res.status === 'success') { showToast('Cập nhật biển số thành công!', 'success'); loadParkedCars(); } else { showToast(res.message, 'error'); }
-        } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
+            if (res.status === 'success') { 
+                showToast('Cập nhật biển số thành công!', 'success'); 
+                loadParkedCars(); 
+            } else { 
+                showToast(res.message, 'error'); 
+            }
+        } catch (error) { 
+            showToast('Lỗi mạng: ' + error.message, 'error'); 
+        }
         toggleLoading(false);
     }
 
@@ -787,11 +832,9 @@
             listDataReturned.forEach((car) => {
                 let displayImg = car.entryImgBack || car.entryImg;
                 
-                let btnXemAnhRa = ''; let imgExitHidden = '';
+                let imgExitHidden = '';
                 if (car.exitImg) {
                     imgExitHidden = `<img src="${car.exitImg}" style="display:none;">`;
-                    // Truyền đủ cả 3 ảnh vào openModal để xem qua lại mượt mà
-                    btnXemAnhRa = `<button class="btn-edit" style="background-color: var(--primary); margin-top: 6px; width: fit-content;" onclick="openModal('${car.exitImg}', '${car.entryImg}', '${car.entryImgBack || ""}', '${car.exitImg}'); event.stopPropagation();">📷 Ảnh ra</button>`;
                 }
 
                 html += `<div class="stat-item" style="cursor: default;">
@@ -805,7 +848,6 @@
                                 <span class="time" style="color:var(--danger)">Ra: ${car.exitTime || 'Đã ra'}</span>
                                 <span class="emp">Nhận: ${car.employeeIn}</span>
                                 <span class="emp" style="color:var(--primary)">Trả: ${car.employeeOut || 'Chưa rõ'}</span>
-                                ${btnXemAnhRa}
                                 ${imgExitHidden}
                             </div>
                             <div class="icon-done">XONG</div>
