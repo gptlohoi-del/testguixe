@@ -155,7 +155,7 @@
             
             <div id="listResults" class="list-cars" style="display: none;"></div>
 
-            <!-- PHẦN XỬ LÝ CHO XE RA (LAYOUT MỚI: NÚT NẰM TRÊN CAMERA) -->
+            <!-- PHẦN XỬ LÝ CHO XE RA -->
             <div id="searchResult" class="result-box">
                 <h3 style="margin-top:0;">Xe xuất bến: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
                 <div style="display: flex; justify-content: space-between; font-size:14px; margin-bottom: 12px;">
@@ -165,7 +165,6 @@
                 
                 <hr style="margin: 10px 0 15px 0; border: 0; border-top: 1px dashed var(--border);">
 
-                <!-- CỤM NÚT ĐƯỢC ĐẨY LÊN TRÊN CÙNG -->
                 <button id="startCamOutBtn" onclick="startCameraOut()" type="button" style="width: 100%; padding: 15px; background: #fee2e2; color: var(--danger); border: 2px dashed #fca5a5; font-weight: bold; font-size: 14px; cursor: pointer; border-radius: 8px; margin-bottom: 10px;">
                     📷 CHẠM ĐỂ MỞ CAMERA TRẢ XE
                 </button>
@@ -179,7 +178,6 @@
                     </button>
                 </div>
 
-                <!-- GIAO DIỆN XÁC NHẬN CŨNG NẰM PHÍA TRÊN ẢNH -->
                 <div id="previewAreaOut" style="display:none; text-align:center; margin-bottom: 15px;">
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <button class="action-btn btn-out" onclick="handleXeRa()" style="flex: 2; margin-top: 0; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">XÁC NHẬN HOÀN THÀNH</button>
@@ -190,12 +188,10 @@
                     </div>
                 </div>
 
-                <!-- CAMERA LIVE NẰM BÊN DƯỚI NÚT CHỤP -->
                 <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
                     <video id="liveCameraOut" autoplay playsinline style="width: 100%; max-height: 250px; object-fit: cover; display: none;"></video>
                 </div>
 
-                <!-- Cụm ẢNH CŨ được đưa xuống đáy để không cản trở thao tác -->
                 <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px;">
                     <p style="margin:0 0 10px; text-align:center; font-size:13px; font-weight:600; color:var(--text-muted);">HÌNH ẢNH LÚC VÀO (Tham khảo)</p>
                     <div style="display:flex; gap:10px;">
@@ -261,12 +257,21 @@
     let isDataLoaded = false;
     let capturedImages = { front: "", back: "", out: "" };
     let currentCarRowIndex = null; let currentMatches = [];
-    let syncQueue = []; let isSyncing = false;
+    
+    // Đã thay đổi: Lấy queue từ localStorage khi tải trang
+    let syncQueue = JSON.parse(localStorage.getItem('saved_sync_queue')) || []; 
+    let isSyncing = false;
 
     window.onload = function() {
         const savedTab = localStorage.getItem('saved_active_tab') || 'tab-vao';
         if (listDataParked.length > 0 || listDataReturned.length > 0) { renderParkedCarsData(); renderReturnedCarsData(); isDataLoaded = true; }
         switchTab(savedTab, true);
+        
+        // Đã thay đổi: Nếu có dữ liệu trong queue, tự động upload tiếp
+        if (syncQueue.length > 0) { 
+            updateSyncBadge(); 
+            processQueue(); 
+        }
     };
 
     function switchTab(tabId, preventReset = false) {
@@ -284,7 +289,6 @@
         if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
 
-    // --- CAMERA VÀO BẾN ---
     async function startCamera() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
@@ -346,7 +350,6 @@
         }
     }
     
-    // --- CAMERA TRẢ XE (OUT) ---
     async function startCameraOut() {
         try {
             streamOut = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
@@ -354,7 +357,7 @@
             video.srcObject = streamOut; video.style.display = 'block';
             
             document.getElementById('startCamOutBtn').style.display = 'none';
-            document.getElementById('actionButtonsOut').style.display = 'flex'; // Hiển thị nút Chụp và Đóng ngay trên video
+            document.getElementById('actionButtonsOut').style.display = 'flex';
             document.getElementById('previewAreaOut').style.display = 'none';
         } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
     }
@@ -378,10 +381,10 @@
 
         capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
         document.getElementById('previewOut').src = capturedImages.out;
-        document.getElementById('previewAreaOut').style.display = 'block'; // Hiển thị khung chứa ảnh và nút xác nhận
+        document.getElementById('previewAreaOut').style.display = 'block'; 
         
-        stopCameraOut(); // Chụp xong tắt video đi
-        document.getElementById('startCamOutBtn').style.display = 'none'; // Ẩn luôn nút mở lại camera (bảo toàn layout cho nút Xác nhận)
+        stopCameraOut();
+        document.getElementById('startCamOutBtn').style.display = 'none';
     }
 
     function retakePhotoOut() {
@@ -389,7 +392,6 @@
         document.getElementById('previewAreaOut').style.display = 'none';
         startCameraOut();
     }
-    // ---------------------------------------
 
     function openModal(currentSrc, frontSrc, backSrc) {
         if (!currentSrc) return;
@@ -419,7 +421,23 @@
         setTimeout(() => { toast.classList.remove('show'); }, 2500); 
     }
 
-    window.addEventListener('beforeunload', function (e) { if (syncQueue.length > 0) { e.preventDefault(); e.returnValue = 'Đang đồng bộ dữ liệu...'; } });
+    // Đã thay đổi: Ngăn chặn việc tải lại trang khi đang upload
+    window.addEventListener('beforeunload', function (e) { 
+        if (syncQueue.length > 0) { 
+            e.preventDefault(); 
+            e.returnValue = 'Dữ liệu đang được đồng bộ, nếu tải lại có thể sẽ gián đoạn!'; 
+        } 
+    });
+
+    // Đã thay đổi: Bắt sự kiện phím tắt (F5, Ctrl+R, Command+R)
+    window.addEventListener('keydown', function(e) {
+        if (syncQueue.length > 0) {
+            if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r') || (e.metaKey && e.key.toLowerCase() === 'r')) {
+                e.preventDefault();
+                showToast('Đang tải ảnh lên, vui lòng không làm mới trang lúc này!', 'error');
+            }
+        }
+    });
 
     function updateSyncBadge() {
         const badge = document.getElementById('syncBadge');
@@ -432,8 +450,19 @@
         try {
             const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(currentTask) });
             const res = await response.json(); 
-            if (res.status === 'success') { syncQueue.shift(); isDataLoaded = false; } else { syncQueue.shift(); showToast('Lỗi tải lên: ' + res.message, 'error'); }
-        } catch (error) { showToast('Mất mạng! Tự động thử lại...', 'error'); await new Promise(resolve => setTimeout(resolve, 3000)); }
+            if (res.status === 'success') { 
+                syncQueue.shift(); 
+                localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); // Lưu ngay sau khi gửi thành công
+                isDataLoaded = false; 
+            } else { 
+                syncQueue.shift(); 
+                localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); // Nếu lỗi server trả về cũng bỏ qua và lưu
+                showToast('Lỗi tải lên: ' + res.message, 'error'); 
+            }
+        } catch (error) { 
+            showToast('Mất mạng! Tự động thử lại...', 'error'); 
+            await new Promise(resolve => setTimeout(resolve, 3000)); 
+        }
         isSyncing = false; updateSyncBadge(); processQueue(); 
     }
 
@@ -443,6 +472,8 @@
         if (!capturedImages.front || !capturedImages.back) return showToast('Vui lòng chụp đủ 2 ảnh Trước và Sau xe!', 'error');
         
         syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
+        localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); // Lưu vào cache
+        
         showToast('Đã lưu! Hãy nhập xe tiếp theo', 'success');
         resetForm(); processQueue(); 
     }
@@ -453,6 +484,8 @@
         if (!currentCarRowIndex) return;
         
         syncQueue.push({ action: 'OUT', licensePlate: plate, image: capturedImages.out, rowIndex: currentCarRowIndex, deviceId: myDeviceId });
+        localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); // Lưu vào cache
+        
         showToast('Cho xe ra thành công!', 'success');
         resetForm(); processQueue();
     }
@@ -509,7 +542,7 @@
         capturedImages.out = ""; 
         document.getElementById('previewAreaOut').style.display = 'none'; 
         document.getElementById('actionButtonsOut').style.display = 'none'; 
-        stopCameraOut(); // Reset luồng
+        stopCameraOut(); 
     }
 
     async function editPlate(rowIndex, oldPlate) {
@@ -573,19 +606,12 @@
             listDataReturned.forEach((car) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
                 
-                // -- PHẦN MỚI THÊM: Xử lý ảnh lúc trả xe --
-                // Giả định dữ liệu trả về từ Google Sheet có chứa link ảnh lúc ra ở biến `car.exitImg`. 
-                // (Nếu biến của bạn tên khác, ví dụ car.outImg, hãy đổi lại cho đúng).
                 let btnXemAnhRa = '';
                 let imgExitHidden = '';
                 if (car.exitImg) {
-                    // Thẻ img bị ẩn (display:none) để trình duyệt tự động tải ngầm ảnh về sẵn máy
                     imgExitHidden = `<img src="${car.exitImg}" style="display:none;">`;
-                    
-                    // Nút bấm hiển thị ảnh (tận dụng lại popup modal phóng to ảnh đã có)
                     btnXemAnhRa = `<button class="btn-edit" style="background-color: var(--primary); margin-top: 8px; width: fit-content;" onclick="openModal('${car.exitImg}', '${car.exitImg}', ''); event.stopPropagation();">📷 Ảnh lúc ra</button>`;
                 }
-                // -----------------------------------------
 
                 html += `<div class="stat-item" style="cursor: default;">
                             <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
@@ -604,6 +630,7 @@
         }
         document.getElementById('listReturned').innerHTML = html;
     }
+
     function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'block' : 'none'; document.querySelectorAll('button').forEach(btn => btn.disabled = show); }
     
     function resetForm() { 
