@@ -105,6 +105,7 @@
     
     <div id="syncBadge" class="sync-badge">Đang đồng bộ: 1 xe lên hệ thống...</div>
 
+    <!-- TABS -->
     <div class="tabs">
         <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
         <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG BÃI</button>
@@ -113,16 +114,19 @@
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
 
+    <!-- TAB 1: VÀO BẾN -->
     <div id="tab-vao" class="tab-content active">
         
+        <!-- BIỂN SỐ XE -->
         <div class="form-group">
             <label for="plateIn">Biển số xe vào</label>
             <div style="display: flex; gap: 8px;">
-                <input type="text" id="plateIn" inputmode="numeric" placeholder="Ví dụ: 59X3-123.45" style="flex: 1;" oninput="checkAutoSubmit(this)">
+                <input type="text" id="plateIn" inputmode="numeric" placeholder="Chỉ nhập số, kết thúc bằng . hoặc ," style="flex: 1;" oninput="checkAutoSubmit(this)">
                 <button class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px;">GHI NHẬN</button>
             </div>
         </div>
         
+        <!-- KHU VỰC CAMERA VÀ NÚT CHỤP MỚI -->
         <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative;">
             <video id="liveCamera" autoplay playsinline style="width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; display: none;"></video>
             
@@ -156,6 +160,7 @@
         </div>
     </div>
 
+    <!-- TAB 2: TRONG BÃI -->
     <div id="tab-trong" class="tab-content">
         <div class="search-container">
             <div class="form-group" style="margin-bottom: 0;">
@@ -222,6 +227,7 @@
         <div id="listParked" class="list-cars"></div>
     </div>
 
+    <!-- TAB 3: ĐÃ TRẢ -->
     <div id="tab-tra" class="tab-content">
         <div class="stats-header">
             <h3>Xe đã xuất bến <span id="countReturned" class="badge-success">0</span></h3>
@@ -306,14 +312,12 @@
 
     async function startCamera() {
         try {
-            // Đã đổi ngược Width và Height để ưu tiên khung dọc (Portrait)
             stream = await navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1920 } } 
             });
             const video = document.getElementById('liveCamera');
             video.srcObject = stream; video.style.display = 'block';
             
-            // Ẩn 2 nút chức năng ban đầu
             const camBtns = document.getElementById('camControlBtns');
             if (camBtns) camBtns.style.display = 'none';
             
@@ -335,7 +339,6 @@
         if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
         document.getElementById('liveCamera').style.display = 'none';
         
-        // Hiện lại 2 nút chụp nếu chưa chụp bức ảnh nào
         const camBtns = document.getElementById('camControlBtns');
         if (camBtns && !capturedImages.front && !capturedImages.back) {
             camBtns.style.display = 'flex';
@@ -347,13 +350,11 @@
         const video = document.getElementById('liveCamera');
         const canvas = document.createElement('canvas');
         
-        // Ép tỷ lệ khung hình dọc (3:4)
         const targetAspectRatio = 3 / 4; 
         let vWidth = video.videoWidth; 
         let vHeight = video.videoHeight;
         let drawWidth, drawHeight, offsetX, offsetY;
 
-        // Tính toán cắt bỏ hai bên hoặc trên/dưới để lấy đúng tỷ lệ 3:4 ở trung tâm
         if (vWidth / vHeight > targetAspectRatio) {
             drawHeight = vHeight;
             drawWidth = vHeight * targetAspectRatio;
@@ -366,12 +367,9 @@
             offsetY = (vHeight - drawHeight) / 2;
         }
 
-        // Cố định kích thước đầu ra để ảnh nhẹ, dễ upload (Ví dụ: 960x1280)
         canvas.width = 960; 
         canvas.height = 1280;
         const ctx = canvas.getContext('2d'); 
-        
-        // Vẽ phần đã cắt lên canvas
         ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
         
         const snapBtn = document.getElementById('snapBtn');
@@ -390,7 +388,7 @@
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
                 
-                // KIỂM TRA: Nếu đã nhập biển số thì tự động GHI NHẬN luôn
+                // Ở luồng SAU -> TRƯỚC, chụp TRƯỚC xong thì hoàn tất lưu luôn
                 if (document.getElementById('plateIn').value.trim() !== '') {
                     handleXeVao();
                 } else {
@@ -408,12 +406,10 @@
                 stopCamera(); 
                 document.getElementById('plateIn').focus();
             } else if (currentFlow === 'back') {
+                snapBtn.style.display = 'none'; 
                 stopCamera(); 
                 document.getElementById('plateIn').focus();
-                setTimeout(() => {
-                    currentCaptureStep = 'front';
-                    startCamera();
-                }, 500);
+                // Dừng hẳn ở đây chờ người dùng nhập biển số và gõ "." hoặc ","
             }
         }
     }
@@ -462,7 +458,6 @@
         const video = document.getElementById('liveCameraOut');
         const canvas = document.createElement('canvas');
         
-        // Ép tỷ lệ khung hình dọc (3:4)
         const targetAspectRatio = 3 / 4; 
         let vWidth = video.videoWidth; 
         let vHeight = video.videoHeight;
@@ -480,7 +475,6 @@
             offsetY = (vHeight - drawHeight) / 2;
         }
 
-        // Cố định kích thước đầu ra
         canvas.width = 960; 
         canvas.height = 1280;
         const ctx = canvas.getContext('2d'); 
@@ -570,16 +564,40 @@
 
     function checkAutoSubmit(inputElement) {
         let val = inputElement.value;
-        // Kiểm tra nếu ký tự cuối cùng là phẩy hoặc chấm
         if (val.endsWith(',') || val.endsWith('.')) {
             inputElement.value = val.slice(0, -1); // Xóa ký tự dư đó đi
-            handleXeVao(); // Gọi hàm ghi nhận
+            inputElement.blur(); // Hạ bàn phím xuống
+
+            if (currentFlow === 'front') {
+                // Luồng TRƯỚC -> SAU -> Nhập biển. Ký tự kết thúc = hoàn tất.
+                handleXeVao();
+            } else if (currentFlow === 'back') {
+                // Luồng SAU -> Nhập biển -> TRƯỚC. 
+                if (!capturedImages.front) {
+                    // Mở camera cho bước chụp TRƯỚC
+                    currentCaptureStep = 'front';
+                    startCamera();
+                } else {
+                    // Trương hợp hy hữu: đã chụp cả 2 nhưng lỡ gõ lại biển
+                    handleXeVao();
+                }
+            }
         }
     }
 
     function handleXeVao() {
         const plate = document.getElementById('plateIn').value.trim();
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
+
+        // Bổ sung: Nếu ở luồng SAU - TRƯỚC mà người dùng bấm nút GHI NHẬN thay vì phím "." 
+        // thì tự mở camera chụp Trước nếu thiếu
+        if (currentFlow === 'back' && capturedImages.back && !capturedImages.front) {
+            document.getElementById('plateIn').blur();
+            currentCaptureStep = 'front';
+            startCamera();
+            return;
+        }
+
         if (!capturedImages.front || !capturedImages.back) return showToast('Vui lòng chụp đủ 2 ảnh!', 'error');
         
         syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
