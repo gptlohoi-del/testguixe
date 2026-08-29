@@ -566,18 +566,37 @@
     function renderReturnedCarsData() {
         document.getElementById('countReturned').innerText = listDataReturned.length;
         let html = '';
-        if(listDataReturned.length === 0) { html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Chưa có xe nào xuất bến.</div>'; } 
+        if(listDataReturned.length === 0) { 
+            html = '<div style="text-align:center; color:#666; font-size:14px; padding: 20px 0;">Chưa có xe nào xuất bến.</div>'; 
+        } 
         else {
             listDataReturned.forEach((car) => {
                 let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
+                
+                // -- PHẦN MỚI THÊM: Xử lý ảnh lúc trả xe --
+                // Giả định dữ liệu trả về từ Google Sheet có chứa link ảnh lúc ra ở biến `car.exitImg`. 
+                // (Nếu biến của bạn tên khác, ví dụ car.outImg, hãy đổi lại cho đúng).
+                let btnXemAnhRa = '';
+                let imgExitHidden = '';
+                if (car.exitImg) {
+                    // Thẻ img bị ẩn (display:none) để trình duyệt tự động tải ngầm ảnh về sẵn máy
+                    imgExitHidden = `<img src="${car.exitImg}" style="display:none;">`;
+                    
+                    // Nút bấm hiển thị ảnh (tận dụng lại popup modal phóng to ảnh đã có)
+                    btnXemAnhRa = `<button class="btn-edit" style="background-color: var(--primary); margin-top: 8px; width: fit-content;" onclick="openModal('${car.exitImg}', '${car.exitImg}', ''); event.stopPropagation();">📷 Ảnh lúc ra</button>`;
+                }
+                // -----------------------------------------
+
                 html += `<div class="stat-item" style="cursor: default;">
                             <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
-                            <div class="stat-info">
+                            <div class="stat-info" style="display: flex; flex-direction: column;">
                                 <strong style="color:var(--text-main);">${car.plate}</strong>
                                 <span class="time">Vào: ${car.entryTime}</span>
                                 <span class="time" style="color:var(--danger)">Ra: ${car.exitTime || 'Đã ra'}</span>
                                 <span class="emp">Nhận: ${car.employeeIn}</span>
                                 <span class="emp" style="color:var(--primary)">Trả: ${car.employeeOut || 'Chưa rõ'}</span>
+                                ${btnXemAnhRa}
+                                ${imgExitHidden}
                             </div>
                             <div class="icon-done">HOÀN THÀNH</div>
                         </div>`;
@@ -585,7 +604,6 @@
         }
         document.getElementById('listReturned').innerHTML = html;
     }
-
     function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'block' : 'none'; document.querySelectorAll('button').forEach(btn => btn.disabled = show); }
     
     function resetForm() { 
