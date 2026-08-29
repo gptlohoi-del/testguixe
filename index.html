@@ -168,7 +168,7 @@
             
             <div style="flex:1; text-align:center;">
                 <p style="margin: 0 0 4px; font-size: 11px; font-weight: bold; color: var(--text-muted);">ẢNH SAU</p>
-                <div class="preview-box" style="margin-bottom: 6px;"><img id="previewInBack" onclick="openModal(this.src, capturedImages.front, capturedImages.back, '')"></div>
+                <div class="preview-box" style="margin-bottom: 6px;"><img id="previewInBack" onclick="openModal(this.src, capturedImages.back, capturedImages.back, '')"></div>
                 <button id="retakeBackBtn" onclick="retakePhoto('back')" type="button" style="display:none; padding: 6px 12px; font-size: 11px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; width: 100%;">🔄 Chụp lại</button>
             </div>
         </div>
@@ -269,10 +269,8 @@
     let stream = null; 
     let streamOut = null;
     
-    // Khai báo mảng để chứa các ảnh trong Modal thay vì 2 biến đơn
     let modalImages = [];
     let currentModalIndex = 0;
-    
     let modalSwipeStartX = 0; let modalSwipeStartY = 0;
 
     let listDataParked = JSON.parse(localStorage.getItem('saved_cars_parked')) || [];
@@ -282,14 +280,12 @@
     let capturedImages = { front: "", back: "", out: "" };
     let currentCarRowIndex = null; let currentMatches = [];
     
-    // Khai báo biến hỗ trợ luồng TRƯỚC/SAU
     let currentFlow = ''; 
     let currentCaptureStep = '';
 
     let syncQueue = JSON.parse(localStorage.getItem('saved_sync_queue')) || []; 
     let isSyncing = false;
 
-    // Các biến phục vụ Modal Sửa biển số
     let editingRowIndex = null;
     let editingOldPlate = '';
 
@@ -315,11 +311,14 @@
         if (tabId !== 'tab-vao') stopCamera();
         if (tabId !== 'tab-trong') stopCameraOut();
 
-        if ((tabId === 'tab-trong' || tabId === 'tab-tra') && !isDataLoaded) loadParkedCars();
+        // LUÔN LUÔN CẬP NHẬT DỮ LIỆU KHI VÀO TAB "TRONG BÃI" HOẶC "ĐÃ TRẢ"
+        if (tabId === 'tab-trong' || tabId === 'tab-tra') {
+            loadParkedCars();
+        }
+
         if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
 
-    // ----- LOGIC XỬ LÝ NÚT TRƯỚC / SAU -----
     function startFlow(flowType) {
         currentFlow = flowType;
         currentCaptureStep = flowType; 
@@ -446,7 +445,6 @@
         }
     }
     
-    // ----- CÁC HÀM XỬ LÝ CAMERA CHO XE RA -----
     async function startCameraOut() {
         try {
             streamOut = await navigator.mediaDevices.getUserMedia({ 
@@ -505,19 +503,15 @@
         startCameraOut();
     }
 
-    // ----- HÀM MỞ ẢNH MỚI (Hỗ trợ nhiều ảnh) -----
     function openModal(currentSrc, imgFront, imgBack, imgOut) {
         if (!currentSrc) return;
         
-        // Lọc bỏ những URL trống, null, undefined để có mảng các ảnh khả dụng
         modalImages = [imgFront, imgBack, imgOut].filter(src => src && src !== 'undefined' && src !== 'null' && src !== '');
         
-        // Đề phòng trường hợp currentSrc không nằm trong 3 ảnh truyền vào
         if (modalImages.length === 0) {
             modalImages = [currentSrc];
         }
 
-        // Tìm vị trí của ảnh đang được click
         currentModalIndex = modalImages.indexOf(currentSrc);
         if (currentModalIndex === -1) currentModalIndex = 0;
 
@@ -545,21 +539,17 @@
         let diffX = modalSwipeStartX - e.changedTouches[0].clientX; 
         let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
         
-        // Click để đóng
         if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) { 
             if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal(); 
             return; 
         }
         
-        // Vuốt ngang
         if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
             if (modalImages.length <= 1) return;
             
             if (diffX > 0) {
-                // Vuốt sang trái (xem ảnh tiếp theo)
                 currentModalIndex = (currentModalIndex + 1) % modalImages.length;
             } else {
-                // Vuốt sang phải (xem ảnh trước đó)
                 currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
             }
             
@@ -731,7 +721,6 @@
         startCameraOut(); 
     }
 
-    // ----- CÁC HÀM XỬ LÝ MODAL SỬA BIỂN SỐ -----
     function editPlate(rowIndex, oldPlate) {
         editingRowIndex = rowIndex;
         editingOldPlate = oldPlate;
@@ -741,7 +730,6 @@
         input.value = oldPlate;
         modal.style.display = 'flex';
         
-        // Timeout nhẹ để mobile trình duyệt kịp render modal trước khi focus
         setTimeout(() => {
             input.focus();
         }, 100);
