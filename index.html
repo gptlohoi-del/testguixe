@@ -70,7 +70,7 @@
         .stat-item { display: flex; align-items: center; gap: 10px; background: #fff; padding: 8px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.1s; position: relative;}
         .stat-item:active { background: #f1f5f9; transform: scale(0.98); }
         
-        /* CSS CHỈNH LẠI ẢNH THÀNH HÌNH CHỮ NHẬT ĐỨNG TRONG DANH SÁCH */
+        /* HÌNH CHỮ NHẬT ĐỨNG TRONG DANH SÁCH */
         .img-group { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
         .img-group img { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: zoom-in; }
         
@@ -104,7 +104,7 @@
 <div id="imageModal" class="modal-zoom" ontouchstart="handleModalSwipeStart(event)" ontouchend="handleModalSwipeEnd(event)">
     <span class="modal-close" onclick="closeModal()">&times;</span>
     <img id="modalImage" src="">
-    <div id="modalHint" class="modal-swipe-hint" style="display:none;">↔ Vuốt ngang đổi ảnh Trước/Sau</div>
+    <div id="modalHint" class="modal-swipe-hint" style="display:none;">↔ Vuốt ngang đổi ảnh</div>
 </div>
 
 <div class="container">
@@ -155,13 +155,13 @@
         <div id="previewArea" style="display:none; gap:8px; margin-bottom: 10px;">
             <div style="flex:1; text-align:center;">
                 <p style="margin: 0 0 4px; font-size: 11px; font-weight: bold; color: var(--text-muted);">ẢNH TRƯỚC</p>
-                <div class="preview-box" style="margin-bottom: 6px;"><img id="previewInFront" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
+                <div class="preview-box" style="margin-bottom: 6px;"><img id="previewInFront" onclick="openModal(this.src, capturedImages.front, capturedImages.back, '')"></div>
                 <button id="retakeFrontBtn" onclick="retakePhoto('front')" type="button" style="display:none; padding: 6px 12px; font-size: 11px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; width: 100%;">🔄 Chụp lại</button>
             </div>
             
             <div style="flex:1; text-align:center;">
                 <p style="margin: 0 0 4px; font-size: 11px; font-weight: bold; color: var(--text-muted);">ẢNH SAU</p>
-                <div class="preview-box" style="margin-bottom: 6px;"><img id="previewInBack" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
+                <div class="preview-box" style="margin-bottom: 6px;"><img id="previewInBack" onclick="openModal(this.src, capturedImages.front, capturedImages.back, '')"></div>
                 <button id="retakeBackBtn" onclick="retakePhoto('back')" type="button" style="display:none; padding: 6px 12px; font-size: 11px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; width: 100%;">🔄 Chụp lại</button>
             </div>
         </div>
@@ -201,7 +201,7 @@
                         <button id="retakeOutBtn" onclick="retakePhotoOut()" type="button" style="flex: 1; padding: 10px; font-size: 12px; font-weight: bold; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; color: var(--danger);">🔄 Chụp lại</button>
                     </div>
                     <div class="preview-box">
-                        <img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '')" style="max-height: 150px; width: 100%; object-fit: cover; display: inline-block; border-radius: 8px;">
+                        <img id="previewOut" alt="Ảnh xe ra" onclick="openModal(this.src, capturedImages.out, '', '')" style="max-height: 150px; width: 100%; object-fit: cover; display: inline-block; border-radius: 8px;">
                     </div>
                 </div>
 
@@ -212,7 +212,6 @@
                 <div style="background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px;">
                     <p style="margin:0 0 8px; text-align:center; font-size:12px; font-weight:600; color:var(--text-muted);">ẢNH VÀO (Tham khảo)</p>
                     <div style="display:flex; gap:8px;">
-                        <!-- CHỈNH ẢNH THAM KHẢO DẠNG ĐỨNG -->
                         <div style="flex:1; text-align:center;">
                             <img id="resImgFront" src="" style="width:100%; aspect-ratio:3/4; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
                         </div>
@@ -264,7 +263,11 @@
 
     let stream = null; 
     let streamOut = null;
-    let modalFrontSrc = ""; let modalBackSrc = ""; let isModalShowingFront = true;
+    
+    // Khai báo mảng để chứa các ảnh trong Modal thay vì 2 biến đơn
+    let modalImages = [];
+    let currentModalIndex = 0;
+    
     let modalSwipeStartX = 0; let modalSwipeStartY = 0;
 
     let listDataParked = JSON.parse(localStorage.getItem('saved_cars_parked')) || [];
@@ -493,25 +496,66 @@
         startCameraOut();
     }
 
-    // ----- CÁC HÀM PHỤ TRỢ -----
-    function openModal(currentSrc, frontSrc, backSrc) {
+    // ----- HÀM MỞ ẢNH MỚI (Hỗ trợ nhiều ảnh) -----
+    function openModal(currentSrc, imgFront, imgBack, imgOut) {
         if (!currentSrc) return;
-        modalFrontSrc = frontSrc || currentSrc; modalBackSrc = backSrc || "";
-        isModalShowingFront = (currentSrc === modalFrontSrc);
-        document.getElementById('modalImage').src = currentSrc;
+        
+        // Lọc bỏ những URL trống, null, undefined để có mảng các ảnh khả dụng
+        modalImages = [imgFront, imgBack, imgOut].filter(src => src && src !== 'undefined' && src !== 'null' && src !== '');
+        
+        // Đề phòng trường hợp currentSrc không nằm trong 3 ảnh truyền vào
+        if (modalImages.length === 0) {
+            modalImages = [currentSrc];
+        }
+
+        // Tìm vị trí của ảnh đang được click
+        currentModalIndex = modalImages.indexOf(currentSrc);
+        if (currentModalIndex === -1) currentModalIndex = 0;
+
+        document.getElementById('modalImage').src = modalImages[currentModalIndex];
+        
         const hint = document.getElementById('modalHint');
-        hint.style.display = (modalBackSrc && modalBackSrc !== 'undefined' && modalBackSrc !== 'null' && modalBackSrc !== '') ? 'block' : 'none';
+        if (modalImages.length > 1) {
+            hint.style.display = 'block';
+            hint.innerText = "↔ Vuốt ngang đổi ảnh (" + (currentModalIndex + 1) + "/" + modalImages.length + ")";
+        } else {
+            hint.style.display = 'none';
+        }
+        
         document.getElementById('imageModal').style.display = 'flex';
     }
+
     function closeModal() { document.getElementById('imageModal').style.display = 'none'; }
-    function handleModalSwipeStart(e) { modalSwipeStartX = e.touches[0].clientX; modalSwipeStartY = e.touches[0].clientY; }
+    
+    function handleModalSwipeStart(e) { 
+        modalSwipeStartX = e.touches[0].clientX; 
+        modalSwipeStartY = e.touches[0].clientY; 
+    }
+    
     function handleModalSwipeEnd(e) {
-        let diffX = modalSwipeStartX - e.changedTouches[0].clientX; let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
-        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) { if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal(); return; }
+        let diffX = modalSwipeStartX - e.changedTouches[0].clientX; 
+        let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
+        
+        // Click để đóng
+        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) { 
+            if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal(); 
+            return; 
+        }
+        
+        // Vuốt ngang
         if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
-            if (!modalBackSrc || modalBackSrc === 'undefined' || modalBackSrc === 'null' || modalBackSrc === '') return;
-            const modalImg = document.getElementById('modalImage');
-            if (isModalShowingFront) { modalImg.src = modalBackSrc; isModalShowingFront = false; } else { modalImg.src = modalFrontSrc; isModalShowingFront = true; }
+            if (modalImages.length <= 1) return;
+            
+            if (diffX > 0) {
+                // Vuốt sang trái (xem ảnh tiếp theo)
+                currentModalIndex = (currentModalIndex + 1) % modalImages.length;
+            } else {
+                // Vuốt sang phải (xem ảnh trước đó)
+                currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
+            }
+            
+            document.getElementById('modalImage').src = modalImages[currentModalIndex];
+            document.getElementById('modalHint').innerText = "↔ Vuốt ngang đổi ảnh (" + (currentModalIndex + 1) + "/" + modalImages.length + ")";
         }
     }
 
@@ -629,12 +673,12 @@
         else {
             let html = `<div style="font-weight:600; color:var(--primary); text-align:center; font-size:13px;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
             currentMatches.forEach((car, index) => {
-                let displayImg = car.entryImgBack || car.entryImg; // Ưu tiên ảnh sau
+                let displayImg = car.entryImgBack || car.entryImg;
                 
                 html += `<div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
                             <div class="img-group">
                                 <img src="${car.entryImg}" style="display:none;" loading="lazy">
-                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
+                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
                             <div class="stat-info"><strong style="color:var(--danger); font-size:16px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
                             <div class="icon-out">CHO RA</div>
@@ -658,11 +702,16 @@
         document.getElementById('resEmp').innerText = car.employeeIn; 
         
         document.getElementById('resImgFront').src = car.entryImg;
-        document.getElementById('resImgFront').onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); };
+        document.getElementById('resImgFront').onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack || '', ''); };
         
         const resImgBack = document.getElementById('resImgBack');
-        if (car.entryImgBack) { resImgBack.src = car.entryImgBack; resImgBack.style.display = 'inline-block'; resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); }; } 
-        else { resImgBack.style.display = 'none'; }
+        if (car.entryImgBack) { 
+            resImgBack.src = car.entryImgBack; 
+            resImgBack.style.display = 'inline-block'; 
+            resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack || '', ''); }; 
+        } else { 
+            resImgBack.style.display = 'none'; 
+        }
         
         document.getElementById('listResults').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'block';
@@ -670,7 +719,6 @@
         capturedImages.out = ""; 
         document.getElementById('previewAreaOut').style.display = 'none'; 
         
-        // Cập nhật tự động bật camera ra khi nhấn "CHO RA" 
         startCameraOut(); 
     }
 
@@ -714,12 +762,12 @@
         if(listDataParked.length === 0) { html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Bãi đang trống.</div>'; } 
         else {
             listDataParked.forEach((car) => {
-                let displayImg = car.entryImgBack || car.entryImg; // Ưu tiên ảnh sau
+                let displayImg = car.entryImgBack || car.entryImg;
                 
                 html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
                             <div class="img-group">
                                 <img src="${car.entryImg}" style="display:none;" loading="lazy">
-                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
+                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
                             <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA</button></div>
                             <div class="icon-out">CHO RA</div>
@@ -737,18 +785,19 @@
         } 
         else {
             listDataReturned.forEach((car) => {
-                let displayImg = car.entryImgBack || car.entryImg; // Ưu tiên ảnh sau
+                let displayImg = car.entryImgBack || car.entryImg;
                 
                 let btnXemAnhRa = ''; let imgExitHidden = '';
                 if (car.exitImg) {
                     imgExitHidden = `<img src="${car.exitImg}" style="display:none;">`;
-                    btnXemAnhRa = `<button class="btn-edit" style="background-color: var(--primary); margin-top: 6px; width: fit-content;" onclick="openModal('${car.exitImg}', '${car.exitImg}', ''); event.stopPropagation();">📷 Ảnh ra</button>`;
+                    // Truyền đủ cả 3 ảnh vào openModal để xem qua lại mượt mà
+                    btnXemAnhRa = `<button class="btn-edit" style="background-color: var(--primary); margin-top: 6px; width: fit-content;" onclick="openModal('${car.exitImg}', '${car.entryImg}', '${car.entryImgBack || ""}', '${car.exitImg}'); event.stopPropagation();">📷 Ảnh ra</button>`;
                 }
 
                 html += `<div class="stat-item" style="cursor: default;">
                             <div class="img-group">
                                 <img src="${car.entryImg}" style="display:none;" loading="lazy">
-                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
+                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', '${car.exitImg || ""}'); event.stopPropagation();">
                             </div>
                             <div class="stat-info" style="display: flex; flex-direction: column;">
                                 <strong style="color:var(--text-main);">${car.plate}</strong>
