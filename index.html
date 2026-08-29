@@ -352,57 +352,73 @@
     }
 
     function takeSnapshot() {
-        const video = document.getElementById('liveCamera');
-        const canvas = document.createElement('canvas');
-        const MAX_SIZE = 1280;
-        let width = video.videoWidth; let height = video.videoHeight;
-        if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-        else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-        canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, width, height);
-        const snapBtn = document.getElementById('snapBtn');
+    const video = document.getElementById('liveCamera');
+    const canvas = document.createElement('canvas');
+    
+    // Ép tỷ lệ khung hình dọc (3:4)
+    const targetAspectRatio = 3 / 4; 
+    let vWidth = video.videoWidth; 
+    let vHeight = video.videoHeight;
+    let drawWidth, drawHeight, offsetX, offsetY;
 
-        if (currentCaptureStep === 'front') {
-            capturedImages.front = canvas.toDataURL('image/jpeg', 0.8);
-            document.getElementById('previewInFront').src = capturedImages.front;
-            document.getElementById('previewInFront').style.display = 'block';
-            document.getElementById('retakeFrontBtn').style.display = 'block';
-            
-            if (currentFlow === 'front') {
-                // Đang chọn luồng TRƯỚC: Tiếp tục chuyển qua SAU
-                currentCaptureStep = 'back';
-                snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; 
-                snapBtn.style.backgroundColor = 'var(--warning)';
-            } else if (currentFlow === 'back') {
-                // Đang chọn luồng SAU (Hoàn tất bước 2): Đóng camera, tập trung ô nhập liệu
-                snapBtn.style.display = 'none'; 
-                stopCamera(); 
-                document.getElementById('plateIn').focus();
-            }
-        } else if (currentCaptureStep === 'back') {
-            capturedImages.back = canvas.toDataURL('image/jpeg', 0.8);
-            document.getElementById('previewInBack').src = capturedImages.back;
-            document.getElementById('previewInBack').style.display = 'block';
-            document.getElementById('retakeBackBtn').style.display = 'block';
-            
-            if (currentFlow === 'front') {
-                // Đang chọn luồng TRƯỚC (Hoàn tất bước 2): Đóng camera, tập trung ô nhập liệu
-                snapBtn.style.display = 'none'; 
-                stopCamera(); 
-                document.getElementById('plateIn').focus();
-            } else if (currentFlow === 'back') {
-                // Đang chọn luồng SAU: Tạm dừng Cam, tập trung ô nhập liệu, chuẩn bị bật Cam quay TRƯỚC
-                stopCamera(); 
-                document.getElementById('plateIn').focus();
-                
-                // Đợi nửa giây cho bàn phím ổn định để không che giao diện
-                setTimeout(() => {
-                    currentCaptureStep = 'front';
-                    startCamera();
-                }, 500);
-            }
+    // Tính toán cắt bỏ hai bên hoặc trên/dưới để lấy đúng tỷ lệ 3:4 ở trung tâm
+    if (vWidth / vHeight > targetAspectRatio) {
+        drawHeight = vHeight;
+        drawWidth = vHeight * targetAspectRatio;
+        offsetX = (vWidth - drawWidth) / 2;
+        offsetY = 0;
+    } else {
+        drawWidth = vWidth;
+        drawHeight = vWidth / targetAspectRatio;
+        offsetX = 0;
+        offsetY = (vHeight - drawHeight) / 2;
+    }
+
+    // Cố định kích thước đầu ra để ảnh nhẹ, dễ upload (Ví dụ: 960x1280)
+    canvas.width = 960; 
+    canvas.height = 1280;
+    const ctx = canvas.getContext('2d'); 
+    
+    // Vẽ phần đã cắt lên canvas
+    ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
+    
+    const snapBtn = document.getElementById('snapBtn');
+
+    if (currentCaptureStep === 'front') {
+        capturedImages.front = canvas.toDataURL('image/jpeg', 0.8);
+        document.getElementById('previewInFront').src = capturedImages.front;
+        document.getElementById('previewInFront').style.display = 'block';
+        document.getElementById('retakeFrontBtn').style.display = 'block';
+        
+        if (currentFlow === 'front') {
+            currentCaptureStep = 'back';
+            snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; 
+            snapBtn.style.backgroundColor = 'var(--warning)';
+        } else if (currentFlow === 'back') {
+            snapBtn.style.display = 'none'; 
+            stopCamera(); 
+            document.getElementById('plateIn').focus();
+        }
+    } else if (currentCaptureStep === 'back') {
+        capturedImages.back = canvas.toDataURL('image/jpeg', 0.8);
+        document.getElementById('previewInBack').src = capturedImages.back;
+        document.getElementById('previewInBack').style.display = 'block';
+        document.getElementById('retakeBackBtn').style.display = 'block';
+        
+        if (currentFlow === 'front') {
+            snapBtn.style.display = 'none'; 
+            stopCamera(); 
+            document.getElementById('plateIn').focus();
+        } else if (currentFlow === 'back') {
+            stopCamera(); 
+            document.getElementById('plateIn').focus();
+            setTimeout(() => {
+                currentCaptureStep = 'front';
+                startCamera();
+            }, 500);
         }
     }
+}
 
     async function retakePhoto(type) {
         if (!stream) await startCamera();
@@ -445,22 +461,40 @@
     }
 
     function takeSnapshotOut() {
-        const video = document.getElementById('liveCameraOut');
-        const canvas = document.createElement('canvas');
-        const MAX_SIZE = 1280;
-        let width = video.videoWidth; let height = video.videoHeight;
-        if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-        else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-        canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, width, height);
+    const video = document.getElementById('liveCameraOut');
+    const canvas = document.createElement('canvas');
+    
+    // Ép tỷ lệ khung hình dọc (3:4)
+    const targetAspectRatio = 3 / 4; 
+    let vWidth = video.videoWidth; 
+    let vHeight = video.videoHeight;
+    let drawWidth, drawHeight, offsetX, offsetY;
 
-        capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('previewOut').src = capturedImages.out;
-        document.getElementById('previewAreaOut').style.display = 'block'; 
-        
-        stopCameraOut();
-        document.getElementById('startCamOutBtn').style.display = 'none';
+    if (vWidth / vHeight > targetAspectRatio) {
+        drawHeight = vHeight;
+        drawWidth = vHeight * targetAspectRatio;
+        offsetX = (vWidth - drawWidth) / 2;
+        offsetY = 0;
+    } else {
+        drawWidth = vWidth;
+        drawHeight = vWidth / targetAspectRatio;
+        offsetX = 0;
+        offsetY = (vHeight - drawHeight) / 2;
     }
+
+    // Cố định kích thước đầu ra
+    canvas.width = 960; 
+    canvas.height = 1280;
+    const ctx = canvas.getContext('2d'); 
+    ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
+
+    capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
+    document.getElementById('previewOut').src = capturedImages.out;
+    document.getElementById('previewAreaOut').style.display = 'block'; 
+    
+    stopCameraOut();
+    document.getElementById('startCamOutBtn').style.display = 'none';
+}
 
     function retakePhotoOut() {
         capturedImages.out = "";
