@@ -137,16 +137,18 @@
             📸 CHỤP ẢNH TRƯỚC
         </button>
 
-        <!-- KHU VỰC XEM TRƯỚC -->
+        <!-- KHU VỰC XEM TRƯỚC CÓ KÈM NÚT CHỤP LẠI -->
         <div id="previewArea" style="display:none; gap:10px; margin-bottom: 15px;">
             <div style="flex:1; text-align:center;">
                 <p style="margin: 0 0 5px; font-size: 12px; font-weight: bold; color: var(--text-muted);">ẢNH TRƯỚC</p>
-                <div class="preview-box"><img id="previewInFront" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
+                <div class="preview-box" style="margin-bottom: 8px;"><img id="previewInFront" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
+                <button id="retakeFrontBtn" onclick="retakePhoto('front')" type="button" style="display:none; padding: 6px 12px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; width: 100%;">🔄 Chụp lại</button>
             </div>
             
             <div style="flex:1; text-align:center;">
                 <p style="margin: 0 0 5px; font-size: 12px; font-weight: bold; color: var(--text-muted);">ẢNH SAU</p>
-                <div class="preview-box"><img id="previewInBack" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
+                <div class="preview-box" style="margin-bottom: 8px;"><img id="previewInBack" onclick="openModal(this.src, capturedImages.front, capturedImages.back)"></div>
+                <button id="retakeBackBtn" onclick="retakePhoto('back')" type="button" style="display:none; padding: 6px 12px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; width: 100%;">🔄 Chụp lại</button>
             </div>
         </div>
     </div>
@@ -228,7 +230,7 @@
     const myDeviceId = getDeviceId();
     document.getElementById('displayDeviceId').innerText = myDeviceId;
 
-    let stream = null; // Biến lưu trữ luồng camera
+    let stream = null; 
     let modalFrontSrc = ""; let modalBackSrc = ""; let isModalShowingFront = true;
     let modalSwipeStartX = 0; let modalSwipeStartY = 0;
 
@@ -272,7 +274,14 @@
     // --- CÁC HÀM XỬ LÝ CAMERA TRỰC TIẾP ---
     async function startCamera() {
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            // Yêu cầu camera sau với độ phân giải lý tưởng 1920x1080 (Full HD)
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                } 
+            });
             const video = document.getElementById('liveCamera');
             video.srcObject = stream;
             video.style.display = 'block';
@@ -300,7 +309,8 @@
         const video = document.getElementById('liveCamera');
         const canvas = document.createElement('canvas');
         
-        const MAX_SIZE = 800;
+        // Tăng max_size lên 1280 để lưu ảnh nét hơn
+        const MAX_SIZE = 1280;
         let width = video.videoWidth; 
         let height = video.videoHeight;
         if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
@@ -313,22 +323,50 @@
         const snapBtn = document.getElementById('snapBtn');
 
         if (!capturedImages.front) {
-            capturedImages.front = canvas.toDataURL('image/jpeg', 0.7);
+            capturedImages.front = canvas.toDataURL('image/jpeg', 0.8);
             document.getElementById('previewInFront').src = capturedImages.front;
             document.getElementById('previewInFront').style.display = 'block';
+            document.getElementById('retakeFrontBtn').style.display = 'block';
             
             snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)';
             snapBtn.style.backgroundColor = 'var(--warning)';
         } else if (!capturedImages.back) {
-            capturedImages.back = canvas.toDataURL('image/jpeg', 0.7);
+            capturedImages.back = canvas.toDataURL('image/jpeg', 0.8);
             document.getElementById('previewInBack').src = capturedImages.back;
             document.getElementById('previewInBack').style.display = 'block';
+            document.getElementById('retakeBackBtn').style.display = 'block';
             
             snapBtn.innerHTML = '✅ ĐÃ XONG';
             snapBtn.style.backgroundColor = 'var(--success)';
+            snapBtn.style.display = 'none'; // Đã đủ 2 hình thì ẩn nút chụp đi
             
             stopCamera();
             document.getElementById('plateIn').focus();
+        }
+    }
+
+    async function retakePhoto(type) {
+        if (!stream) {
+            await startCamera();
+        }
+        
+        const snapBtn = document.getElementById('snapBtn');
+        snapBtn.style.display = 'block';
+
+        if (type === 'front') {
+            capturedImages.front = "";
+            document.getElementById('previewInFront').style.display = 'none';
+            document.getElementById('retakeFrontBtn').style.display = 'none';
+            
+            snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH TRƯỚC';
+            snapBtn.style.backgroundColor = 'var(--primary)';
+        } else if (type === 'back') {
+            capturedImages.back = "";
+            document.getElementById('previewInBack').style.display = 'none';
+            document.getElementById('retakeBackBtn').style.display = 'none';
+            
+            snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH SAU';
+            snapBtn.style.backgroundColor = 'var(--warning)';
         }
     }
     // ---------------------------------------
@@ -372,7 +410,6 @@
         if (syncQueue.length > 0) { e.preventDefault(); e.returnValue = 'Đang đồng bộ dữ liệu...'; }
     });
 
-    // Hàm dùng cho khâu xe xuất bến (vẫn giữ cách mở app camera truyền thống)
     function previewAndCompress(input, previewId, key) {
         const file = input.files[0]; const preview = document.getElementById(previewId);
         if (!file) return;
@@ -425,11 +462,6 @@
         showToast('Đã lưu! Hãy nhập xe tiếp theo', 'success');
         
         resetForm(); processQueue(); 
-
-        // Khởi động lại camera ngay để đón xe tiếp theo
-        if (document.getElementById('tab-vao').classList.contains('active')) {
-            startCamera();
-        }
     }
 
     function handleXeRa() {
@@ -590,6 +622,9 @@
         // Làm sạch UI của Live Camera
         document.getElementById('previewInFront').style.display = 'none'; 
         document.getElementById('previewInBack').style.display = 'none'; 
+        document.getElementById('retakeFrontBtn').style.display = 'none';
+        document.getElementById('retakeBackBtn').style.display = 'none';
+        
         const previewArea = document.getElementById('previewArea');
         if(previewArea) previewArea.style.display = 'none';
         
@@ -602,6 +637,11 @@
 
         const startBtn = document.getElementById('startCamBtn');
         if(startBtn) startBtn.style.display = 'block';
+
+        // Khởi động lại camera ngay để đón xe tiếp theo (nếu đang ở tab VÀO)
+        if (document.getElementById('tab-vao').classList.contains('active') && !stream) {
+            startCamera();
+        }
 
         // Làm sạch form cũ
         document.getElementById('plateSearch').value = ""; document.getElementById('cameraOut').value = ""; document.getElementById('previewOut').style.display = 'none'; 
