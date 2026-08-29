@@ -70,8 +70,9 @@
         .stat-item { display: flex; align-items: center; gap: 10px; background: #fff; padding: 8px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.1s; position: relative;}
         .stat-item:active { background: #f1f5f9; transform: scale(0.98); }
         
+        /* CSS CHỈNH LẠI ẢNH THÀNH HÌNH CHỮ NHẬT ĐỨNG TRONG DANH SÁCH */
         .img-group { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
-        .img-group img { width: 70px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: zoom-in; }
+        .img-group img { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: zoom-in; }
         
         .stat-info { flex: 1; text-align: left;}
         .stat-info strong { display: block; font-size: 14px; color: var(--primary); margin-bottom: 2px;}
@@ -89,12 +90,11 @@
         .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; line-height: 1; padding: 10px; z-index: 10002;}
         .modal-swipe-hint { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 13px; background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; pointer-events: none; font-weight: 500; letter-spacing: 0.3px; }
 
-
         #plateIn::placeholder {
-    text-transform: none; /* Trả về chữ bình thường, không tự động in hoa */
-    font-size: 13px;      /* Giảm kích thước font chữ (bạn có thể chỉnh số 12 nhỏ hơn nếu muốn) */
-    font-weight: bold;  /* Chữ viết bình thường, không in đậm */
-    }
+            text-transform: none; 
+            font-size: 13px;      
+            font-weight: bold;  
+        }
     </style>
 </head>
 <body>
@@ -186,16 +186,12 @@
                 
                 <hr style="margin: 8px 0 10px 0; border: 0; border-top: 1px dashed var(--border);">
 
-                <button id="startCamOutBtn" onclick="startCameraOut()" type="button" style="width: 100%; padding: 12px; background: #fee2e2; color: var(--danger); border: 2px dashed #fca5a5; font-weight: bold; font-size: 13px; cursor: pointer; border-radius: 8px; margin-bottom: 10px;">
-                    📷 CHẠM ĐỂ MỞ CAMERA TRẢ XE
-                </button>
-
                 <div id="actionButtonsOut" style="display: none; gap: 8px; margin-bottom: 10px;">
-                    <button id="snapOutBtn" onclick="takeSnapshotOut()" type="button" style="flex: 2; font-size: 14px; font-weight: bold; padding: 12px; background-color: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer;">
-                        📸 CHỤP ẢNH RA
-                    </button>
                     <button id="closeCamOutBtn" onclick="stopCameraOut()" type="button" style="flex: 1; font-size: 13px; font-weight: bold; padding: 12px; background-color: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
                         ĐÓNG
+                    </button>
+                    <button id="snapOutBtn" onclick="takeSnapshotOut()" type="button" style="flex: 2; font-size: 14px; font-weight: bold; padding: 12px; background-color: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        📸 CHỤP ẢNH RA
                     </button>
                 </div>
 
@@ -216,11 +212,12 @@
                 <div style="background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px;">
                     <p style="margin:0 0 8px; text-align:center; font-size:12px; font-weight:600; color:var(--text-muted);">ẢNH VÀO (Tham khảo)</p>
                     <div style="display:flex; gap:8px;">
+                        <!-- CHỈNH ẢNH THAM KHẢO DẠNG ĐỨNG -->
                         <div style="flex:1; text-align:center;">
-                            <img id="resImgFront" src="" style="width:100%; max-height:80px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
+                            <img id="resImgFront" src="" style="width:100%; aspect-ratio:3/4; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
                         </div>
                         <div style="flex:1; text-align:center;">
-                            <img id="resImgBack" src="" style="width:100%; max-height:80px; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
+                            <img id="resImgBack" src="" style="width:100%; aspect-ratio:3/4; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
                         </div>
                     </div>
                 </div>
@@ -320,7 +317,6 @@
     async function startCamera() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ 
-                // Thay 1080x1920 thành 1080x1440 (hoặc 960x1280) để đúng tỉ lệ 3:4
                 video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1440 } } 
             });
             const video = document.getElementById('liveCamera');
@@ -396,7 +392,6 @@
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
                 
-                // Ở luồng SAU -> TRƯỚC, chụp TRƯỚC xong thì hoàn tất lưu luôn
                 if (document.getElementById('plateIn').value.trim() !== '') {
                     handleXeVao();
                 } else {
@@ -417,7 +412,6 @@
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
                 document.getElementById('plateIn').focus();
-                // Dừng hẳn ở đây chờ người dùng nhập biển số và gõ "." hoặc ","
             }
         }
     }
@@ -449,7 +443,6 @@
             const video = document.getElementById('liveCameraOut');
             video.srcObject = streamOut; video.style.display = 'block';
             
-            document.getElementById('startCamOutBtn').style.display = 'none';
             document.getElementById('actionButtonsOut').style.display = 'flex';
             document.getElementById('previewAreaOut').style.display = 'none';
         } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
@@ -458,7 +451,6 @@
     function stopCameraOut() {
         if (streamOut) { streamOut.getTracks().forEach(track => track.stop()); streamOut = null; }
         document.getElementById('liveCameraOut').style.display = 'none';
-        document.getElementById('startCamOutBtn').style.display = 'block';
         document.getElementById('actionButtonsOut').style.display = 'none';
     }
 
@@ -493,7 +485,6 @@
         document.getElementById('previewAreaOut').style.display = 'block'; 
         
         stopCameraOut();
-        document.getElementById('startCamOutBtn').style.display = 'none';
     }
 
     function retakePhotoOut() {
@@ -502,7 +493,7 @@
         startCameraOut();
     }
 
-    // ----- CÁC HÀM PHỤ TRỢ (Giữ nguyên) -----
+    // ----- CÁC HÀM PHỤ TRỢ -----
     function openModal(currentSrc, frontSrc, backSrc) {
         if (!currentSrc) return;
         modalFrontSrc = frontSrc || currentSrc; modalBackSrc = backSrc || "";
@@ -573,20 +564,16 @@
     function checkAutoSubmit(inputElement) {
         let val = inputElement.value;
         if (val.endsWith(',') || val.endsWith('.')) {
-            inputElement.value = val.slice(0, -1); // Xóa ký tự dư đó đi
-            inputElement.blur(); // Hạ bàn phím xuống
+            inputElement.value = val.slice(0, -1); 
+            inputElement.blur(); 
 
             if (currentFlow === 'front') {
-                // Luồng TRƯỚC -> SAU -> Nhập biển. Ký tự kết thúc = hoàn tất.
                 handleXeVao();
             } else if (currentFlow === 'back') {
-                // Luồng SAU -> Nhập biển -> TRƯỚC. 
                 if (!capturedImages.front) {
-                    // Mở camera cho bước chụp TRƯỚC
                     currentCaptureStep = 'front';
                     startCamera();
                 } else {
-                    // Trương hợp hy hữu: đã chụp cả 2 nhưng lỡ gõ lại biển
                     handleXeVao();
                 }
             }
@@ -597,8 +584,6 @@
         const plate = document.getElementById('plateIn').value.trim();
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
 
-        // Bổ sung: Nếu ở luồng SAU - TRƯỚC mà người dùng bấm nút GHI NHẬN thay vì phím "." 
-        // thì tự mở camera chụp Trước nếu thiếu
         if (currentFlow === 'back' && capturedImages.back && !capturedImages.front) {
             document.getElementById('plateIn').blur();
             currentCaptureStep = 'front';
@@ -644,9 +629,13 @@
         else {
             let html = `<div style="font-weight:600; color:var(--primary); text-align:center; font-size:13px;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
             currentMatches.forEach((car, index) => {
-                let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
+                let displayImg = car.entryImgBack || car.entryImg; // Ưu tiên ảnh sau
+                
                 html += `<div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
-                            <div class="img-group"><img src="${car.entryImg}" alt="Trước" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
+                            <div class="img-group">
+                                <img src="${car.entryImg}" style="display:none;" loading="lazy">
+                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
+                            </div>
                             <div class="stat-info"><strong style="color:var(--danger); font-size:16px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
                             <div class="icon-out">CHO RA</div>
                         </div>`;
@@ -667,8 +656,10 @@
         document.getElementById('selectedPlate').innerText = car.plate;
         document.getElementById('resTime').innerText = car.entryTime;
         document.getElementById('resEmp').innerText = car.employeeIn; 
+        
         document.getElementById('resImgFront').src = car.entryImg;
         document.getElementById('resImgFront').onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); };
+        
         const resImgBack = document.getElementById('resImgBack');
         if (car.entryImgBack) { resImgBack.src = car.entryImgBack; resImgBack.style.display = 'inline-block'; resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack); }; } 
         else { resImgBack.style.display = 'none'; }
@@ -678,8 +669,9 @@
         
         capturedImages.out = ""; 
         document.getElementById('previewAreaOut').style.display = 'none'; 
-        document.getElementById('actionButtonsOut').style.display = 'none'; 
-        stopCameraOut(); 
+        
+        // Cập nhật tự động bật camera ra khi nhấn "CHO RA" 
+        startCameraOut(); 
     }
 
     async function editPlate(rowIndex, oldPlate) {
@@ -722,9 +714,13 @@
         if(listDataParked.length === 0) { html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Bãi đang trống.</div>'; } 
         else {
             listDataParked.forEach((car) => {
-                let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
+                let displayImg = car.entryImgBack || car.entryImg; // Ưu tiên ảnh sau
+                
                 html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
-                            <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
+                            <div class="img-group">
+                                <img src="${car.entryImg}" style="display:none;" loading="lazy">
+                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
+                            </div>
                             <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA</button></div>
                             <div class="icon-out">CHO RA</div>
                         </div>`;
@@ -741,7 +737,7 @@
         } 
         else {
             listDataReturned.forEach((car) => {
-                let imgBackHtml = car.entryImgBack ? `<img src="${car.entryImgBack}" alt="Sau" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">` : '';
+                let displayImg = car.entryImgBack || car.entryImg; // Ưu tiên ảnh sau
                 
                 let btnXemAnhRa = ''; let imgExitHidden = '';
                 if (car.exitImg) {
@@ -750,7 +746,10 @@
                 }
 
                 html += `<div class="stat-item" style="cursor: default;">
-                            <div class="img-group"><img src="${car.entryImg}" alt="Trước" loading="lazy" onclick="openModal(this.src, '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">${imgBackHtml}</div>
+                            <div class="img-group">
+                                <img src="${car.entryImg}" style="display:none;" loading="lazy">
+                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack}'); event.stopPropagation();">
+                            </div>
                             <div class="stat-info" style="display: flex; flex-direction: column;">
                                 <strong style="color:var(--text-main);">${car.plate}</strong>
                                 <span class="time">Vào: ${car.entryTime}</span>
