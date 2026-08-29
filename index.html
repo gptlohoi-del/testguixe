@@ -19,7 +19,7 @@
             --warning: #f59e0b; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
         }
         body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
-        .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 12px; min-height: 100vh; position: relative; overflow-x: hidden;}
+        .container { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 12px; padding-bottom: 70px; min-height: 100vh; position: relative; overflow-x: hidden;}
         @media (min-width: 600px) { body { padding: 10px; } .container { min-height: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); } }
 
         h1 { text-align: center; color: var(--text-main); font-size: 18px; margin-top: 0; margin-bottom: 10px;}
@@ -32,7 +32,7 @@
         .toast.success { background-color: var(--success); }
         .toast.error { background-color: var(--danger); }
 
-        .tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; margin-bottom: 12px; gap: 2px;}
+        .tabs { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; display: flex; background: #f1f5f9; padding: 10px 12px; margin: 0; gap: 4px; z-index: 999; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); border-radius: 16px 16px 0 0;}
         .tab-btn { flex: 1; padding: 8px 2px; text-align: center; background: none; border: none; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: all 0.2s; white-space: nowrap; letter-spacing: -0.3px;}
         .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
@@ -100,7 +100,7 @@
     <div id="modalHint" class="modal-swipe-hint" style="display:none;">↔ Vuốt ngang đổi ảnh</div>
 </div>
 
-<div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75); align-items: flex-start; padding-top: 15vh;">
+<div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75);">
     <div style="background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; z-index: 10001; position: relative;">
         <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
         <input type="text" id="editPlateInput" inputmode="numeric" placeholder="Kết thúc bằng . hoặc ," style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
