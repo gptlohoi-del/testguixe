@@ -593,7 +593,7 @@
     function checkAutoSubmit(inputElement) {
     let val = inputElement.value;
     // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
-    if (val.endsWith('.') || val.endsWith('#') || val.endsWith('*') || val.endsWith(',')) {
+    if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
         inputElement.value = val.slice(0, -1); 
         inputElement.blur(); 
 
@@ -608,17 +608,17 @@
             }
         }
     }
-}
+    }   
 
-function checkAutoSubmitEdit(inputElement) {
-    let val = inputElement.value;
-    // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
-    if (val.endsWith('.') || val.endsWith('#') || val.endsWith('*') || val.endsWith(',')) {
-        inputElement.value = val.slice(0, -1);
-        inputElement.blur();
-        confirmEditPlate();
+    function checkAutoSubmitEdit(inputElement) {
+        let val = inputElement.value;
+        // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
+        if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
+            inputElement.value = val.slice(0, -1);
+            inputElement.blur();
+            confirmEditPlate();
+        }
     }
-}
 
     function handleXeVao() {
         const plate = document.getElementById('plateIn').value.trim();
@@ -872,7 +872,7 @@ function checkAutoSubmitEdit(inputElement) {
         currentCarRowIndex = null; currentMatches = []; 
     }
 
-    
+
         // Xử lý khung nhập liệu tránh bị che bởi bàn phím trên iOS cho tất cả các tab
         if (window.visualViewport) {
             window.visualViewport.addEventListener("resize", function() {
