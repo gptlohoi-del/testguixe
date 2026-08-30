@@ -134,7 +134,7 @@
     <div id="syncBadge" class="sync-badge">Đang đồng bộ: 1 xe lên hệ thống...</div>
 
     <div class="tabs">
-        <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BẾN</button>
+        <button id="btn-tab-vao" class="tab-btn active" onclick="switchTab('tab-vao')">VÀO BÃI</button>
         <button id="btn-tab-trong" class="tab-btn" onclick="switchTab('tab-trong')">TRONG BÃI</button>
         <button id="btn-tab-tra" class="tab-btn" onclick="switchTab('tab-tra')">ĐÃ TRẢ</button>
     </div>
@@ -202,7 +202,7 @@
             <div id="listResults" class="list-cars" style="display: none; margin-bottom: 10px;"></div>
 
             <div id="searchResult" class="result-box" style="margin-top: 15px;">
-                <h3 style="margin-top:0; font-size: 14px;">Xe xuất bến: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
+                <h3 style="margin-top:0; font-size: 14px;">Xe xuất bãi: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
                 <div style="display: flex; justify-content: space-between; font-size:13px; margin-bottom: 10px;">
                     <span><strong>Vào lúc:</strong> <span id="resTime"></span></span>
                     <span><strong>Nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></span>
@@ -240,7 +240,7 @@
 
     <div id="tab-tra" class="tab-content">
         <div class="stats-header">
-            <h3>Xe đã xuất bến <span id="countReturned" class="badge-success">0</span></h3>
+            <h3>Xe đã xuất bãi <span id="countReturned" class="badge-success">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
         </div>
         <div id="listReturned" class="list-cars"></div>
@@ -675,7 +675,7 @@
                                 <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
                             <div class="stat-info"><strong style="color:var(--danger); font-size:16px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
-                            <div class="icon-out">CHO RA</div>
+                            <div class="icon-out">TRẢ XE</div>
                         </div>`;
             });
             listDiv.innerHTML = html; listDiv.style.display = 'flex';
@@ -796,7 +796,7 @@
                                 <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
                             <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN SỐ</button></div>
-                            <div class="icon-out">CHO RA</div>
+                            <div class="icon-out">TRẢ XE</div>
                         </div>`;
             });
         }
@@ -807,7 +807,7 @@
         document.getElementById('countReturned').innerText = listDataReturned.length;
         let html = '';
         if(listDataReturned.length === 0) { 
-            html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Chưa có xe xuất bến.</div>'; 
+            html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Chưa có xe xuất bãi.</div>'; 
         } 
         else {
             listDataReturned.forEach((car) => {
