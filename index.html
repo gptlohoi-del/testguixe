@@ -179,6 +179,15 @@
         }
 
 
+        /* Trạng thái chưa sẵn sàng (disabled) của nút Sửa biển số và Chụp ảnh ra */
+        .btn-edit:disabled, #snapOutBtn:disabled {
+            background-color: #cbd5e1 !important; /* Xám nhạt */
+            color: #64748b !important; /* Chữ xám đậm */
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+            opacity: 1 !important; 
+        }
+
 
     </style>
 </head>
@@ -511,6 +520,7 @@
                     handleXeVao();
                 } else {
                     document.getElementById('plateIn').focus();
+                    showKeyboard('plateIn'); // THÊM DÒNG NÀY
                 }
             }
         } else if (currentCaptureStep === 'back') {
@@ -523,10 +533,12 @@
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
                 document.getElementById('plateIn').focus();
+                showKeyboard('plateIn'); // THÊM DÒNG NÀY
             } else if (currentFlow === 'back') {
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
                 document.getElementById('plateIn').focus();
+                showKeyboard('plateIn'); // THÊM DÒNG NÀY
             }
         }
     }
@@ -550,6 +562,9 @@
     }
     
     async function startCameraOut() {
+        const snapBtn = document.getElementById('snapOutBtn');
+        snapBtn.disabled = true; // Khóa nút thành màu xám khi camera đang khởi động
+
         try {
             streamOut = await navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1440 } } 
@@ -557,8 +572,15 @@
             const video = document.getElementById('liveCameraOut');
             video.srcObject = streamOut; video.style.display = 'block';
             
+            // Sự kiện: Bắt đầu phát luồng hình ảnh thành công -> Mở khóa nút
+            video.onplaying = () => {
+                snapBtn.disabled = false;
+            };
+
             document.getElementById('actionButtonsOut').style.display = 'flex';
-        } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
+        } catch (err) { 
+            alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); 
+        }
     }
 
     function stopCameraOut() {
@@ -701,24 +723,24 @@
     }
 
     function checkAutoSubmit(inputElement) {
-    let val = inputElement.value;
-    // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
-    if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
-        inputElement.value = val.slice(0, -1); 
-        inputElement.blur(); 
+        let val = inputElement.value;
+        if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
+            inputElement.value = val.slice(0, -1); 
+            inputElement.blur(); 
+            hideKeyboard(); // THÊM DÒNG NÀY ĐỂ ẨN BÀN PHÍM
 
-        if (currentFlow === 'front') {
-            handleXeVao();
-        } else if (currentFlow === 'back') {
-            if (!capturedImages.front) {
-                currentCaptureStep = 'front';
-                startCamera();
-            } else {
+            if (currentFlow === 'front') {
                 handleXeVao();
+            } else if (currentFlow === 'back') {
+                if (!capturedImages.front) {
+                    currentCaptureStep = 'front';
+                    startCamera();
+                } else {
+                    handleXeVao();
+                }
             }
         }
-    }
-    }   
+    }  
 
     function checkAutoSubmitEdit(inputElement) {
         let val = inputElement.value;
@@ -736,6 +758,7 @@
 
         if (currentFlow === 'back' && capturedImages.back && !capturedImages.front) {
             document.getElementById('plateIn').blur();
+            hideKeyboard(); // THÊM DÒNG NÀY ĐỂ NHƯỜNG CHỖ CHO CAMERA
             currentCaptureStep = 'front';
             startCamera();
             return;
@@ -1087,6 +1110,16 @@
             !e.target.closest('.btn-edit') // bỏ qua nút "Sửa biển số"
         ) {
             hideKeyboard();
+        }
+    });
+
+    // Lắng nghe sự kiện nhấn Enter trên bàn phím
+    document.getElementById('plateIn').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.blur();
+            hideKeyboard();
+            handleXeVao(); // Gọi luồng xử lý chính
         }
     });
 
