@@ -105,6 +105,81 @@
             font-size: 13px;      
             font-weight: bold;  
         }
+
+
+        /* CSS Bàn phím tùy chỉnh */
+        .custom-keyboard {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            background: #d1d5db;
+            padding: 10px 10px 25px 10px;
+            z-index: 10005;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            animation: slideUp 0.2s ease-out;
+        }
+
+        /* Thanh công cụ bàn phím */
+        .kb-toolbar {
+            display: flex;
+            justify-content: flex-end; /* Đẩy nút đóng sang góc phải */
+            margin-bottom: 8px;
+            padding-right: 4px;
+        }
+        .kb-close-btn {
+            background: #94a3b8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .kb-close-btn:active {
+            background: #64748b;
+        }
+
+        /* Hàng phím */
+        .kb-row {
+            display: flex;
+            justify-content: flex-end; /* Gom các nút về bên phải */
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .kb-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Nút phím */
+        .kb-key {
+            width: 85px; /* Chiều rộng cố định thay vì dàn đều (flex:1) */
+            flex-shrink: 0; /* Ngăn không cho nút bị bóp méo */
+            height: 52px;
+            background: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 24px;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #000;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+        .kb-key:active {
+            background: #9ca3af;
+        }
+        .kb-func {
+            background: #e2e8f0;
+            font-size: 20px;
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -120,7 +195,7 @@
 <div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75); align-items: flex-end;">
     <div style="background: white; padding: 24px 20px 40px 20px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; text-align: center; z-index: 10001; position: relative; animation: slideUp 0.3s ease-out; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);">
         <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
-        <input type="text" id="editPlateInput" inputmode="decimal" placeholder="Kết thúc bằng . hoặc ," style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
+        <input type="text" id="editPlateInput" readonly onclick="showKeyboard('editPlateInput')" placeholder="..." style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
         <div style="display: flex; gap: 10px;">
             <button onclick="closeEditModal()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: #64748b; color: white; font-weight: bold; cursor: pointer;">HỦY</button>
             <button onclick="confirmEditPlate()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--warning); color: white; font-weight: bold; cursor: pointer;">LƯU LẠI</button>
@@ -178,7 +253,7 @@
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="plateIn">Biển số xe vào bãi</label>
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" id="plateIn" inputmode="decimal" placeholder="Chỉ nhập số, kết thúc bằng . hoặc ," style="flex: 1;" oninput="checkAutoSubmit(this)">
+                    <input type="text" id="plateIn" readonly onclick="showKeyboard('plateIn')" placeholder="Chỉ nhập số..." style="flex: 1;" oninput="checkAutoSubmit(this)">
                     <button class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px;">GHI NHẬN</button>
                 </div>
             </div>
@@ -196,7 +271,7 @@
         <div class="bottom-control-panel">
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="plateSearch">Tìm biển số xe ra</label>
-                <input type="text" id="plateSearch" inputmode="decimal" placeholder="Nhập số xe để tìm..." oninput="handleSearch()">
+                <input type="text" id="plateSearch" readonly onclick="showKeyboard('plateSearch')" placeholder="Nhập số xe để tìm..." oninput="handleSearch()">
             </div>
             
             <div id="listResults" class="list-cars" style="display: none; margin-bottom: 10px;"></div>
@@ -249,6 +324,41 @@
     <audio id="soundSuccess" src="success.mp3" preload="auto"></audio>
     <audio id="soundError" src="error.mp3" preload="auto"></audio>
 </div>
+
+
+
+    <!-- Giao diện Bàn phím tùy chỉnh (Căn phải + Nút Đóng) -->
+    <div id="customKeyboard" class="custom-keyboard">
+        <!-- Thanh công cụ chứa nút đóng -->
+        <div class="kb-toolbar">
+            <button class="kb-close-btn" onclick="hideKeyboard()">ĐÓNG ✕</button>
+        </div>
+        
+        <div class="kb-row">
+            <button class="kb-key" onclick="kbPress('1')">1</button>
+            <button class="kb-key" onclick="kbPress('2')">2</button>
+            <button class="kb-key" onclick="kbPress('3')">3</button>
+        </div>
+        <div class="kb-row">
+            <button class="kb-key" onclick="kbPress('4')">4</button>
+            <button class="kb-key" onclick="kbPress('5')">5</button>
+            <button class="kb-key" onclick="kbPress('6')">6</button>
+        </div>
+        <div class="kb-row">
+            <button class="kb-key" onclick="kbPress('7')">7</button>
+            <button class="kb-key" onclick="kbPress('8')">8</button>
+            <button class="kb-key" onclick="kbPress('9')">9</button>
+        </div>
+        <div class="kb-row">
+            <button class="kb-key kb-func" onclick="kbBackspace()">⌫</button>
+            <button class="kb-key" onclick="kbPress('0')">0</button>
+            <button class="kb-key kb-func" onclick="kbEnter()">⏎</button>
+        </div>
+    </div>  
+
+
+
+
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-kJ_k4mXSB20CEgLwYI7qlb4tI_i1AfKOH_yhAjMvonPeJPafyfvUeZq3MZ1sNWgv9g/exec";
@@ -726,12 +836,14 @@
         modal.style.display = 'flex';
         
         setTimeout(() => {
-            input.focus();
+            // Mở bàn phím số tùy chỉnh thay vì focus
+            showKeyboard('editPlateInput'); 
         }, 100);
     }
 
     function closeEditModal() {
         document.getElementById('editPlateModal').style.display = 'none';
+        hideKeyboard(); // Thêm dòng này để đóng luôn bàn phím
     }
 
     async function confirmEditPlate() {
@@ -892,7 +1004,91 @@
             });
         }
 
+        // Xử lý Bàn phím tùy chỉnh
+    let activeInput = null;
 
+        function showKeyboard(inputId) {
+        activeInput = document.getElementById(inputId);
+        const kb = document.getElementById('customKeyboard');
+        kb.style.display = 'block';
+
+        // Lấy chiều cao của bàn phím tùy chỉnh vừa hiển thị
+        const kbHeight = kb.offsetHeight || 260; 
+
+        // 1. Đẩy khung VÀO BÃI hoặc TÌM XE TRONG BÃI lên
+        const panel = activeInput.closest('.bottom-control-panel');
+        if (panel) {
+            panel.style.transition = 'bottom 0.2s ease-out';
+            panel.style.bottom = kbHeight + 'px';
+        }
+
+        // 2. Đẩy khung Modal sửa biển số lên
+        const modalContent = activeInput.closest('#editPlateModal');
+        if (modalContent) {
+            const innerDiv = modalContent.querySelector('div');
+            if (innerDiv) {
+                innerDiv.style.transition = 'transform 0.2s ease-out';
+                innerDiv.style.transform = `translateY(-${kbHeight}px)`;
+            }
+        }
+    }
+
+    function hideKeyboard() {
+        const kb = document.getElementById('customKeyboard');
+        if (kb) kb.style.display = 'none';
+        
+        // Trả các khung panel về vị trí sát đáy ban đầu
+        document.querySelectorAll('.bottom-control-panel').forEach(panel => {
+            panel.style.transition = 'bottom 0.2s ease-out';
+            panel.style.bottom = '44px';
+        });
+
+        // Trả Modal sửa biển số về vị trí cũ
+        const modalContent = document.querySelector('#editPlateModal > div');
+        if (modalContent) {
+            modalContent.style.transition = 'transform 0.2s ease-out';
+            modalContent.style.transform = 'translateY(0)';
+        }
+
+        activeInput = null;
+    }
+
+    function kbPress(val) {
+        if (!activeInput) return;
+        activeInput.value += val;
+        // Kích hoạt sự kiện oninput để các hàm tìm kiếm/check chạy tự động
+        activeInput.dispatchEvent(new Event('input'));
+    }
+
+    function kbBackspace() {
+        if (!activeInput) return;
+        activeInput.value = activeInput.value.slice(0, -1);
+        activeInput.dispatchEvent(new Event('input'));
+    }
+
+    function kbEnter() {
+        if (!activeInput) return;
+        
+        // Nút Enter mô phỏng việc gõ dấu chấm để kích hoạt hàm tự động lưu của bạn
+        if (activeInput.id === 'plateIn' || activeInput.id === 'editPlateInput') {
+            activeInput.value += '.'; 
+            if (activeInput.id === 'plateIn') checkAutoSubmit(activeInput);
+            if (activeInput.id === 'editPlateInput') checkAutoSubmitEdit(activeInput);
+        }
+        hideKeyboard();
+    }
+
+    // Ẩn bàn phím khi bấm ra ngoài các vùng nhập liệu
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#customKeyboard') && 
+            e.target.id !== 'plateIn' && 
+            e.target.id !== 'plateSearch' && 
+            e.target.id !== 'editPlateInput' &&
+            !e.target.closest('.btn-edit') // bỏ qua nút "Sửa biển số"
+        ) {
+            hideKeyboard();
+        }
+    });
 
 </script>
 </body>
