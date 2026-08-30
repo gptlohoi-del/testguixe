@@ -593,7 +593,7 @@
     function checkAutoSubmit(inputElement) {
     let val = inputElement.value;
     // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
-    if (val.endsWith('#') || val.endsWith('.') || val.endsWith('*') || val.endsWith(',')) {
+    if (val.endsWith('.') || val.endsWith('#') || val.endsWith('*') || val.endsWith(',')) {
         inputElement.value = val.slice(0, -1); 
         inputElement.blur(); 
 
@@ -613,7 +613,7 @@
 function checkAutoSubmitEdit(inputElement) {
     let val = inputElement.value;
     // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
-    if (val.endsWith('#') || val.endsWith('.') || val.endsWith('*') || val.endsWith(',')) {
+    if (val.endsWith('.') || val.endsWith('#') || val.endsWith('*') || val.endsWith(',')) {
         inputElement.value = val.slice(0, -1);
         inputElement.blur();
         confirmEditPlate();
@@ -871,6 +871,29 @@ function checkAutoSubmitEdit(inputElement) {
 
         currentCarRowIndex = null; currentMatches = []; 
     }
+
+    
+        // Xử lý khung nhập liệu tránh bị che bởi bàn phím trên iOS cho tất cả các tab
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", function() {
+                // Dùng querySelectorAll để lấy TẤT CẢ các khung bottom-control-panel
+                const panels = document.querySelectorAll('.bottom-control-panel');
+                let keyboardHeight = window.innerHeight - window.visualViewport.height;
+                
+                panels.forEach(function(panel) {
+                    if (keyboardHeight > 0) {
+                        // Khi bàn phím hiện
+                        panel.style.bottom = (keyboardHeight) + 'px';
+                    } else {
+                        // Khi bàn phím ẩn
+                        panel.style.bottom = '44px';
+                    }
+                });
+            });
+        }
+
+
+
 </script>
 </body>
 </html>
