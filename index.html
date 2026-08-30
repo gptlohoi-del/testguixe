@@ -120,7 +120,7 @@
 <div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75); align-items: flex-end;">
     <div style="background: white; padding: 24px 20px 40px 20px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; text-align: center; z-index: 10001; position: relative; animation: slideUp 0.3s ease-out; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);">
         <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
-        <input type="text" id="editPlateInput" inputmode="numeric" placeholder="Kết thúc bằng . hoặc ," style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
+        <input type="text" id="editPlateInput" inputmode="decimal" placeholder="Kết thúc bằng . hoặc ," style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
         <div style="display: flex; gap: 10px;">
             <button onclick="closeEditModal()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: #64748b; color: white; font-weight: bold; cursor: pointer;">HỦY</button>
             <button onclick="confirmEditPlate()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--warning); color: white; font-weight: bold; cursor: pointer;">LƯU LẠI</button>
@@ -178,7 +178,7 @@
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="plateIn">Biển số xe vào bãi</label>
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" id="plateIn" inputmode="numeric" placeholder="Chỉ nhập số, kết thúc bằng . hoặc ," style="flex: 1;" oninput="checkAutoSubmit(this)">
+                    <input type="text" id="plateIn" inputmode="decimal" placeholder="Chỉ nhập số, kết thúc bằng . hoặc ," style="flex: 1;" oninput="checkAutoSubmit(this)">
                     <button class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px;">GHI NHẬN</button>
                 </div>
             </div>
@@ -196,7 +196,7 @@
         <div class="bottom-control-panel">
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="plateSearch">Tìm biển số xe ra</label>
-                <input type="text" id="plateSearch" inputmode="numeric" placeholder="Nhập số xe để tìm..." oninput="handleSearch()">
+                <input type="text" id="plateSearch" inputmode="decimal" placeholder="Nhập số xe để tìm..." oninput="handleSearch()">
             </div>
             
             <div id="listResults" class="list-cars" style="display: none; margin-bottom: 10px;"></div>
