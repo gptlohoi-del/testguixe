@@ -100,85 +100,19 @@
 
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        #plateIn::placeholder, #editPlateInput::placeholder {
-            text-transform: none; 
-            font-size: 13px;      
-            font-weight: bold;  
-        }
+        #plateIn::placeholder, #editPlateInput::placeholder { text-transform: none; font-size: 13px; font-weight: bold; }
 
-
-        /* CSS Bàn phím tùy chỉnh */
-        .custom-keyboard {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 600px;
-            background: #d1d5db;
-            padding: 10px 10px 25px 10px;
-            z-index: 10005;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            animation: slideUp 0.2s ease-out;
-        }
-
-        /* Thanh công cụ bàn phím */
-        .kb-toolbar {
-            display: flex;
-            justify-content: flex-end; /* Đẩy nút đóng sang góc phải */
-            margin-bottom: 8px;
-            padding-right: 4px;
-        }
-        .kb-close-btn {
-            background: #94a3b8;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 14px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        .kb-close-btn:active {
-            background: #64748b;
-        }
-
-        /* Hàng phím */
-        .kb-row {
-            display: flex;
-            justify-content: flex-end; /* Gom các nút về bên phải */
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .kb-row:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Nút phím */
-        .kb-key {
-            width: 85px; /* Chiều rộng cố định thay vì dàn đều (flex:1) */
-            flex-shrink: 0; /* Ngăn không cho nút bị bóp méo */
-            height: 52px;
-            background: #ffffff;
-            border: none;
-            border-radius: 8px;
-            font-size: 24px;
-            font-family: system-ui, -apple-system, sans-serif;
-            color: #000;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            cursor: pointer;
-        }
-        .kb-key:active {
-            background: #9ca3af;
-        }
-        .kb-func {
-            background: #e2e8f0;
-            font-size: 20px;
-        }
-
-
+        .custom-keyboard { display: none; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: #d1d5db; padding: 10px 10px 25px 10px; z-index: 10005; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); animation: slideUp 0.2s ease-out; }
+        .kb-toolbar { display: flex; justify-content: flex-end; margin-bottom: 8px; padding-right: 4px; }
+        .kb-close-btn { background: var(--danger); color: white; border: none; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .kb-close-btn:active { background: #b91c1c; }
+        .kb-enter { background: var(--success) !important; color: white !important; }
+        .kb-enter:active { background: #15803d !important; }
+        .kb-row { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 8px; }
+        .kb-row:last-child { margin-bottom: 0; }
+        .kb-key { width: 85px; flex-shrink: 0; height: 52px; background: #ffffff; border: none; border-radius: 8px; font-size: 24px; font-family: system-ui, -apple-system, sans-serif; color: #000; box-shadow: 0 1px 2px rgba(0,0,0,0.3); cursor: pointer; }
+        .kb-key:active { background: #9ca3af; }
+        .kb-func { background: #e2e8f0; font-size: 20px; }
 
     </style>
 </head>
@@ -261,7 +195,6 @@
     </div>
 
     <div id="tab-trong" class="tab-content" style="padding-bottom: 180px;">
-        
         <div class="stats-header">
             <h3>Xe trong bãi <span id="countParked" class="badge">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
@@ -325,40 +258,31 @@
     <audio id="soundError" src="error.mp3" preload="auto"></audio>
 </div>
 
-
-
-    <!-- Giao diện Bàn phím tùy chỉnh (Căn phải + Nút Đóng) -->
-    <div id="customKeyboard" class="custom-keyboard">
-        <!-- Thanh công cụ chứa nút đóng -->
-        <div class="kb-toolbar">
-            <button class="kb-close-btn" onclick="hideKeyboard()">ĐÓNG ✕</button>
-        </div>
-        
-        <div class="kb-row">
-            <button class="kb-key" onclick="kbPress('1')">1</button>
-            <button class="kb-key" onclick="kbPress('2')">2</button>
-            <button class="kb-key" onclick="kbPress('3')">3</button>
-        </div>
-        <div class="kb-row">
-            <button class="kb-key" onclick="kbPress('4')">4</button>
-            <button class="kb-key" onclick="kbPress('5')">5</button>
-            <button class="kb-key" onclick="kbPress('6')">6</button>
-        </div>
-        <div class="kb-row">
-            <button class="kb-key" onclick="kbPress('7')">7</button>
-            <button class="kb-key" onclick="kbPress('8')">8</button>
-            <button class="kb-key" onclick="kbPress('9')">9</button>
-        </div>
-        <div class="kb-row">
-            <button class="kb-key kb-func" onclick="kbBackspace()">⌫</button>
-            <button class="kb-key" onclick="kbPress('0')">0</button>
-            <button class="kb-key kb-func" onclick="kbEnter()">⏎</button>
-        </div>
-    </div>  
-
-
-
-
+<div id="customKeyboard" class="custom-keyboard">
+    <div class="kb-toolbar">
+        <button class="kb-close-btn" onclick="hideKeyboard()">ĐÓNG ✕</button>
+    </div>
+    <div class="kb-row">
+        <button class="kb-key" onclick="kbPress('1')">1</button>
+        <button class="kb-key" onclick="kbPress('2')">2</button>
+        <button class="kb-key" onclick="kbPress('3')">3</button>
+    </div>
+    <div class="kb-row">
+        <button class="kb-key" onclick="kbPress('4')">4</button>
+        <button class="kb-key" onclick="kbPress('5')">5</button>
+        <button class="kb-key" onclick="kbPress('6')">6</button>
+    </div>
+    <div class="kb-row">
+        <button class="kb-key" onclick="kbPress('7')">7</button>
+        <button class="kb-key" onclick="kbPress('8')">8</button>
+        <button class="kb-key" onclick="kbPress('9')">9</button>
+    </div>
+    <div class="kb-row">
+        <button class="kb-key kb-func" onclick="kbBackspace()">⌫</button>
+        <button class="kb-key" onclick="kbPress('0')">0</button>
+        <button class="kb-key kb-func kb-enter" onclick="kbEnter()">⏎</button>
+    </div>
+</div>  
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-kJ_k4mXSB20CEgLwYI7qlb4tI_i1AfKOH_yhAjMvonPeJPafyfvUeZq3MZ1sNWgv9g/exec";
@@ -373,6 +297,7 @@
 
     let stream = null; 
     let streamOut = null;
+    let isCameraStarting = false;
     
     let modalImages = [];
     let currentModalIndex = 0;
@@ -393,6 +318,14 @@
 
     let editingRowIndex = null;
     let editingOldPlate = '';
+
+    // Hàm chống XSS cơ bản
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.toString().replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag] || tag));
+    }
 
     window.onload = function() {
         const savedTab = localStorage.getItem('saved_active_tab') || 'tab-vao';
@@ -416,10 +349,7 @@
         if (tabId !== 'tab-vao') stopCamera();
         if (tabId !== 'tab-trong') stopCameraOut();
 
-        if (tabId === 'tab-trong' || tabId === 'tab-tra') {
-            loadParkedCars();
-        }
-
+        if (tabId === 'tab-trong' || tabId === 'tab-tra') loadParkedCars();
         if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
 
@@ -430,6 +360,8 @@
     }
 
     async function startCamera() {
+        if (isCameraStarting) return;
+        isCameraStarting = true;
         try {
             stream = await navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1440 } } 
@@ -451,7 +383,11 @@
                 snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)';
                 snapBtn.style.backgroundColor = 'var(--warning)';
             }
-        } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
+        } catch (err) { 
+            alert("Không thể mở camera. Vui lòng cấp quyền!"); 
+        } finally {
+            isCameraStarting = false;
+        }
     }
 
     function stopCamera() {
@@ -486,15 +422,17 @@
             offsetY = (vHeight - drawHeight) / 2;
         }
 
-        canvas.width = 960; 
-        canvas.height = 1280;
+        // TỐI ƯU HÓA: Giảm kích thước xuống 480x640 chống tràn LocalStorage
+        canvas.width = 480; 
+        canvas.height = 640;
         const ctx = canvas.getContext('2d'); 
         ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
         
         const snapBtn = document.getElementById('snapBtn');
 
+        // TỐI ƯU HÓA: Nén JPEG xuống 0.6
         if (currentCaptureStep === 'front') {
-            capturedImages.front = canvas.toDataURL('image/jpeg', 0.8);
+            capturedImages.front = canvas.toDataURL('image/jpeg', 0.6);
             document.getElementById('previewInFront').src = capturedImages.front;
             document.getElementById('previewInFront').style.display = 'block';
             document.getElementById('retakeFrontBtn').style.display = 'block';
@@ -506,24 +444,16 @@
             } else if (currentFlow === 'back') {
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
-                
-                if (document.getElementById('plateIn').value.trim() !== '') {
-                    handleXeVao();
-                } else {
-                    document.getElementById('plateIn').focus();
-                }
+                if (document.getElementById('plateIn').value.trim() !== '') handleXeVao();
+                else document.getElementById('plateIn').focus();
             }
         } else if (currentCaptureStep === 'back') {
-            capturedImages.back = canvas.toDataURL('image/jpeg', 0.8);
+            capturedImages.back = canvas.toDataURL('image/jpeg', 0.6);
             document.getElementById('previewInBack').src = capturedImages.back;
             document.getElementById('previewInBack').style.display = 'block';
             document.getElementById('retakeBackBtn').style.display = 'block';
             
-            if (currentFlow === 'front') {
-                snapBtn.style.display = 'none'; 
-                stopCamera(); 
-                document.getElementById('plateIn').focus();
-            } else if (currentFlow === 'back') {
+            if (currentFlow === 'front' || currentFlow === 'back') {
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
                 document.getElementById('plateIn').focus();
@@ -550,6 +480,8 @@
     }
     
     async function startCameraOut() {
+        if (isCameraStarting) return;
+        isCameraStarting = true;
         try {
             streamOut = await navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1440 } } 
@@ -558,7 +490,11 @@
             video.srcObject = streamOut; video.style.display = 'block';
             
             document.getElementById('actionButtonsOut').style.display = 'flex';
-        } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
+        } catch (err) { 
+            alert("Không thể mở camera. Vui lòng cấp quyền!"); 
+        } finally {
+            isCameraStarting = false;
+        }
     }
 
     function stopCameraOut() {
@@ -570,7 +506,6 @@
     function takeSnapshotOut() {
         const video = document.getElementById('liveCameraOut');
         const canvas = document.createElement('canvas');
-        
         const targetAspectRatio = 3 / 4; 
         let vWidth = video.videoWidth; 
         let vHeight = video.videoHeight;
@@ -579,21 +514,19 @@
         if (vWidth / vHeight > targetAspectRatio) {
             drawHeight = vHeight;
             drawWidth = vHeight * targetAspectRatio;
-            offsetX = (vWidth - drawWidth) / 2;
-            offsetY = 0;
+            offsetX = (vWidth - drawWidth) / 2; offsetY = 0;
         } else {
             drawWidth = vWidth;
             drawHeight = vWidth / targetAspectRatio;
-            offsetX = 0;
-            offsetY = (vHeight - drawHeight) / 2;
+            offsetX = 0; offsetY = (vHeight - drawHeight) / 2;
         }
 
-        canvas.width = 960; 
-        canvas.height = 1280;
+        canvas.width = 480; 
+        canvas.height = 640;
         const ctx = canvas.getContext('2d'); 
         ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
 
-        capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
+        capturedImages.out = canvas.toDataURL('image/jpeg', 0.6);
         
         stopCameraOut();
         handleXeRa();
@@ -601,53 +534,34 @@
 
     function openModal(currentSrc, imgFront, imgBack, imgOut) {
         if (!currentSrc) return;
-        
         modalImages = [imgFront, imgBack, imgOut].filter(src => src && src !== 'undefined' && src !== 'null' && src !== '');
-        
-        if (modalImages.length === 0) {
-            modalImages = [currentSrc];
-        }
+        if (modalImages.length === 0) modalImages = [currentSrc];
 
         currentModalIndex = modalImages.indexOf(currentSrc);
         if (currentModalIndex === -1) currentModalIndex = 0;
 
         document.getElementById('modalImage').src = modalImages[currentModalIndex];
-        
         const hint = document.getElementById('modalHint');
         if (modalImages.length > 1) {
             hint.style.display = 'block';
             hint.innerText = "↔ Vuốt ngang đổi ảnh (" + (currentModalIndex + 1) + "/" + modalImages.length + ")";
-        } else {
-            hint.style.display = 'none';
-        }
-        
+        } else { hint.style.display = 'none'; }
         document.getElementById('imageModal').style.display = 'flex';
     }
 
     function closeModal() { document.getElementById('imageModal').style.display = 'none'; }
     
-    function handleModalSwipeStart(e) { 
-        modalSwipeStartX = e.touches[0].clientX; 
-        modalSwipeStartY = e.touches[0].clientY; 
-    }
-    
+    function handleModalSwipeStart(e) { modalSwipeStartX = e.touches[0].clientX; modalSwipeStartY = e.touches[0].clientY; }
     function handleModalSwipeEnd(e) {
-        let diffX = modalSwipeStartX - e.changedTouches[0].clientX; 
-        let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
-        
+        let diffX = modalSwipeStartX - e.changedTouches[0].clientX; let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
         if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) { 
             if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal(); 
             return; 
         }
-        
         if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
             if (modalImages.length <= 1) return;
-            
-            if (diffX > 0) {
-                currentModalIndex = (currentModalIndex + 1) % modalImages.length;
-            } else {
-                currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
-            }
+            if (diffX > 0) currentModalIndex = (currentModalIndex + 1) % modalImages.length;
+            else currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
             
             document.getElementById('modalImage').src = modalImages[currentModalIndex];
             document.getElementById('modalHint').innerText = "↔ Vuốt ngang đổi ảnh (" + (currentModalIndex + 1) + "/" + modalImages.length + ")";
@@ -666,10 +580,8 @@
     });
 
     window.addEventListener('keydown', function(e) {
-        if (syncQueue.length > 0) {
-            if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r') || (e.metaKey && e.key.toLowerCase() === 'r')) {
-                e.preventDefault(); showToast('Đang tải ảnh, vui lòng không làm mới!', 'error');
-            }
+        if (syncQueue.length > 0 && (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r'))) {
+            e.preventDefault(); showToast('Đang tải ảnh, vui lòng không làm mới!', 'error');
         }
     });
 
@@ -701,32 +613,24 @@
     }
 
     function checkAutoSubmit(inputElement) {
-    let val = inputElement.value;
-    // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
-    if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
-        inputElement.value = val.slice(0, -1); 
-        inputElement.blur(); 
-
-        if (currentFlow === 'front') {
-            handleXeVao();
-        } else if (currentFlow === 'back') {
-            if (!capturedImages.front) {
-                currentCaptureStep = 'front';
-                startCamera();
-            } else {
+        let val = inputElement.value;
+        if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
+            inputElement.value = val.slice(0, -1); 
+            inputElement.blur(); 
+            if (currentFlow === 'front') {
                 handleXeVao();
+            } else if (currentFlow === 'back') {
+                if (!capturedImages.front) { currentCaptureStep = 'front'; startCamera(); } 
+                else { handleXeVao(); }
             }
         }
-    }
     }   
 
     function checkAutoSubmitEdit(inputElement) {
         let val = inputElement.value;
-        // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
         if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
             inputElement.value = val.slice(0, -1);
-            inputElement.blur();
-            confirmEditPlate();
+            inputElement.blur(); confirmEditPlate();
         }
     }
 
@@ -736,14 +640,12 @@
 
         if (currentFlow === 'back' && capturedImages.back && !capturedImages.front) {
             document.getElementById('plateIn').blur();
-            currentCaptureStep = 'front';
-            startCamera();
-            return;
+            currentCaptureStep = 'front'; startCamera(); return;
         }
 
         if (!capturedImages.front || !capturedImages.back) return showToast('Vui lòng chụp đủ 2 ảnh!', 'error');
         
-        syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
+        syncQueue.push({ action: 'IN', licensePlate: escapeHTML(plate), imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
         localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
         
         showToast('Đã lưu! Nhập xe tiếp theo', 'success');
@@ -769,24 +671,22 @@
         searchResultDiv.style.display = 'none';
         currentMatches = listDataParked.filter(car => car.plate.toUpperCase().includes(plate));
 
-        if (currentMatches.length > 0) { renderSearchList(); } 
+        if (currentMatches.length > 0) renderSearchList();
         else { listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:13px; padding: 10px 0;">Không có xe khớp...</div>'; listDiv.style.display = 'block'; }
     }
 
     function renderSearchList() {
         const listDiv = document.getElementById('listResults'); listDiv.innerHTML = ''; 
-        if (currentMatches.length === 1) { selectCarFromSearch(0); } 
+        if (currentMatches.length === 1) selectCarFromSearch(0);
         else {
             let html = `<div style="font-weight:600; color:var(--primary); text-align:center; font-size:13px; margin-bottom: 5px;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
             currentMatches.forEach((car, index) => {
                 let displayImg = car.entryImgBack || car.entryImg;
-                
                 html += `<div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
                             <div class="img-group">
-                                <img src="${car.entryImg}" style="display:none;" loading="lazy">
                                 <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
-                            <div class="stat-info"><strong style="color:var(--danger); font-size:16px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
+                            <div class="stat-info"><strong style="color:var(--danger); font-size:16px;">${escapeHTML(car.plate)}</strong><span class="time">Vào: ${escapeHTML(car.entryTime)}</span><span class="emp">Nhận: ${escapeHTML(car.employeeIn)}</span></div>
                             <div class="icon-out">TRẢ XE</div>
                         </div>`;
             });
@@ -803,74 +703,46 @@
 
     function setupCheckoutForm(car) {
         currentCarRowIndex = car.rowIndex; 
-        document.getElementById('selectedPlate').innerText = car.plate;
-        document.getElementById('resTime').innerText = car.entryTime;
-        document.getElementById('resEmp').innerText = car.employeeIn; 
-        
+        document.getElementById('selectedPlate').innerText = escapeHTML(car.plate);
+        document.getElementById('resTime').innerText = escapeHTML(car.entryTime);
+        document.getElementById('resEmp').innerText = escapeHTML(car.employeeIn); 
         document.getElementById('resImgFront').src = car.entryImg;
         document.getElementById('resImgFront').onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack || '', ''); };
         
         const resImgBack = document.getElementById('resImgBack');
         if (car.entryImgBack) { 
-            resImgBack.src = car.entryImgBack; 
-            resImgBack.style.display = 'inline-block'; 
+            resImgBack.src = car.entryImgBack; resImgBack.style.display = 'inline-block'; 
             resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack || '', ''); }; 
-        } else { 
-            resImgBack.style.display = 'none'; 
-        }
+        } else { resImgBack.style.display = 'none'; }
         
         document.getElementById('listResults').style.display = 'none'; 
         document.getElementById('searchResult').style.display = 'block';
-        
-        capturedImages.out = ""; 
-        startCameraOut(); 
+        capturedImages.out = ""; startCameraOut(); 
     }
 
     function editPlate(rowIndex, oldPlate) {
-        editingRowIndex = rowIndex;
-        editingOldPlate = oldPlate;
-        const modal = document.getElementById('editPlateModal');
-        const input = document.getElementById('editPlateInput');
-        
-        input.value = oldPlate;
-        modal.style.display = 'flex';
-        
-        setTimeout(() => {
-            // Mở bàn phím số tùy chỉnh thay vì focus
-            showKeyboard('editPlateInput'); 
-        }, 100);
+        editingRowIndex = rowIndex; editingOldPlate = oldPlate;
+        document.getElementById('editPlateInput').value = escapeHTML(oldPlate);
+        document.getElementById('editPlateModal').style.display = 'flex';
+        setTimeout(() => { showKeyboard('editPlateInput'); }, 100);
     }
 
-    function closeEditModal() {
-        document.getElementById('editPlateModal').style.display = 'none';
-        hideKeyboard(); // Thêm dòng này để đóng luôn bàn phím
-    }
+    function closeEditModal() { document.getElementById('editPlateModal').style.display = 'none'; hideKeyboard(); }
 
     async function confirmEditPlate() {
-        const newPlate = document.getElementById('editPlateInput').value;
-        if (!newPlate || newPlate.trim() === "" || newPlate.trim().toUpperCase() === editingOldPlate) {
-            closeEditModal();
-            return;
-        }
+        const newPlate = document.getElementById('editPlateInput').value.trim();
+        if (!newPlate || newPlate.toUpperCase() === editingOldPlate) { closeEditModal(); return; }
         
-        closeEditModal();
-        toggleLoading(true);
+        closeEditModal(); toggleLoading(true);
         try {
             const response = await fetch(WEB_APP_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain' }, 
-                body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: editingRowIndex, newPlate: newPlate, deviceId: myDeviceId }) 
+                method: 'POST', headers: { 'Content-Type': 'text/plain' }, 
+                body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: editingRowIndex, newPlate: escapeHTML(newPlate), deviceId: myDeviceId }) 
             });
             const res = await response.json(); 
-            if (res.status === 'success') { 
-                showToast('Cập nhật biển số thành công!', 'success'); 
-                loadParkedCars(); 
-            } else { 
-                showToast(res.message, 'error'); 
-            }
-        } catch (error) { 
-            showToast('Lỗi mạng: ' + error.message, 'error'); 
-        }
+            if (res.status === 'success') { showToast('Cập nhật biển số thành công!', 'success'); loadParkedCars(); } 
+            else { showToast(res.message, 'error'); }
+        } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
         toggleLoading(false);
     }
 
@@ -881,15 +753,12 @@
             const res = await response.json();
             
             if (res.status === 'success') {
-                let tempParked = [];
-                if (res.parkedCars) { tempParked = res.parkedCars; } else if (res.todayCars && res.overnightCars) { tempParked = [...res.todayCars, ...res.overnightCars]; } 
+                let tempParked = res.parkedCars || (res.todayCars && res.overnightCars ? [...res.todayCars, ...res.overnightCars] : []); 
                 listDataParked = tempParked.sort((a, b) => b.rowIndex - a.rowIndex);
-                let tempReturned = res.returnedCars || [];
-                listDataReturned = tempReturned.sort((a, b) => b.rowIndex - a.rowIndex);
+                listDataReturned = (res.returnedCars || []).sort((a, b) => b.rowIndex - a.rowIndex);
                 
                 localStorage.setItem('saved_cars_parked', JSON.stringify(listDataParked));
                 localStorage.setItem('saved_cars_returned', JSON.stringify(listDataReturned));
-                
                 renderParkedCarsData(); renderReturnedCarsData(); isDataLoaded = true; 
             } else { showToast(res.message, 'error'); }
         } catch (error) { showToast('Lỗi kết nối', 'error'); }
@@ -903,13 +772,11 @@
         else {
             listDataParked.forEach((car) => {
                 let displayImg = car.entryImgBack || car.entryImg;
-                
                 html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
                             <div class="img-group">
-                                <img src="${car.entryImg}" style="display:none;" loading="lazy">
                                 <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
                             </div>
-                            <div class="stat-info"><strong>${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${car.plate}')">SỬA BIỂN SỐ</button></div>
+                            <div class="stat-info"><strong>${escapeHTML(car.plate)}</strong><span class="time">Vào: ${escapeHTML(car.entryTime)}</span><span class="emp">Nhận: ${escapeHTML(car.employeeIn)}</span><button class="btn-edit" onclick="event.stopPropagation(); editPlate(${car.rowIndex}, '${escapeHTML(car.plate)}')">SỬA BIỂN SỐ</button></div>
                             <div class="icon-out">TRẢ XE</div>
                         </div>`;
             });
@@ -920,30 +787,20 @@
     function renderReturnedCarsData() {
         document.getElementById('countReturned').innerText = listDataReturned.length;
         let html = '';
-        if(listDataReturned.length === 0) { 
-            html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Chưa có xe xuất bãi.</div>'; 
-        } 
+        if(listDataReturned.length === 0) { html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Chưa có xe xuất bãi.</div>'; } 
         else {
             listDataReturned.forEach((car) => {
                 let displayImg = car.entryImgBack || car.entryImg;
-                
-                let imgExitHidden = '';
-                if (car.exitImg) {
-                    imgExitHidden = `<img src="${car.exitImg}" style="display:none;">`;
-                }
-
                 html += `<div class="stat-item" style="cursor: default;">
                             <div class="img-group">
-                                <img src="${car.entryImg}" style="display:none;" loading="lazy">
                                 <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', '${car.exitImg || ""}'); event.stopPropagation();">
                             </div>
                             <div class="stat-info" style="display: flex; flex-direction: column;">
-                                <strong style="color:var(--text-main);">${car.plate}</strong>
-                                <span class="time">Vào: ${car.entryTime}</span>
-                                <span class="time" style="color:var(--danger)">Ra: ${car.exitTime || 'Đã ra'}</span>
-                                <span class="emp">Nhận: ${car.employeeIn}</span>
-                                <span class="emp" style="color:var(--primary)">Trả: ${car.employeeOut || 'Chưa rõ'}</span>
-                                ${imgExitHidden}
+                                <strong style="color:var(--text-main);">${escapeHTML(car.plate)}</strong>
+                                <span class="time">Vào: ${escapeHTML(car.entryTime)}</span>
+                                <span class="time" style="color:var(--danger)">Ra: ${escapeHTML(car.exitTime || 'Đã ra')}</span>
+                                <span class="emp">Nhận: ${escapeHTML(car.employeeIn)}</span>
+                                <span class="emp" style="color:var(--primary)">Trả: ${escapeHTML(car.employeeOut || 'Chưa rõ')}</span>
                             </div>
                             <div class="icon-done">XONG</div>
                         </div>`;
@@ -967,11 +824,8 @@
         capturedImages = { front: "", back: "", out: "" };
         currentFlow = ''; currentCaptureStep = '';
         
-        const snapBtn = document.getElementById('snapBtn');
-        if (snapBtn) { snapBtn.style.display = 'none'; }
-        
-        const camBtns = document.getElementById('camControlBtns'); 
-        if(camBtns) camBtns.style.display = 'flex';
+        const snapBtn = document.getElementById('snapBtn'); if (snapBtn) snapBtn.style.display = 'none';
+        const camBtns = document.getElementById('camControlBtns'); if(camBtns) camBtns.style.display = 'flex';
         
         stopCamera();
 
@@ -984,52 +838,28 @@
         currentCarRowIndex = null; currentMatches = []; 
     }
 
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", function() {
+            const panels = document.querySelectorAll('.bottom-control-panel');
+            let keyboardHeight = window.innerHeight - window.visualViewport.height;
+            panels.forEach(function(panel) { panel.style.bottom = (keyboardHeight > 0) ? (keyboardHeight) + 'px' : '44px'; });
+        });
+    }
 
-        // Xử lý khung nhập liệu tránh bị che bởi bàn phím trên iOS cho tất cả các tab
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener("resize", function() {
-                // Dùng querySelectorAll để lấy TẤT CẢ các khung bottom-control-panel
-                const panels = document.querySelectorAll('.bottom-control-panel');
-                let keyboardHeight = window.innerHeight - window.visualViewport.height;
-                
-                panels.forEach(function(panel) {
-                    if (keyboardHeight > 0) {
-                        // Khi bàn phím hiện
-                        panel.style.bottom = (keyboardHeight) + 'px';
-                    } else {
-                        // Khi bàn phím ẩn
-                        panel.style.bottom = '44px';
-                    }
-                });
-            });
-        }
-
-        // Xử lý Bàn phím tùy chỉnh
     let activeInput = null;
 
-        function showKeyboard(inputId) {
+    function showKeyboard(inputId) {
         activeInput = document.getElementById(inputId);
-        const kb = document.getElementById('customKeyboard');
-        kb.style.display = 'block';
-
-        // Lấy chiều cao của bàn phím tùy chỉnh vừa hiển thị
+        const kb = document.getElementById('customKeyboard'); kb.style.display = 'block';
         const kbHeight = kb.offsetHeight || 260; 
 
-        // 1. Đẩy khung VÀO BÃI hoặc TÌM XE TRONG BÃI lên
         const panel = activeInput.closest('.bottom-control-panel');
-        if (panel) {
-            panel.style.transition = 'bottom 0.2s ease-out';
-            panel.style.bottom = kbHeight + 'px';
-        }
+        if (panel) { panel.style.transition = 'bottom 0.2s ease-out'; panel.style.bottom = kbHeight + 'px'; }
 
-        // 2. Đẩy khung Modal sửa biển số lên
         const modalContent = activeInput.closest('#editPlateModal');
         if (modalContent) {
             const innerDiv = modalContent.querySelector('div');
-            if (innerDiv) {
-                innerDiv.style.transition = 'transform 0.2s ease-out';
-                innerDiv.style.transform = `translateY(-${kbHeight}px)`;
-            }
+            if (innerDiv) { innerDiv.style.transition = 'transform 0.2s ease-out'; innerDiv.style.transform = `translateY(-${kbHeight}px)`; }
         }
     }
 
@@ -1037,26 +867,20 @@
         const kb = document.getElementById('customKeyboard');
         if (kb) kb.style.display = 'none';
         
-        // Trả các khung panel về vị trí sát đáy ban đầu
         document.querySelectorAll('.bottom-control-panel').forEach(panel => {
-            panel.style.transition = 'bottom 0.2s ease-out';
-            panel.style.bottom = '44px';
+            panel.style.transition = 'bottom 0.2s ease-out'; panel.style.bottom = '44px';
         });
 
-        // Trả Modal sửa biển số về vị trí cũ
         const modalContent = document.querySelector('#editPlateModal > div');
         if (modalContent) {
-            modalContent.style.transition = 'transform 0.2s ease-out';
-            modalContent.style.transform = 'translateY(0)';
+            modalContent.style.transition = 'transform 0.2s ease-out'; modalContent.style.transform = 'translateY(0)';
         }
-
         activeInput = null;
     }
 
     function kbPress(val) {
         if (!activeInput) return;
         activeInput.value += val;
-        // Kích hoạt sự kiện oninput để các hàm tìm kiếm/check chạy tự động
         activeInput.dispatchEvent(new Event('input'));
     }
 
@@ -1068,28 +892,33 @@
 
     function kbEnter() {
         if (!activeInput) return;
-        
-        // Nút Enter mô phỏng việc gõ dấu chấm để kích hoạt hàm tự động lưu của bạn
-        if (activeInput.id === 'plateIn' || activeInput.id === 'editPlateInput') {
-            activeInput.value += '.'; 
-            if (activeInput.id === 'plateIn') checkAutoSubmit(activeInput);
-            if (activeInput.id === 'editPlateInput') checkAutoSubmitEdit(activeInput);
-        }
         hideKeyboard();
+        
+        // TỐI ƯU HÓA: Thay vì gõ dấu chấm, gọi trực tiếp các hàm xác nhận
+        if (activeInput.id === 'plateIn') {
+            activeInput.blur();
+            if (currentFlow === 'front') {
+                handleXeVao();
+            } else if (currentFlow === 'back') {
+                if (!capturedImages.front) {
+                    currentCaptureStep = 'front';
+                    startCamera();
+                } else {
+                    handleXeVao();
+                }
+            }
+        } else if (activeInput.id === 'editPlateInput') {
+            activeInput.blur();
+            confirmEditPlate();
+        }
     }
 
-    // Ẩn bàn phím khi bấm ra ngoài các vùng nhập liệu
     document.addEventListener('click', function(e) {
         if (!e.target.closest('#customKeyboard') && 
-            e.target.id !== 'plateIn' && 
-            e.target.id !== 'plateSearch' && 
-            e.target.id !== 'editPlateInput' &&
-            !e.target.closest('.btn-edit') // bỏ qua nút "Sửa biển số"
-        ) {
-            hideKeyboard();
-        }
+            e.target.id !== 'plateIn' && e.target.id !== 'plateSearch' && 
+            e.target.id !== 'editPlateInput' && !e.target.closest('.btn-edit') 
+        ) { hideKeyboard(); }
     });
-
 </script>
 </body>
 </html>
