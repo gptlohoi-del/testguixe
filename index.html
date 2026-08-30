@@ -724,23 +724,16 @@
 
     function checkAutoSubmit(inputElement) {
         let val = inputElement.value;
+        // Bắt sự kiện khi người dùng gõ dấu chấm (hoặc nhấn nút Enter trên bàn phím ảo)
         if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
             inputElement.value = val.slice(0, -1); 
             inputElement.blur(); 
-            hideKeyboard(); // THÊM DÒNG NÀY ĐỂ ẨN BÀN PHÍM
+            hideKeyboard(); // Cất bàn phím ảo đi
 
-            if (currentFlow === 'front') {
-                handleXeVao();
-            } else if (currentFlow === 'back') {
-                if (!capturedImages.front) {
-                    currentCaptureStep = 'front';
-                    startCamera();
-                } else {
-                    handleXeVao();
-                }
-            }
+            // Giao toàn bộ quyền điều hướng và xác nhận cho hàm handleXeVao()
+            handleXeVao(); 
         }
-    }  
+    }
 
     function checkAutoSubmitEdit(inputElement) {
         let val = inputElement.value;
