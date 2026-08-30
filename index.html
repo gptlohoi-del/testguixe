@@ -177,7 +177,13 @@
             background: #e2e8f0;
             font-size: 20px;
         }
-
+        .kb-enter {
+            background-color: var(--primary) !important; /* Dùng màu xanh dương mặc định của app */
+            color: #ffffff !important;
+        }
+        .kb-enter:active {
+            background-color: var(--primary-hover) !important;
+        }
 
         /* Trạng thái chưa sẵn sàng (disabled) của nút Sửa biển số và Chụp ảnh ra */
         .btn-edit:disabled, #snapOutBtn:disabled {
@@ -361,7 +367,7 @@
         <div class="kb-row">
             <button class="kb-key kb-func" onclick="kbBackspace()">⌫</button>
             <button class="kb-key" onclick="kbPress('0')">0</button>
-            <button class="kb-key kb-func" onclick="kbEnter()">⏎</button>
+            <button class="kb-key kb-enter" onclick="kbEnter()">⏎</button>
         </div>
     </div>  
 
