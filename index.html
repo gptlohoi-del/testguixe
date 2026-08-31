@@ -303,7 +303,23 @@
         <div style="flex-grow: 1;"></div> <!-- Element này sẽ đẩy listResults xuống dưới cùng -->
         <div id="listResults" class="list-cars" style="display: none; width: 100%;"></div>
     </div>
-</div>
+    </div>
+    <!-- Nút kính lúp trung tâm cho Tab ĐÃ TRẢ -->
+    <button id="btnOpenSearchTra" onclick="openSearchModeTra()" style="display: none; position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); width: 56px; height: 56px; background: var(--success); color: white; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 26px; z-index: 850; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;">
+        🔍
+    </button>
+
+    <!-- OVERLAY TÌM KIẾM XE ĐÃ TRẢ -->
+    <div id="searchModeOverlayTra" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(248, 250, 252, 0.97); z-index: 10000; flex-direction: column;">
+        <div style="background: white; padding: 12px 15px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; gap: 10px; align-items: center; padding-top: max(15px, env(safe-area-inset-top));">
+            <input type="text" id="plateSearchTra" readonly onclick="showKeyboard('plateSearchTra')" placeholder="TÌM XE ĐÃ TRẢ..." oninput="handleSearchTra()" style="flex: 1; margin: 0; font-weight: bold; font-size: 16px; border: 2px solid var(--success); text-align: center; border-radius: 8px; padding: 12px;">
+            <div id="searchCountBadgeTra" style="background: #dcfce7; border: 2px solid var(--success); border-radius: 8px; font-size: 15px; color: var(--success); padding: 11px 15px; font-weight: bold; white-space: nowrap; min-width: 65px; text-align: center; display: none;">0 XE</div>
+        </div>
+        <div id="searchScrollAreaTra" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px;"> 
+            <div id="listResultsTra" class="list-cars" style="display: none; width: 100%;"></div>
+        </div>
+    </div>
+
 
 <!-- BÀN PHÍM -->
 <div id="customKeyboard" class="custom-keyboard">
@@ -405,6 +421,8 @@
         }
 
         const btnSearch = document.getElementById('btnOpenSearch');
+        const btnSearchTra = document.getElementById('btnOpenSearchTra'); // Bổ sung nút search mới
+        
         if (btnSearch) {
             const checkoutPanel = document.getElementById('checkoutPanel');
             const isCheckoutVisible = checkoutPanel && checkoutPanel.style.display === 'block';
@@ -412,6 +430,15 @@
                 btnSearch.style.display = 'flex';
             } else {
                 btnSearch.style.display = 'none';
+            }
+        }
+
+        // Xử lý nút tìm kiếm của Tab ĐÃ TRẢ
+        if (btnSearchTra) {
+            if (tabId === 'tab-tra') {
+                btnSearchTra.style.display = 'flex';
+            } else {
+                btnSearchTra.style.display = 'none';
             }
         }
 
@@ -1082,12 +1109,13 @@
         }
 
         // 3. Động bộ nâng padding khung tìm kiếm và cuộn đáy để kết quả không bị che
-        if (inputId === 'plateSearch') {
-            const scrollArea = document.getElementById('searchScrollArea');
+        if (inputId === 'plateSearch' || inputId === 'plateSearchTra') {
+            const scrollArea = document.getElementById(inputId === 'plateSearch' ? 'searchScrollArea' : 'searchScrollAreaTra');
             if (scrollArea) {
                 scrollArea.style.paddingBottom = (kbHeight + 15) + 'px';
                 setTimeout(() => {
-                    scrollArea.scrollTop = scrollArea.scrollHeight;
+                    if (inputId === 'plateSearch') scrollArea.scrollTop = scrollArea.scrollHeight; 
+                    // Bên tab TRẢ XE thì scroll = 0 vì kết quả mới nhất nằm trên
                 }, 50);
             }
         }
@@ -1121,6 +1149,8 @@
     function handleKbCloseBtn() {
         if (activeInput && activeInput.id === 'plateSearch') {
             closeSearchMode(); 
+        } else if (activeInput && activeInput.id === 'plateSearchTra') {
+            closeSearchModeTra(); // Đóng tìm kiếm xe đã trả
         } else {
             hideKeyboard();
         }
@@ -1152,6 +1182,7 @@
         if (!e.target.closest('#customKeyboard') && 
             e.target.id !== 'plateIn' && 
             e.target.id !== 'plateSearch' && 
+            e.target.id !== 'plateSearchTra' && // Thêm dòng này
             e.target.id !== 'editPlateInput' &&
             e.target.id !== 'snapBtn' &&
             !e.target.closest('.btn-edit')
@@ -1192,6 +1223,83 @@
         }
     }
 
+    /* --- QUẢN LÝ SEARCH OVERLAY ĐÃ TRẢ --- */
+function openSearchModeTra() {
+    document.getElementById('searchModeOverlayTra').style.display = 'flex';
+    document.getElementById('plateSearchTra').value = '';
+    document.getElementById('listResultsTra').innerHTML = '';
+    document.getElementById('listResultsTra').style.display = 'none';
+    document.getElementById('searchCountBadgeTra').style.display = 'none';
+    setTimeout(() => { showKeyboard('plateSearchTra'); }, 100);
+}
+
+function closeSearchModeTra() {
+    document.getElementById('searchModeOverlayTra').style.display = 'none';
+    document.getElementById('plateSearchTra').value = '';
+    document.getElementById('listResultsTra').style.display = 'none';
+    document.getElementById('searchCountBadgeTra').style.display = 'none';
+    hideKeyboard();
+}
+
+function handleSearchTra() {
+    const plate = document.getElementById('plateSearchTra').value.trim().toUpperCase();
+    const listDiv = document.getElementById('listResultsTra');
+    const countBadge = document.getElementById('searchCountBadgeTra');
+    
+    if (!plate) { 
+        listDiv.style.display = 'none'; 
+        countBadge.style.display = 'none';
+        return; 
+    }
+    
+    // Tìm trên toàn bộ dữ liệu xe đã xuất (không giới hạn thời gian)
+    let matches = listDataReturned.filter(car => car.plate.toUpperCase().includes(plate));
+
+    // Mặc định listDataReturned đã được xếp mới ra nằm trên, nhưng ta có thể sắp xếp lại để an toàn tuyệt đối
+    matches.sort((a, b) => {
+        const parseTime = (timeStr) => {
+            if (!timeStr) return 0;
+            let t = new Date(timeStr).getTime();
+            if (!isNaN(t)) return t; 
+            let match1 = timeStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{1,2})/);
+            if (match1) return new Date(`${match1[3]}-${match1[2]}-${match1[1]}T${match1[4]}:${match1[5]}:00`).getTime();
+            let match2 = timeStr.match(/(\d{1,2}):(\d{1,2})\s+(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+            if (match2) return new Date(`${match2[5]}-${match2[4]}-${match2[3]}T${match2[1]}:${match2[2]}:00`).getTime();
+            return 0;
+        };
+        let timeDiff = parseTime(b.exitTime) - parseTime(a.exitTime);
+        return timeDiff !== 0 ? timeDiff : (b.rowIndex - a.rowIndex); 
+    });
+
+    countBadge.style.display = 'block';
+    countBadge.innerText = matches.length + ' XE';
+
+    if (matches.length > 0) { 
+        let html = '';
+        matches.forEach(car => {
+            let displayImg = car.entryImgBack || car.entryImg; // Ưu tiên biển số
+            html += `<div class="stat-item" style="cursor: default; padding: 12px; margin-bottom: 8px;">
+                        <div class="img-group">
+                            <img src="${displayImg}" style="width: 70px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: zoom-in;" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', '${car.exitImg || ""}'); event.stopPropagation();">
+                        </div>
+                        <div class="stat-info" style="display: flex; flex-direction: column; justify-content: center; margin-left: 10px;">
+                            <strong style="color:var(--text-main); font-size: 18px;">${car.plate}</strong>
+                            <span class="time" style="color:var(--danger); font-size: 14px; margin-top: 4px;">Ra lúc: ${car.exitTime || 'Chưa rõ'}</span>
+                        </div>
+                    </div>`;
+        });
+        listDiv.innerHTML = html;
+        listDiv.style.display = 'block'; 
+        
+        setTimeout(() => {
+            const scrollArea = document.getElementById('searchScrollAreaTra');
+            if (scrollArea) scrollArea.scrollTop = 0; // Đưa kết quả mới nhất lên đầu
+        }, 50);
+    } else { 
+        listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:14px; padding: 10px 0; font-weight:bold;">Không tìm thấy xe phù hợp.</div>'; 
+        listDiv.style.display = 'block'; 
+    }
+}
 
 </script>
 </body>
