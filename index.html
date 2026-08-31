@@ -264,11 +264,21 @@
     </div>
 
     <!-- TAB: ĐÃ TRẢ -->
+    <!-- TAB: ĐÃ TRẢ -->
     <div id="tab-tra" class="tab-content">
-        <div class="stats-header">
-            <h3>Xe đã xuất bãi <span id="countReturned" class="badge-success">0</span></h3>
+        <div class="stats-header" style="flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 style="margin: 0;">Đã xuất bãi <span id="countReturned" class="badge-success">0</span></h3>
+                <select id="filterReturned" onchange="changeReturnedFilter()" style="padding: 4px; border-radius: 4px; border: 1px solid var(--border); font-size: 12px; outline: none; background: #fff;">
+                    <option value="10">10 xe gần nhất</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="week">Trong tuần</option>
+                    <option value="month">Trong tháng</option>
+                    <option value="all">Tất cả</option>
+                </select>
+            </div>
             <div style="display: flex; gap: 8px;">
-                <button class="btn-refresh" style="color: var(--danger); border-color: var(--danger);" onclick="viewFailedSync()">Lỗi đồng bộ</button>
+                <button class="btn-refresh" style="color: var(--danger); border-color: var(--danger);" onclick="viewFailedSync()">Lỗi</button>
                 <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
             </div>
         </div>
@@ -348,6 +358,9 @@
     let isDataLoaded = false;
     let capturedImages = { front: "", back: "", out: "" };
     let currentCarRowIndex = null; let currentMatches = [];
+
+
+    let currentReturnedFilter = '10'; // Mặc định chỉ hiện 10 xe
     
     let currentFlow = ''; 
     let currentCaptureStep = '';
@@ -369,6 +382,13 @@
         }
     };
 
+
+    function changeReturnedFilter() {
+    currentReturnedFilter = document.getElementById('filterReturned').value;
+    renderReturnedCarsData();
+    }
+
+    
     function switchTab(tabId, preventReset = false) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -903,11 +923,57 @@
     }
 
     function renderReturnedCarsData() {
-        document.getElementById('countReturned').innerText = listDataReturned.length;
+        let filteredList = [];
+        const now = new Date();
+        
+        // Hàm chuyển chuỗi ngày tháng sang định dạng thời gian máy tính hiểu để so sánh
+        const parseDate = (timeStr) => {
+            if (!timeStr) return new Date(0);
+            let t = new Date(timeStr);
+            if (!isNaN(t.getTime())) return t; 
+            
+            let match1 = timeStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{1,2})/);
+            if (match1) return new Date(`${match1[3]}-${match1[2]}-${match1[1]}T${match1[4]}:${match1[5]}:00`);
+            
+            let match2 = timeStr.match(/(\d{1,2}):(\d{1,2})\s+(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+            if (match2) return new Date(`${match2[5]}-${match2[4]}-${match2[3]}T${match2[1]}:${match2[2]}:00`);
+            
+            return new Date(0);
+        };
+
+        // Bước Lọc dữ liệu dựa trên Menu Dropdown
+        if (currentReturnedFilter === '10') {
+            filteredList = listDataReturned.slice(0, 10); // Chỉ cắt lấy 10 xe đầu tiên (đã được sort mới nhất)
+        } else if (currentReturnedFilter === 'all') {
+            filteredList = listDataReturned; // Lấy toàn bộ
+        } else {
+            filteredList = listDataReturned.filter(car => {
+                let exitDate = parseDate(car.exitTime);
+                let diffTime = Math.abs(now - exitDate);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Tính số ngày chênh lệch
+                
+                if (currentReturnedFilter === 'today') {
+                    return exitDate.getDate() === now.getDate() && 
+                           exitDate.getMonth() === now.getMonth() && 
+                           exitDate.getFullYear() === now.getFullYear();
+                } else if (currentReturnedFilter === 'week') {
+                    return diffDays <= 7;
+                } else if (currentReturnedFilter === 'month') {
+                    return diffDays <= 30;
+                }
+                return true;
+            });
+        }
+
+        // Đếm lại số lượng hiển thị trên Badge
+        document.getElementById('countReturned').innerText = filteredList.length;
+        
+        // Bắt đầu vẽ ra HTML
         let html = '';
-        if(listDataReturned.length === 0) { html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Chưa có xe xuất bãi.</div>'; } 
-        else {
-            listDataReturned.forEach((car) => {
+        if(filteredList.length === 0) { 
+            html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Không có xe nào xuất bãi trong thời gian này.</div>'; 
+        } else {
+            filteredList.forEach((car) => {
                 let displayImg = car.entryImgBack || car.entryImg;
                 let imgExitHidden = car.exitImg ? `<img src="${car.exitImg}" style="display:none;">` : '';
 
@@ -1125,6 +1191,7 @@
             processQueue(); 
         }
     }
+
 
 </script>
 </body>
