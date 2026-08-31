@@ -850,7 +850,28 @@
                 if (res.parkedCars) { tempParked = res.parkedCars; } else if (res.todayCars && res.overnightCars) { tempParked = [...res.todayCars, ...res.overnightCars]; } 
                 listDataParked = tempParked.sort((a, b) => b.rowIndex - a.rowIndex);
                 let tempReturned = res.returnedCars || [];
-                listDataReturned = tempReturned.sort((a, b) => b.rowIndex - a.rowIndex);
+                listDataReturned = tempReturned.sort((a, b) => {
+    // Hàm chuyển đổi chuỗi thời gian thành dạng số (millisecond) để so sánh an toàn
+    const parseTime = (timeStr) => {
+        if (!timeStr) return 0;
+        let t = new Date(timeStr).getTime();
+        if (!isNaN(t)) return t; // Xử lý mượt mà nếu là định dạng chuẩn ISO
+        
+        // Xử lý nếu hệ thống/Google Sheets trả về định dạng ngày VN (VD: 31/12/2026 15:30)
+        let match1 = timeStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{1,2})/);
+        if (match1) return new Date(`${match1[3]}-${match1[2]}-${match1[1]}T${match1[4]}:${match1[5]}:00`).getTime();
+        
+        // Xử lý nếu hệ thống trả về định dạng giờ trước ngày sau (VD: 15:30 31/12/2026)
+        let match2 = timeStr.match(/(\d{1,2}):(\d{1,2})\s+(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (match2) return new Date(`${match2[5]}-${match2[4]}-${match2[3]}T${match2[1]}:${match2[2]}:00`).getTime();
+        
+        return 0; // Fallback nếu không đọc được thời gian
+    };
+    
+    let timeDiff = parseTime(b.exitTime) - parseTime(a.exitTime);
+    // Nếu cả 2 xe trả cùng 1 thời điểm (hoặc lỗi đọc thời gian), ưu tiên xe có dòng (rowIndex) lớn hơn lên trước
+    return timeDiff !== 0 ? timeDiff : (b.rowIndex - a.rowIndex); 
+});
                 
                 localStorage.setItem('saved_cars_parked', JSON.stringify(listDataParked));
                 localStorage.setItem('saved_cars_returned', JSON.stringify(listDataReturned));
