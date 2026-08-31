@@ -130,8 +130,9 @@
             margin-bottom: 8px;
             padding-right: 4px;
         }
+        /* Cập nhật nút ĐÓNG thành màu đỏ */
         .kb-close-btn {
-            background: #94a3b8;
+            background: var(--danger); /* Đỏ */
             color: white;
             border: none;
             border-radius: 6px;
@@ -142,7 +143,15 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         .kb-close-btn:active {
-            background: #64748b;
+            background: #b91c1c; /* Đỏ sậm hơn khi nhấn */
+        }
+                /* Thêm màu xanh cho nút Enter */
+        .kb-enter {
+            background: var(--success) !important; /* Xanh lá */
+            color: white !important;
+        }
+        .kb-enter:active {
+            background: #15803d !important; /* Xanh lá sậm hơn khi nhấn */
         }
 
         /* Hàng phím */
@@ -177,22 +186,7 @@
             background: #e2e8f0;
             font-size: 20px;
         }
-        .kb-enter {
-            background-color: var(--primary) !important; /* Dùng màu xanh dương mặc định của app */
-            color: #ffffff !important;
-        }
-        .kb-enter:active {
-            background-color: var(--primary-hover) !important;
-        }
 
-        /* Trạng thái chưa sẵn sàng (disabled) của nút Sửa biển số và Chụp ảnh ra */
-        .btn-edit:disabled, #snapOutBtn:disabled {
-            background-color: #cbd5e1 !important; /* Xám nhạt */
-            color: #64748b !important; /* Chữ xám đậm */
-            box-shadow: none !important;
-            cursor: not-allowed !important;
-            opacity: 1 !important; 
-        }
 
 
     </style>
@@ -207,14 +201,14 @@
     <div id="modalHint" class="modal-swipe-hint" style="display:none;">↔ Vuốt ngang đổi ảnh</div>
 </div>
 
-<div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75); align-items: flex-end;">
-    <div style="background: white; padding: 24px 20px 40px 20px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; text-align: center; z-index: 10001; position: relative; animation: slideUp 0.3s ease-out; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);">
+<!-- Bổ sung onclick="closeEditModal()" vào div nền đen, và event.stopPropagation() vào div nội dung màu trắng -->
+<div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75); align-items: flex-end;" onclick="closeEditModal()">
+    <div style="background: white; padding: 24px 20px 40px 20px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; text-align: center; z-index: 10001; position: relative; animation: slideUp 0.3s ease-out; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);" onclick="event.stopPropagation()">
         <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
         <input type="text" id="editPlateInput" readonly onclick="showKeyboard('editPlateInput')" placeholder="..." style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
-        <div style="display: flex; gap: 10px;">
-            <button onclick="closeEditModal()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: #64748b; color: white; font-weight: bold; cursor: pointer;">HỦY</button>
-            <button onclick="confirmEditPlate()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--warning); color: white; font-weight: bold; cursor: pointer;">LƯU LẠI</button>
-        </div>
+        
+        <!-- Đã xóa 2 thẻ button HỦY và LƯU LẠI tại đây -->
+        
     </div>
 </div>
 
@@ -268,7 +262,7 @@
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="plateIn">Biển số xe vào bãi</label>
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" id="plateIn" readonly onclick="showKeyboard('plateIn')" placeholder="Chỉ nhập số..." style="flex: 1;" oninput="checkAutoSubmit(this)">
+                    <input type="text" id="plateIn" readonly onclick="showKeyboard('plateIn')" placeholder="CHỈ NHẬP SỐ THÔI Ạ..." style="flex: 1;" oninput="checkAutoSubmit(this)">
                     <button class="action-btn btn-in" onclick="handleXeVao()" style="margin-top: 0; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px;">GHI NHẬN</button>
                 </div>
             </div>
@@ -286,7 +280,7 @@
         <div class="bottom-control-panel">
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="plateSearch">Tìm biển số xe ra</label>
-                <input type="text" id="plateSearch" readonly onclick="showKeyboard('plateSearch')" placeholder="Nhập số xe để tìm..." oninput="handleSearch()">
+                <input type="text" id="plateSearch" readonly onclick="showKeyboard('plateSearch')" placeholder="Nhập biển số xe để tìm..." oninput="handleSearch()" style="font-weight: bold;">
             </div>
             
             <div id="listResults" class="list-cars" style="display: none; margin-bottom: 10px;"></div>
@@ -367,7 +361,9 @@
         <div class="kb-row">
             <button class="kb-key kb-func" onclick="kbBackspace()">⌫</button>
             <button class="kb-key" onclick="kbPress('0')">0</button>
-            <button class="kb-key kb-enter" onclick="kbEnter()">⏎</button>
+            <!-- Đổi dòng này -->
+            <button class="kb-key kb-func kb-enter" onclick="kbEnter()">⏎</button>
+
         </div>
     </div>  
 
@@ -480,7 +476,7 @@
         document.getElementById('snapBtn').style.display = 'none';
     }
 
-    function takeSnapshot() {
+   function takeSnapshot() {
         const video = document.getElementById('liveCamera');
         const canvas = document.createElement('canvas');
         
@@ -523,10 +519,9 @@
                 stopCamera(); 
                 
                 if (document.getElementById('plateIn').value.trim() !== '') {
-                    handleXeVao();
+                    handleXeVao(); // Lưu xe vào bãi tự động
                 } else {
-                    document.getElementById('plateIn').focus();
-                    showKeyboard('plateIn'); // THÊM DÒNG NÀY
+                    showKeyboard('plateIn'); // SỬA TẠI ĐÂY: Gọi bàn phím ảo thay vì .focus()
                 }
             }
         } else if (currentCaptureStep === 'back') {
@@ -538,16 +533,14 @@
             if (currentFlow === 'front') {
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
-                document.getElementById('plateIn').focus();
-                showKeyboard('plateIn'); // THÊM DÒNG NÀY
+                showKeyboard('plateIn'); // SỬA TẠI ĐÂY: Gọi bàn phím ảo
             } else if (currentFlow === 'back') {
                 snapBtn.style.display = 'none'; 
                 stopCamera(); 
-                document.getElementById('plateIn').focus();
-                showKeyboard('plateIn'); // THÊM DÒNG NÀY
+                showKeyboard('plateIn'); // SỬA TẠI ĐÂY: Gọi bàn phím ảo
             }
         }
-    }
+    } 
 
     async function retakePhoto(type) {
         if (!stream) await startCamera();
@@ -568,9 +561,6 @@
     }
     
     async function startCameraOut() {
-        const snapBtn = document.getElementById('snapOutBtn');
-        snapBtn.disabled = true; // Khóa nút thành màu xám khi camera đang khởi động
-
         try {
             streamOut = await navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1440 } } 
@@ -578,15 +568,8 @@
             const video = document.getElementById('liveCameraOut');
             video.srcObject = streamOut; video.style.display = 'block';
             
-            // Sự kiện: Bắt đầu phát luồng hình ảnh thành công -> Mở khóa nút
-            video.onplaying = () => {
-                snapBtn.disabled = false;
-            };
-
             document.getElementById('actionButtonsOut').style.display = 'flex';
-        } catch (err) { 
-            alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); 
-        }
+        } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
     }
 
     function stopCameraOut() {
@@ -729,17 +712,24 @@
     }
 
     function checkAutoSubmit(inputElement) {
-        let val = inputElement.value;
-        // Bắt sự kiện khi người dùng gõ dấu chấm (hoặc nhấn nút Enter trên bàn phím ảo)
-        if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
-            inputElement.value = val.slice(0, -1); 
-            inputElement.blur(); 
-            hideKeyboard(); // Cất bàn phím ảo đi
+    let val = inputElement.value;
+    // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
+    if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
+        inputElement.value = val.slice(0, -1); 
+        inputElement.blur(); 
 
-            // Giao toàn bộ quyền điều hướng và xác nhận cho hàm handleXeVao()
-            handleXeVao(); 
+        if (currentFlow === 'front') {
+            handleXeVao();
+        } else if (currentFlow === 'back') {
+            if (!capturedImages.front) {
+                currentCaptureStep = 'front';
+                startCamera();
+            } else {
+                handleXeVao();
+            }
         }
     }
+    }   
 
     function checkAutoSubmitEdit(inputElement) {
         let val = inputElement.value;
@@ -757,7 +747,6 @@
 
         if (currentFlow === 'back' && capturedImages.back && !capturedImages.front) {
             document.getElementById('plateIn').blur();
-            hideKeyboard(); // THÊM DÒNG NÀY ĐỂ NHƯỜNG CHỖ CHO CAMERA
             currentCaptureStep = 'front';
             startCamera();
             return;
@@ -1008,18 +997,24 @@
 
 
         // Xử lý khung nhập liệu tránh bị che bởi bàn phím trên iOS cho tất cả các tab
+        // Xử lý khung nhập liệu tránh bị che bởi bàn phím trên iOS cho tất cả các tab
         if (window.visualViewport) {
             window.visualViewport.addEventListener("resize", function() {
                 // Dùng querySelectorAll để lấy TẤT CẢ các khung bottom-control-panel
                 const panels = document.querySelectorAll('.bottom-control-panel');
                 let keyboardHeight = window.innerHeight - window.visualViewport.height;
+                const customKb = document.getElementById('customKeyboard');
                 
                 panels.forEach(function(panel) {
                     if (keyboardHeight > 0) {
-                        // Khi bàn phím hiện
+                        // Khi bàn phím mặc định của điện thoại hiện
                         panel.style.bottom = (keyboardHeight) + 'px';
+                    } else if (customKb && customKb.style.display === 'block') {
+                        // SỬA TẠI ĐÂY: Nếu bàn phím ẢO đang mở, giữ khung trên bàn phím ảo
+                        let kbHeight = customKb.offsetHeight || 260;
+                        panel.style.bottom = kbHeight + 'px';
                     } else {
-                        // Khi bàn phím ẩn
+                        // Khi không có bàn phím nào hiện
                         panel.style.bottom = '44px';
                     }
                 });
@@ -1101,24 +1096,16 @@
     }
 
     // Ẩn bàn phím khi bấm ra ngoài các vùng nhập liệu
+    // Ẩn bàn phím khi bấm ra ngoài các vùng nhập liệu
     document.addEventListener('click', function(e) {
         if (!e.target.closest('#customKeyboard') && 
             e.target.id !== 'plateIn' && 
             e.target.id !== 'plateSearch' && 
             e.target.id !== 'editPlateInput' &&
+            e.target.id !== 'snapBtn' && /* SỬA TẠI ĐÂY: Thêm nút CHỤP vào danh sách ngoại trừ */
             !e.target.closest('.btn-edit') // bỏ qua nút "Sửa biển số"
         ) {
             hideKeyboard();
-        }
-    });
-
-    // Lắng nghe sự kiện nhấn Enter trên bàn phím
-    document.getElementById('plateIn').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            this.blur();
-            hideKeyboard();
-            handleXeVao(); // Gọi luồng xử lý chính
         }
     });
 
