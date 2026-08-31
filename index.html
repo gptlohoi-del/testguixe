@@ -106,7 +106,6 @@
             font-weight: bold;  
         }
 
-
         /* CSS Bàn phím tùy chỉnh */
         .custom-keyboard {
             display: none;
@@ -123,71 +122,17 @@
             animation: slideUp 0.2s ease-out;
         }
 
-        /* Thanh công cụ bàn phím */
-        .kb-toolbar {
-            display: flex;
-            justify-content: flex-end; /* Đẩy nút đóng sang góc phải */
-            margin-bottom: 8px;
-            padding-right: 4px;
-        }
-        /* Cập nhật nút ĐÓNG thành màu đỏ */
-        .kb-close-btn {
-            background: var(--danger); /* Đỏ */
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 14px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        .kb-close-btn:active {
-            background: #b91c1c; /* Đỏ sậm hơn khi nhấn */
-        }
-                /* Thêm màu xanh cho nút Enter */
-        .kb-enter {
-            background: var(--success) !important; /* Xanh lá */
-            color: white !important;
-        }
-        .kb-enter:active {
-            background: #15803d !important; /* Xanh lá sậm hơn khi nhấn */
-        }
+        .kb-toolbar { display: flex; justify-content: flex-end; margin-bottom: 8px; padding-right: 4px; }
+        .kb-close-btn { background: var(--danger); color: white; border: none; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .kb-close-btn:active { background: #b91c1c; }
+        .kb-enter { background: var(--success) !important; color: white !important; }
+        .kb-enter:active { background: #15803d !important; }
 
-        /* Hàng phím */
-        .kb-row {
-            display: flex;
-            justify-content: flex-end; /* Gom các nút về bên phải */
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .kb-row:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Nút phím */
-        .kb-key {
-            width: 85px; /* Chiều rộng cố định thay vì dàn đều (flex:1) */
-            flex-shrink: 0; /* Ngăn không cho nút bị bóp méo */
-            height: 52px;
-            background: #ffffff;
-            border: none;
-            border-radius: 8px;
-            font-size: 24px;
-            font-family: system-ui, -apple-system, sans-serif;
-            color: #000;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            cursor: pointer;
-        }
-        .kb-key:active {
-            background: #9ca3af;
-        }
-        .kb-func {
-            background: #e2e8f0;
-            font-size: 20px;
-        }
-
-
+        .kb-row { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 8px; }
+        .kb-row:last-child { margin-bottom: 0; }
+        .kb-key { width: 85px; flex-shrink: 0; height: 52px; background: #ffffff; border: none; border-radius: 8px; font-size: 24px; font-family: system-ui, -apple-system, sans-serif; color: #000; box-shadow: 0 1px 2px rgba(0,0,0,0.3); cursor: pointer; }
+        .kb-key:active { background: #9ca3af; }
+        .kb-func { background: #e2e8f0; font-size: 20px; }
 
     </style>
 </head>
@@ -201,14 +146,10 @@
     <div id="modalHint" class="modal-swipe-hint" style="display:none;">↔ Vuốt ngang đổi ảnh</div>
 </div>
 
-<!-- Bổ sung onclick="closeEditModal()" vào div nền đen, và event.stopPropagation() vào div nội dung màu trắng -->
 <div id="editPlateModal" class="modal-zoom" style="display:none; background-color: rgba(0,0,0,0.75); align-items: flex-end;" onclick="closeEditModal()">
     <div style="background: white; padding: 24px 20px 40px 20px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; text-align: center; z-index: 10001; position: relative; animation: slideUp 0.3s ease-out; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);" onclick="event.stopPropagation()">
         <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">Sửa biển số xe</h3>
         <input type="text" id="editPlateInput" readonly onclick="showKeyboard('editPlateInput')" placeholder="..." style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; text-transform: uppercase;" oninput="checkAutoSubmitEdit(this)">
-        
-        <!-- Đã xóa 2 thẻ button HỦY và LƯU LẠI tại đây -->
-        
     </div>
 </div>
 
@@ -225,8 +166,8 @@
 
     <div id="loading" class="loading">Đang xử lý hệ thống...</div>
 
+    <!-- TAB: VÀO BÃI -->
     <div id="tab-vao" class="tab-content active" style="padding-bottom: 160px;">
-        
         <div id="previewArea" style="display:none; gap:8px; margin-bottom: 10px;">
             <div style="flex:1; text-align:center;">
                 <p style="margin: 0 0 4px; font-size: 11px; font-weight: bold; color: var(--text-muted);">ẢNH TRƯỚC</p>
@@ -269,59 +210,60 @@
         </div>
     </div>
 
+    <!-- TAB: TRONG BÃI -->
     <div id="tab-trong" class="tab-content" style="padding-bottom: 180px;">
-        
         <div class="stats-header">
             <h3>Xe trong bãi <span id="countParked" class="badge">0</span></h3>
             <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
         </div>
         <div id="listParked" class="list-cars"></div>
 
-        <div class="bottom-control-panel">
-            <div class="form-group" style="margin-bottom: 0;">
-                <label for="plateSearch">Tìm biển số xe ra</label>
-                <input type="text" id="plateSearch" readonly onclick="showKeyboard('plateSearch')" placeholder="Nhập biển số xe để tìm..." oninput="handleSearch()" style="font-weight: bold;">
-            </div>
-            
-            <div id="listResults" class="list-cars" style="display: none; margin-bottom: 10px;"></div>
+        <!-- Nút kính lúp trung tâm (chỉ hiện khi chưa thao tác trả xe) -->
+        <button id="btnOpenSearch" onclick="openSearchMode()" style="display: none; position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); width: 56px; height: 56px; background: var(--primary); color: white; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 26px; z-index: 850; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;">
+            🔍
+        </button>
+        
 
-            <div id="searchResult" class="result-box" style="margin-top: 15px;">
-                <h3 style="margin-top:0; font-size: 14px;">Xe xuất bãi: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
-                <div style="display: flex; justify-content: space-between; font-size:13px; margin-bottom: 10px;">
+        <!-- Panel thanh toán / trả xe (Chỉ hiện khi chọn xong 1 xe) -->
+        <!-- Panel thanh toán / trả xe (Chỉ hiện khi chọn xong 1 xe) -->
+        <!-- Panel thanh toán / trả xe (Chỉ hiện khi chọn xong 1 xe) -->
+        <div class="bottom-control-panel" id="checkoutPanel" style="display: none; max-height: 95vh; padding: 12px;">
+            <div id="searchResult" class="result-box" style="margin-top: 0; display: block; padding: 10px;">
+                <h3 style="margin-top:0; font-size: 14px; margin-bottom: 8px;">Xe xuất bãi: <span id="selectedPlate" style="color: var(--danger);"></span></h3>
+                <div style="display: flex; justify-content: space-between; font-size:13px; margin-bottom: 8px;">
                     <span><strong>Vào lúc:</strong> <span id="resTime"></span></span>
                     <span><strong>Nhận:</strong> <span id="resEmp" style="color:var(--success); font-weight:bold;"></span></span>
                 </div>
                 
-                <hr style="margin: 8px 0 10px 0; border: 0; border-top: 1px dashed var(--border);">
+                <hr style="margin: 0 0 10px 0; border: 0; border-top: 1px dashed var(--border);">
 
-                <div class="form-group" style="text-align: center; background: #000; border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 10px;">
-                    <video id="liveCameraOut" autoplay playsinline style="width: 100%; height: auto; max-height: 250px; aspect-ratio: 3/4; object-fit: cover; display: none; margin: 0 auto;"></video>
+                <!-- Camera thu nhỏ nguyên vẹn (Không dùng width 100% để tránh bị cắt cúp mất chân) -->
+                <div class="form-group" style="text-align: center; margin-bottom: 10px;">
+                    <video id="liveCameraOut" autoplay playsinline style="height: 220px; aspect-ratio: 3/4; border-radius: 8px; object-fit: cover; display: none; margin: 0 auto; background: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></video>
                 </div>
 
                 <div id="actionButtonsOut" style="display: none; gap: 8px; margin-bottom: 10px;">
-                    <button id="closeCamOutBtn" onclick="stopCameraOut()" type="button" style="flex: 1; font-size: 13px; font-weight: bold; padding: 12px; background-color: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
-                        ĐÓNG
+                    <button id="closeCamOutBtn" onclick="stopCameraOut(); resetForm();" type="button" style="flex: 1; font-size: 13px; font-weight: bold; padding: 12px; background-color: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        HỦY
                     </button>
                     <button id="snapOutBtn" onclick="takeSnapshotOut()" type="button" style="flex: 2; font-size: 14px; font-weight: bold; padding: 12px; background-color: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer;">
                         📸 CHỤP ẢNH RA
                     </button>
                 </div>
 
-                <div style="background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px;">
+                <!-- Vùng ảnh tham khảo giữ tỉ lệ chuẩn 3:4, vươn cao tận dụng màn hình -->
+                <div style="background: #f8fafc; padding: 10px 8px; border-radius: 8px; border: 1px solid var(--border); margin-top: 0;">
                     <p style="margin:0 0 8px; text-align:center; font-size:12px; font-weight:600; color:var(--text-muted);">ẢNH VÀO (Tham khảo)</p>
-                    <div style="display:flex; gap:8px;">
-                        <div style="flex:1; text-align:center;">
-                            <img id="resImgFront" src="" style="width:100%; aspect-ratio:3/4; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
-                        </div>
-                        <div style="flex:1; text-align:center;">
-                            <img id="resImgBack" src="" style="width:100%; aspect-ratio:3/4; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in;">
-                        </div>
+                    <div style="display:flex; justify-content: center; gap:10px;">
+                        <img id="resImgFront" src="" style="height: 180px; aspect-ratio:3/4; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in; background: #fff;">
+                        <img id="resImgBack" src="" style="height: 180px; aspect-ratio:3/4; border-radius:6px; border:1px solid #ddd; object-fit:cover; cursor:zoom-in; background: #fff;">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- TAB: ĐÃ TRẢ -->
     <div id="tab-tra" class="tab-content">
         <div class="stats-header">
             <h3>Xe đã xuất bãi <span id="countReturned" class="badge-success">0</span></h3>
@@ -338,40 +280,48 @@
 </div>
 
 
+<!-- OVERLAY TÌM KIẾM XE RA (Full màn hình, dồn kết quả từ dưới lên) -->
+<div id="searchModeOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(248, 250, 252, 0.97); z-index: 10000; flex-direction: column;">
+    <!-- Khung cố định phía trên đã thay nút ĐÓNG bằng Badge hiển thị số lượng xe khớp -->
+    <div style="background: white; padding: 12px 15px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; gap: 10px; align-items: center; padding-top: max(15px, env(safe-area-inset-top));">
+        <input type="text" id="plateSearch" readonly onclick="showKeyboard('plateSearch')" placeholder="TÌM BIỂN SỐ XE..." oninput="handleSearch()" style="flex: 1; margin: 0; font-weight: bold; font-size: 16px; border: 2px solid var(--primary); text-align: center; border-radius: 8px; padding: 12px;">
+        <div id="searchCountBadge" style="background: #eff6ff; border: 2px solid var(--primary); border-radius: 8px; font-size: 15px; color: var(--primary); padding: 11px 15px; font-weight: bold; white-space: nowrap; min-width: 65px; text-align: center; display: none;">0 XE</div>
+    </div>
 
-    <!-- Giao diện Bàn phím tùy chỉnh (Căn phải + Nút Đóng) -->
-    <div id="customKeyboard" class="custom-keyboard">
-        <!-- Thanh công cụ chứa nút đóng -->
-        <div class="kb-toolbar">
-            <button class="kb-close-btn" onclick="hideKeyboard()">ĐÓNG ✕</button>
-        </div>
-        
-        <div class="kb-row">
-            <button class="kb-key" onclick="kbPress('1')">1</button>
-            <button class="kb-key" onclick="kbPress('2')">2</button>
-            <button class="kb-key" onclick="kbPress('3')">3</button>
-        </div>
-        <div class="kb-row">
-            <button class="kb-key" onclick="kbPress('4')">4</button>
-            <button class="kb-key" onclick="kbPress('5')">5</button>
-            <button class="kb-key" onclick="kbPress('6')">6</button>
-        </div>
-        <div class="kb-row">
-            <button class="kb-key" onclick="kbPress('7')">7</button>
-            <button class="kb-key" onclick="kbPress('8')">8</button>
-            <button class="kb-key" onclick="kbPress('9')">9</button>
-        </div>
-        <div class="kb-row">
-            <button class="kb-key kb-func" onclick="kbBackspace()">⌫</button>
-            <button class="kb-key" onclick="kbPress('0')">0</button>
-            <!-- Đổi dòng này -->
-            <button class="kb-key kb-func kb-enter" onclick="kbEnter()">⏎</button>
+    <!-- Vùng trống hiển thị nội dung tìm kiếm ở giữa, sử dụng div đẩy kết quả xuống đáy -->
+    <div id="searchScrollArea" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px;"> 
+        <div style="flex-grow: 1;"></div> <!-- Element này sẽ đẩy listResults xuống dưới cùng -->
+        <div id="listResults" class="list-cars" style="display: none; width: 100%;"></div>
+    </div>
+</div>
 
-        </div>
-    </div>  
-
-
-
+<!-- BÀN PHÍM -->
+<div id="customKeyboard" class="custom-keyboard">
+    <div class="kb-toolbar">
+        <button class="kb-close-btn" onclick="handleKbCloseBtn()">ĐÓNG ✕</button>
+    </div>
+    
+    <div class="kb-row">
+        <button class="kb-key" onclick="kbPress('1')">1</button>
+        <button class="kb-key" onclick="kbPress('2')">2</button>
+        <button class="kb-key" onclick="kbPress('3')">3</button>
+    </div>
+    <div class="kb-row">
+        <button class="kb-key" onclick="kbPress('4')">4</button>
+        <button class="kb-key" onclick="kbPress('5')">5</button>
+        <button class="kb-key" onclick="kbPress('6')">6</button>
+    </div>
+    <div class="kb-row">
+        <button class="kb-key" onclick="kbPress('7')">7</button>
+        <button class="kb-key" onclick="kbPress('8')">8</button>
+        <button class="kb-key" onclick="kbPress('9')">9</button>
+    </div>
+    <div class="kb-row">
+        <button class="kb-key kb-func" onclick="kbBackspace()">⌫</button>
+        <button class="kb-key" onclick="kbPress('0')">0</button>
+        <button class="kb-key kb-func kb-enter" onclick="kbEnter()">⏎</button>
+    </div>
+</div>  
 
 
 <script>
@@ -434,17 +384,26 @@
             loadParkedCars();
         }
 
+        const btnSearch = document.getElementById('btnOpenSearch');
+        if (btnSearch) {
+            const checkoutPanel = document.getElementById('checkoutPanel');
+            const isCheckoutVisible = checkoutPanel && checkoutPanel.style.display === 'block';
+            if (tabId === 'tab-trong' && !isCheckoutVisible) {
+                btnSearch.style.display = 'flex';
+            } else {
+                btnSearch.style.display = 'none';
+            }
+        }
+
         if ((tabId === 'tab-vao' || tabId === 'tab-trong') && !preventReset) resetForm();
     }
 
     function startFlow(flowType) {
         if (!isStorageSafe()) {
             showToast('Bộ nhớ đang đầy! Vui lòng chờ đồng bộ xong ảnh cũ để chụp tiếp.', 'error');
-            return; // Chặn lại, không bật camera
+            return;
         }
-
-        currentFlow = flowType;
-        currentCaptureStep = flowType; 
+        currentFlow = flowType; currentCaptureStep = flowType; 
         startCamera();
     }
 
@@ -464,11 +423,9 @@
             document.getElementById('previewArea').style.display = 'flex';
 
             if (currentCaptureStep === 'front') {
-                snapBtn.innerHTML = '📸 CHỤP ẢNH TRƯỚC';
-                snapBtn.style.backgroundColor = 'var(--primary)';
+                snapBtn.innerHTML = '📸 CHỤP ẢNH TRƯỚC'; snapBtn.style.backgroundColor = 'var(--primary)';
             } else {
-                snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)';
-                snapBtn.style.backgroundColor = 'var(--warning)';
+                snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; snapBtn.style.backgroundColor = 'var(--warning)';
             }
         } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
     }
@@ -494,19 +451,14 @@
         let drawWidth, drawHeight, offsetX, offsetY;
 
         if (vWidth / vHeight > targetAspectRatio) {
-            drawHeight = vHeight;
-            drawWidth = vHeight * targetAspectRatio;
-            offsetX = (vWidth - drawWidth) / 2;
-            offsetY = 0;
+            drawHeight = vHeight; drawWidth = vHeight * targetAspectRatio;
+            offsetX = (vWidth - drawWidth) / 2; offsetY = 0;
         } else {
-            drawWidth = vWidth;
-            drawHeight = vWidth / targetAspectRatio;
-            offsetX = 0;
-            offsetY = (vHeight - drawHeight) / 2;
+            drawWidth = vWidth; drawHeight = vWidth / targetAspectRatio;
+            offsetX = 0; offsetY = (vHeight - drawHeight) / 2;
         }
 
-        canvas.width = 960; 
-        canvas.height = 1280;
+        canvas.width = 960; canvas.height = 1280;
         const ctx = canvas.getContext('2d'); 
         ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
         
@@ -520,17 +472,10 @@
             
             if (currentFlow === 'front') {
                 currentCaptureStep = 'back';
-                snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; 
-                snapBtn.style.backgroundColor = 'var(--warning)';
+                snapBtn.innerHTML = '📸 CHỤP ẢNH SAU (BIỂN SỐ)'; snapBtn.style.backgroundColor = 'var(--warning)';
             } else if (currentFlow === 'back') {
-                snapBtn.style.display = 'none'; 
-                stopCamera(); 
-                
-                if (document.getElementById('plateIn').value.trim() !== '') {
-                    handleXeVao(); // Lưu xe vào bãi tự động
-                } else {
-                    showKeyboard('plateIn'); // SỬA TẠI ĐÂY: Gọi bàn phím ảo thay vì .focus()
-                }
+                snapBtn.style.display = 'none'; stopCamera(); 
+                if (document.getElementById('plateIn').value.trim() !== '') { handleXeVao(); } else { showKeyboard('plateIn'); }
             }
         } else if (currentCaptureStep === 'back') {
             capturedImages.back = canvas.toDataURL('image/jpeg', 0.8);
@@ -538,15 +483,8 @@
             document.getElementById('previewInBack').style.display = 'block';
             document.getElementById('retakeBackBtn').style.display = 'block';
             
-            if (currentFlow === 'front') {
-                snapBtn.style.display = 'none'; 
-                stopCamera(); 
-                showKeyboard('plateIn'); // SỬA TẠI ĐÂY: Gọi bàn phím ảo
-            } else if (currentFlow === 'back') {
-                snapBtn.style.display = 'none'; 
-                stopCamera(); 
-                showKeyboard('plateIn'); // SỬA TẠI ĐÂY: Gọi bàn phím ảo
-            }
+            snapBtn.style.display = 'none'; stopCamera(); 
+            showKeyboard('plateIn'); 
         }
     } 
 
@@ -554,16 +492,12 @@
         if (!stream) await startCamera();
         const snapBtn = document.getElementById('snapBtn'); snapBtn.style.display = 'block';
         if (type === 'front') {
-            capturedImages.front = "";
-            currentCaptureStep = 'front';
-            document.getElementById('previewInFront').style.display = 'none';
-            document.getElementById('retakeFrontBtn').style.display = 'none';
+            capturedImages.front = ""; currentCaptureStep = 'front';
+            document.getElementById('previewInFront').style.display = 'none'; document.getElementById('retakeFrontBtn').style.display = 'none';
             snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH TRƯỚC'; snapBtn.style.backgroundColor = 'var(--primary)';
         } else if (type === 'back') {
-            capturedImages.back = "";
-            currentCaptureStep = 'back';
-            document.getElementById('previewInBack').style.display = 'none';
-            document.getElementById('retakeBackBtn').style.display = 'none';
+            capturedImages.back = ""; currentCaptureStep = 'back';
+            document.getElementById('previewInBack').style.display = 'none'; document.getElementById('retakeBackBtn').style.display = 'none';
             snapBtn.innerHTML = '📸 CHỤP LẠI ẢNH SAU'; snapBtn.style.backgroundColor = 'var(--warning)';
         }
     }
@@ -575,7 +509,6 @@
             });
             const video = document.getElementById('liveCameraOut');
             video.srcObject = streamOut; video.style.display = 'block';
-            
             document.getElementById('actionButtonsOut').style.display = 'flex';
         } catch (err) { alert("Không thể mở camera. Vui lòng cấp quyền!"); console.error(err); }
     }
@@ -589,84 +522,53 @@
     function takeSnapshotOut() {
         const video = document.getElementById('liveCameraOut');
         const canvas = document.createElement('canvas');
-        
         const targetAspectRatio = 3 / 4; 
-        let vWidth = video.videoWidth; 
-        let vHeight = video.videoHeight;
+        let vWidth = video.videoWidth; let vHeight = video.videoHeight;
         let drawWidth, drawHeight, offsetX, offsetY;
 
         if (vWidth / vHeight > targetAspectRatio) {
-            drawHeight = vHeight;
-            drawWidth = vHeight * targetAspectRatio;
-            offsetX = (vWidth - drawWidth) / 2;
-            offsetY = 0;
+            drawHeight = vHeight; drawWidth = vHeight * targetAspectRatio;
+            offsetX = (vWidth - drawWidth) / 2; offsetY = 0;
         } else {
-            drawWidth = vWidth;
-            drawHeight = vWidth / targetAspectRatio;
-            offsetX = 0;
-            offsetY = (vHeight - drawHeight) / 2;
+            drawWidth = vWidth; drawHeight = vWidth / targetAspectRatio;
+            offsetX = 0; offsetY = (vHeight - drawHeight) / 2;
         }
-
-        canvas.width = 960; 
-        canvas.height = 1280;
-        const ctx = canvas.getContext('2d'); 
-        ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
-
+        canvas.width = 960; canvas.height = 1280;
+        canvas.getContext('2d').drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, canvas.width, canvas.height);
         capturedImages.out = canvas.toDataURL('image/jpeg', 0.8);
         
-        stopCameraOut();
-        handleXeRa();
+        stopCameraOut(); handleXeRa();
     }
 
     function openModal(currentSrc, imgFront, imgBack, imgOut) {
         if (!currentSrc) return;
-        
         modalImages = [imgFront, imgBack, imgOut].filter(src => src && src !== 'undefined' && src !== 'null' && src !== '');
-        
-        if (modalImages.length === 0) {
-            modalImages = [currentSrc];
-        }
-
+        if (modalImages.length === 0) modalImages = [currentSrc];
         currentModalIndex = modalImages.indexOf(currentSrc);
         if (currentModalIndex === -1) currentModalIndex = 0;
 
         document.getElementById('modalImage').src = modalImages[currentModalIndex];
-        
         const hint = document.getElementById('modalHint');
         if (modalImages.length > 1) {
-            hint.style.display = 'block';
-            hint.innerText = "↔ Vuốt ngang đổi ảnh (" + (currentModalIndex + 1) + "/" + modalImages.length + ")";
-        } else {
-            hint.style.display = 'none';
-        }
-        
+            hint.style.display = 'block'; hint.innerText = "↔ Vuốt ngang đổi ảnh (" + (currentModalIndex + 1) + "/" + modalImages.length + ")";
+        } else { hint.style.display = 'none'; }
         document.getElementById('imageModal').style.display = 'flex';
     }
 
     function closeModal() { document.getElementById('imageModal').style.display = 'none'; }
     
-    function handleModalSwipeStart(e) { 
-        modalSwipeStartX = e.touches[0].clientX; 
-        modalSwipeStartY = e.touches[0].clientY; 
-    }
+    function handleModalSwipeStart(e) { modalSwipeStartX = e.touches[0].clientX; modalSwipeStartY = e.touches[0].clientY; }
     
     function handleModalSwipeEnd(e) {
         let diffX = modalSwipeStartX - e.changedTouches[0].clientX; 
         let diffY = modalSwipeStartY - e.changedTouches[0].clientY;
-        
         if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) { 
-            if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal(); 
-            return; 
+            if (e.target.id === 'imageModal' || e.target.classList.contains('modal-close')) closeModal(); return; 
         }
-        
         if (Math.abs(diffX) > 40 && Math.abs(diffY) < 100) {
             if (modalImages.length <= 1) return;
-            
-            if (diffX > 0) {
-                currentModalIndex = (currentModalIndex + 1) % modalImages.length;
-            } else {
-                currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
-            }
+            if (diffX > 0) currentModalIndex = (currentModalIndex + 1) % modalImages.length;
+            else currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
             
             document.getElementById('modalImage').src = modalImages[currentModalIndex];
             document.getElementById('modalHint').innerText = "↔ Vuốt ngang đổi ảnh (" + (currentModalIndex + 1) + "/" + modalImages.length + ")";
@@ -680,9 +582,7 @@
         setTimeout(() => { toast.classList.remove('show'); }, 2500); 
     }
 
-    window.addEventListener('beforeunload', function (e) { 
-        if (syncQueue.length > 0) { e.preventDefault(); e.returnValue = 'Đang đồng bộ!'; } 
-    });
+    window.addEventListener('beforeunload', function (e) { if (syncQueue.length > 0) { e.preventDefault(); e.returnValue = 'Đang đồng bộ!'; } });
 
     window.addEventListener('keydown', function(e) {
         if (syncQueue.length > 0) {
@@ -699,83 +599,49 @@
 
     async function processQueue() {
         if (isSyncing || syncQueue.length === 0) return;
-        isSyncing = true; 
-        updateSyncBadge(); 
-        
+        isSyncing = true; updateSyncBadge(); 
         const currentTask = syncQueue[0];
         
-        // Khởi tạo biến đếm số lần thử nếu chưa có
-        if (typeof currentTask.retryCount === 'undefined') {
-            currentTask.retryCount = 0;
-        }
+        if (typeof currentTask.retryCount === 'undefined') currentTask.retryCount = 0;
 
         try {
             const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(currentTask) });
             const res = await response.json(); 
             
             if (res.status === 'success') { 
-                // Đồng bộ thành công -> Xóa khỏi hàng đợi
-                syncQueue.shift(); 
-                localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); 
-                isDataLoaded = false; 
+                syncQueue.shift(); localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); isDataLoaded = false; 
             } else { 
-                // Máy chủ báo lỗi -> Tăng số lần thử
                 currentTask.retryCount++;
-                
                 if (currentTask.retryCount >= 3) {
-                    // Nếu thử thất bại 3 lần: Chuyển sang kho chứa lỗi để không làm kẹt các xe sau
                     let failedQueue = JSON.parse(localStorage.getItem('failed_sync_queue')) || [];
-                    failedQueue.push(currentTask);
-                    localStorage.setItem('failed_sync_queue', JSON.stringify(failedQueue));
-                    
-                    syncQueue.shift(); // Xóa khỏi hàng đợi chính
-                    localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
-                    
+                    failedQueue.push(currentTask); localStorage.setItem('failed_sync_queue', JSON.stringify(failedQueue));
+                    syncQueue.shift(); localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
                     showToast('Máy chủ lỗi liên tục! Đã gác lại xe này để tải xe sau.', 'error');
                 } else {
-                    // Chưa quá 3 lần thì báo lỗi và chờ 5 giây rồi thử lại
                     showToast(`Lỗi máy chủ (Thử lại lần ${currentTask.retryCount}/3): ` + res.message, 'warning'); 
                     await new Promise(resolve => setTimeout(resolve, 5000)); 
                 }
             }
         } catch (error) { 
-            // Lỗi mất mạng: Không tính vào số lần thử (retryCount), cứ chờ có mạng là tự gửi lại
             showToast('Mất mạng! Hệ thống đang chờ kết nối lại...', 'error'); 
             await new Promise(resolve => setTimeout(resolve, 3000)); 
         }
-        
-        isSyncing = false; 
-        updateSyncBadge(); 
-        processQueue(); 
+        isSyncing = false; updateSyncBadge(); processQueue(); 
     }
 
     function checkAutoSubmit(inputElement) {
-    let val = inputElement.value;
-    // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
-    if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
-        inputElement.value = val.slice(0, -1); 
-        inputElement.blur(); 
-
-        if (currentFlow === 'front') {
-            handleXeVao();
-        } else if (currentFlow === 'back') {
-            if (!capturedImages.front) {
-                currentCaptureStep = 'front';
-                startCamera();
-            } else {
-                handleXeVao();
-            }
+        let val = inputElement.value;
+        if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
+            inputElement.value = val.slice(0, -1); inputElement.blur(); 
+            if (currentFlow === 'front') { handleXeVao(); } 
+            else if (currentFlow === 'back') { if (!capturedImages.front) { currentCaptureStep = 'front'; startCamera(); } else { handleXeVao(); } }
         }
-    }
     }   
 
     function checkAutoSubmitEdit(inputElement) {
         let val = inputElement.value;
-        // Bổ sung thêm điều kiện val.endsWith('*') || val.endsWith('#')
         if (val.endsWith('.') || val.endsWith(',') || val.endsWith('#') || val.endsWith('*')) {
-            inputElement.value = val.slice(0, -1);
-            inputElement.blur();
-            confirmEditPlate();
+            inputElement.value = val.slice(0, -1); inputElement.blur(); confirmEditPlate();
         }
     }
 
@@ -784,21 +650,14 @@
         if (!plate) return showToast('Vui lòng nhập biển số!', 'error');
 
         if (currentFlow === 'back' && capturedImages.back && !capturedImages.front) {
-            document.getElementById('plateIn').blur();
-            currentCaptureStep = 'front';
-            startCamera();
-            return;
+            document.getElementById('plateIn').blur(); currentCaptureStep = 'front'; startCamera(); return;
         }
-
         if (!capturedImages.front || !capturedImages.back) return showToast('Vui lòng chụp đủ 2 ảnh!', 'error');
         
         syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
         localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
         
-        // --- BỔ SUNG DÒNG NÀY ĐỂ CẬP NHẬT SỐ LƯỢNG NGAY LẬP TỨC ---
         updateSyncBadge();
-        // ---------------------------------------------------------
-
         showToast('Đã lưu! Nhập xe tiếp theo', 'success');
         resetForm(); processQueue(); 
     }
@@ -811,23 +670,61 @@
         syncQueue.push({ action: 'OUT', licensePlate: plate, image: capturedImages.out, rowIndex: currentCarRowIndex, deviceId: myDeviceId });
         localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
         
-        // --- BỔ SUNG DÒNG NÀY ĐỂ CẬP NHẬT SỐ LƯỢNG NGAY LẬP TỨC ---
         updateSyncBadge();
-        // ---------------------------------------------------------
-        
         showToast('Cho xe ra thành công!', 'success');
         resetForm(); processQueue();
     }
 
+
+    /* --- QUẢN LÝ SEARCH OVERLAY --- */
+    function openSearchMode() {
+        document.getElementById('searchModeOverlay').style.display = 'flex';
+        document.getElementById('plateSearch').value = '';
+        document.getElementById('listResults').innerHTML = '';
+        document.getElementById('listResults').style.display = 'none';
+        
+        // Ẩn badge hiển thị số lượng lúc mới mở chưa gõ
+        document.getElementById('searchCountBadge').style.display = 'none';
+        
+        // Mở luôn bàn phím sau khoảng trễ siêu nhỏ để UI kịp phản hồi
+        setTimeout(() => { showKeyboard('plateSearch'); }, 100);
+    }
+
+    function closeSearchMode() {
+        document.getElementById('searchModeOverlay').style.display = 'none';
+        document.getElementById('plateSearch').value = '';
+        document.getElementById('listResults').style.display = 'none';
+        document.getElementById('searchCountBadge').style.display = 'none';
+        
+        // Tắt bàn phím và reset lại activeInput
+        hideKeyboard();
+    }
+
+
     function handleSearch() {
         const plate = document.getElementById('plateSearch').value.trim().toUpperCase();
-        const listDiv = document.getElementById('listResults'); const searchResultDiv = document.getElementById('searchResult');
-        if (!plate) { listDiv.style.display = 'none'; searchResultDiv.style.display = 'none'; return; }
-        searchResultDiv.style.display = 'none';
+        const listDiv = document.getElementById('listResults');
+        const countBadge = document.getElementById('searchCountBadge');
+        
+        if (!plate) { 
+            listDiv.style.display = 'none'; 
+            countBadge.style.display = 'none';
+            return; 
+        }
+        
         currentMatches = listDataParked.filter(car => car.plate.toUpperCase().includes(plate));
 
-        if (currentMatches.length > 0) { renderSearchList(); } 
-        else { listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:13px; padding: 10px 0;">Không có xe khớp...</div>'; listDiv.style.display = 'block'; }
+        // Cập nhật số lượng hiển thị trên Badge
+        countBadge.style.display = 'block';
+        countBadge.innerText = currentMatches.length + ' XE';
+
+        if (currentMatches.length > 0) { 
+            renderSearchList(); 
+        } 
+        else { 
+            listDiv.innerHTML = '<div style="text-align:center; color:var(--danger); font-size:14px; padding: 10px 0; font-weight:bold;">Không có xe khớp...</div>'; 
+            listDiv.style.display = 'block'; 
+        }
     }
 
     function renderSearchList() {
@@ -838,34 +735,26 @@
             selectCarFromSearch(0); 
         } 
         else {
-            // Tách thành 2 mảng: biển 4 số và biển 5 số (dựa vào độ dài ký tự của biển số)
             let group4 = [];
             let group5 = [];
 
             currentMatches.forEach((car) => {
-                // Lọc lấy các ký tự chữ và số để đếm chính xác độ dài biển số
                 let cleanPlate = car.plate.replace(/[^a-zA-Z0-9]/g, '');
-                if (cleanPlate.length <= 4) {
-                    group4.push(car);
-                } else {
-                    group5.push(car);
-                }
+                if (cleanPlate.length <= 4) group4.push(car);
+                else group5.push(car);
             });
 
-            // Sắp xếp theo thứ tự A-Z cho từng nhóm
             group4.sort((a, b) => a.plate.localeCompare(b.plate));
             group5.sort((a, b) => a.plate.localeCompare(b.plate));
 
-            let html = `<div style="font-weight:600; color:var(--primary); text-align:center; font-size:13px; margin-bottom: 8px;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
+            let html = ``; 
             
-            // Hàm phụ để render các nút bấm biển số
             function renderButtons(cars) {
-                let btnsHtml = `<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 6px;">`;
+                let btnsHtml = `<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; width: 100%;">`;
                 cars.forEach((car) => {
-                    // Tìm index gốc của xe trong mảng currentMatches để hàm selectCarFromSearch nhận diện đúng
                     let originalIndex = currentMatches.findIndex(c => c.rowIndex === car.rowIndex);
                     btnsHtml += `<button type="button" onclick="selectCarFromSearch(${originalIndex})" 
-                                style="background: #ffffff; border: 2px solid var(--primary); border-radius: 8px; padding: 8px 14px; font-size: 15px; font-weight: bold; color: var(--danger); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.1s; min-width: 90px;">
+                                style="background: #ffffff; border: 2px solid var(--primary); border-radius: 8px; padding: 12px 2px; font-size: 15px; font-weight: bold; color: var(--danger); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.1s;">
                                 ${car.plate}
                              </button>`;
                 });
@@ -873,20 +762,25 @@
                 return btnsHtml;
             }
 
-            // Hiển thị dòng Biển 4 số (nếu có)
-            if (group4.length > 0) {
-                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-muted); margin-bottom: 2px; text-align: left;">Biển 4 số:</div>`;
-                html += renderButtons(group4);
+            // Hiển thị group 4 số
+            if (group4.length > 0) html += renderButtons(group4);
+            
+            // Đường phân cách mờ nếu có cả biển 4 số và 5 số
+            if (group4.length > 0 && group5.length > 0) {
+                html += `<div style="width: 100%; height: 3px; background: var(--text-muted); margin: 5px 0 15px 0;"></div>`;
             }
 
-            // Hiển thị dòng Biển 5 số (nếu có)
-            if (group5.length > 0) {
-                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-muted); margin-bottom: 2px; text-align: left;">Biển 5 số:</div>`;
-                html += renderButtons(group5);
-            }
+            // Hiển thị group 5 số
+            if (group5.length > 0) html += renderButtons(group5);
             
             listDiv.innerHTML = html; 
             listDiv.style.display = 'block'; 
+
+            // Cập nhật cuộn xuống dưới cùng để khỏi bị che lấp sau khi bàn phím đang bật
+            setTimeout(() => {
+                const scrollArea = document.getElementById('searchScrollArea');
+                if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
+            }, 50);
         }
     }
 
@@ -899,14 +793,12 @@
 
     function setupCheckoutForm(car) {
         if (!isStorageSafe()) {
-            showToast('Bộ nhớ đang đầy! Vui lòng chờ đồng bộ xong để thao tác tiếp.', 'error');
-            return; // Dừng lại, không cho chuyển sang màn hình trả xe
+            showToast('Bộ nhớ đang đầy! Vui lòng chờ đồng bộ xong để thao tác tiếp.', 'error'); return; 
         }
 
-        // --- BỔ SUNG QUAN TRỌNG: Ngăn chặn lỗi ẩn kết quả và đóng bàn phím ---
         activeInput = null; 
         hideKeyboard(); 
-        // ----------------------------------------------------------------
+        closeSearchMode(); // Đóng giao diện Search khi chọn xong
 
         currentCarRowIndex = car.rowIndex; 
         document.getElementById('selectedPlate').innerText = car.plate;
@@ -915,61 +807,36 @@
         document.getElementById('resImgFront').src = car.entryImg || '';
         document.getElementById('resImgBack').src = car.entryImgBack || car.entryImg || '';
         
-        // Ẩn danh sách tìm kiếm và HIỂN THỊ khung kết quả xe ra
-        document.getElementById('listResults').style.display = 'none';
-        document.getElementById('searchResult').style.display = 'block';
+        // Hiển thị phần checkout xe ở Tab TRONG BÃI
+        document.getElementById('checkoutPanel').style.display = 'block';
+        document.getElementById('btnOpenSearch').style.display = 'none';
 
-        // Mở camera để chuẩn bị chụp ảnh xe xuất bãi
         startCameraOut();
     }
 
-
-
     function editPlate(rowIndex, oldPlate) {
-        editingRowIndex = rowIndex;
-        editingOldPlate = oldPlate;
+        editingRowIndex = rowIndex; editingOldPlate = oldPlate;
         const modal = document.getElementById('editPlateModal');
         const input = document.getElementById('editPlateInput');
-        
-        input.value = oldPlate;
-        modal.style.display = 'flex';
-        
-        setTimeout(() => {
-            // Mở bàn phím số tùy chỉnh thay vì focus
-            showKeyboard('editPlateInput'); 
-        }, 100);
+        input.value = oldPlate; modal.style.display = 'flex';
+        setTimeout(() => { showKeyboard('editPlateInput'); }, 100);
     }
 
-    function closeEditModal() {
-        document.getElementById('editPlateModal').style.display = 'none';
-        hideKeyboard(); // Thêm dòng này để đóng luôn bàn phím
-    }
+    function closeEditModal() { document.getElementById('editPlateModal').style.display = 'none'; hideKeyboard(); }
 
     async function confirmEditPlate() {
         const newPlate = document.getElementById('editPlateInput').value;
-        if (!newPlate || newPlate.trim() === "" || newPlate.trim().toUpperCase() === editingOldPlate) {
-            closeEditModal();
-            return;
-        }
+        if (!newPlate || newPlate.trim() === "" || newPlate.trim().toUpperCase() === editingOldPlate) { closeEditModal(); return; }
         
-        closeEditModal();
-        toggleLoading(true);
+        closeEditModal(); toggleLoading(true);
         try {
             const response = await fetch(WEB_APP_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain' }, 
+                method: 'POST', headers: { 'Content-Type': 'text/plain' }, 
                 body: JSON.stringify({ action: 'EDIT_PLATE', rowIndex: editingRowIndex, newPlate: newPlate, deviceId: myDeviceId }) 
             });
             const res = await response.json(); 
-            if (res.status === 'success') { 
-                showToast('Cập nhật biển số thành công!', 'success'); 
-                loadParkedCars(); 
-            } else { 
-                showToast(res.message, 'error'); 
-            }
-        } catch (error) { 
-            showToast('Lỗi mạng: ' + error.message, 'error'); 
-        }
+            if (res.status === 'success') { showToast('Cập nhật biển số thành công!', 'success'); loadParkedCars(); } else { showToast(res.message, 'error'); }
+        } catch (error) { showToast('Lỗi mạng: ' + error.message, 'error'); }
         toggleLoading(false);
     }
 
@@ -978,7 +845,6 @@
         try {
             const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'LOAD_PARKED_CARS', deviceId: myDeviceId }) });
             const res = await response.json();
-            
             if (res.status === 'success') {
                 let tempParked = [];
                 if (res.parkedCars) { tempParked = res.parkedCars; } else if (res.todayCars && res.overnightCars) { tempParked = [...res.todayCars, ...res.overnightCars]; } 
@@ -1002,7 +868,6 @@
         else {
             listDataParked.forEach((car) => {
                 let displayImg = car.entryImgBack || car.entryImg;
-                
                 html += `<div class="stat-item" onclick="quickCheckout(${car.rowIndex})">
                             <div class="img-group">
                                 <img src="${car.entryImg}" style="display:none;" loading="lazy">
@@ -1019,17 +884,11 @@
     function renderReturnedCarsData() {
         document.getElementById('countReturned').innerText = listDataReturned.length;
         let html = '';
-        if(listDataReturned.length === 0) { 
-            html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Chưa có xe xuất bãi.</div>'; 
-        } 
+        if(listDataReturned.length === 0) { html = '<div style="text-align:center; color:#666; font-size:13px; padding: 20px 0;">Chưa có xe xuất bãi.</div>'; } 
         else {
             listDataReturned.forEach((car) => {
                 let displayImg = car.entryImgBack || car.entryImg;
-                
-                let imgExitHidden = '';
-                if (car.exitImg) {
-                    imgExitHidden = `<img src="${car.exitImg}" style="display:none;">`;
-                }
+                let imgExitHidden = car.exitImg ? `<img src="${car.exitImg}" style="display:none;">` : '';
 
                 html += `<div class="stat-item" style="cursor: default;">
                             <div class="img-group">
@@ -1054,7 +913,7 @@
     function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'block' : 'none'; document.querySelectorAll('button').forEach(btn => btn.disabled = show); }
     
     function resetForm() { 
-        document.getElementById('plateIn').value = ""; 
+        const plateIn = document.getElementById('plateIn'); if (plateIn) plateIn.value = ""; 
         document.getElementById('previewInFront').style.display = 'none'; 
         document.getElementById('previewInBack').style.display = 'none'; 
         document.getElementById('retakeFrontBtn').style.display = 'none';
@@ -1067,67 +926,65 @@
         currentFlow = ''; currentCaptureStep = '';
         
         const snapBtn = document.getElementById('snapBtn');
-        if (snapBtn) { snapBtn.style.display = 'none'; }
+        if (snapBtn) snapBtn.style.display = 'none';
         
         const camBtns = document.getElementById('camControlBtns'); 
         if(camBtns) camBtns.style.display = 'flex';
         
         stopCamera();
 
-        document.getElementById('plateSearch').value = "";
-        document.getElementById('searchResult').style.display = 'none'; 
-        document.getElementById('listResults').style.display = 'none'; 
+        // Ẩn panel trả xe
+        const checkoutPanel = document.getElementById('checkoutPanel');
+        if (checkoutPanel) checkoutPanel.style.display = 'none';
+
+        // Hiện lại kính lúp nếu đang ở tab TRONG BÃI
+        const btnOpenSearch = document.getElementById('btnOpenSearch');
+        if (btnOpenSearch && document.getElementById('tab-trong').classList.contains('active')) {
+            btnOpenSearch.style.display = 'flex';
+        }
+
         document.getElementById('actionButtonsOut').style.display = 'none'; 
         stopCameraOut();
 
         currentCarRowIndex = null; currentMatches = []; 
     }
 
-
-        // Xử lý khung nhập liệu tránh bị che bởi bàn phím trên iOS cho tất cả các tab
-        // Xử lý khung nhập liệu tránh bị che bởi bàn phím trên iOS cho tất cả các tab
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener("resize", function() {
-                // Dùng querySelectorAll để lấy TẤT CẢ các khung bottom-control-panel
-                const panels = document.querySelectorAll('.bottom-control-panel');
-                let keyboardHeight = window.innerHeight - window.visualViewport.height;
-                const customKb = document.getElementById('customKeyboard');
-                
-                panels.forEach(function(panel) {
-                    if (keyboardHeight > 0) {
-                        // Khi bàn phím mặc định của điện thoại hiện
-                        panel.style.bottom = (keyboardHeight) + 'px';
-                    } else if (customKb && customKb.style.display === 'block') {
-                        // SỬA TẠI ĐÂY: Nếu bàn phím ẢO đang mở, giữ khung trên bàn phím ảo
-                        let kbHeight = customKb.offsetHeight || 260;
-                        panel.style.bottom = kbHeight + 'px';
-                    } else {
-                        // Khi không có bàn phím nào hiện
-                        panel.style.bottom = '44px';
-                    }
-                });
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", function() {
+            const panels = document.querySelectorAll('.bottom-control-panel');
+            let keyboardHeight = window.innerHeight - window.visualViewport.height;
+            const customKb = document.getElementById('customKeyboard');
+            
+            panels.forEach(function(panel) {
+                if (keyboardHeight > 0) {
+                    panel.style.bottom = (keyboardHeight) + 'px';
+                } else if (customKb && customKb.style.display === 'block') {
+                    let kbHeight = customKb.offsetHeight || 260;
+                    panel.style.bottom = kbHeight + 'px';
+                } else {
+                    panel.style.bottom = '44px';
+                }
             });
-        }
+        });
+    }
 
-        // Xử lý Bàn phím tùy chỉnh
     let activeInput = null;
 
-        function showKeyboard(inputId) {
+    function showKeyboard(inputId) {
         activeInput = document.getElementById(inputId);
         const kb = document.getElementById('customKeyboard');
         kb.style.display = 'block';
 
-        // Lấy chiều cao của bàn phím tùy chỉnh vừa hiển thị
         const kbHeight = kb.offsetHeight || 260; 
-
-        // 1. Đẩy khung VÀO BÃI hoặc TÌM XE TRONG BÃI lên
+        
+        // 1. Dành cho bottom-control-panel ở tab VÀO BÃI
         const panel = activeInput.closest('.bottom-control-panel');
         if (panel) {
             panel.style.transition = 'bottom 0.2s ease-out';
             panel.style.bottom = kbHeight + 'px';
         }
 
-        // 2. Đẩy khung Modal sửa biển số lên
+        // 2. Dành cho modal Sửa biển
         const modalContent = activeInput.closest('#editPlateModal');
         if (modalContent) {
             const innerDiv = modalContent.querySelector('div');
@@ -1136,40 +993,55 @@
                 innerDiv.style.transform = `translateY(-${kbHeight}px)`;
             }
         }
+
+        // 3. Động bộ nâng padding khung tìm kiếm và cuộn đáy để kết quả không bị che
+        if (inputId === 'plateSearch') {
+            const scrollArea = document.getElementById('searchScrollArea');
+            if (scrollArea) {
+                scrollArea.style.paddingBottom = (kbHeight + 15) + 'px';
+                setTimeout(() => {
+                    scrollArea.scrollTop = scrollArea.scrollHeight;
+                }, 50);
+            }
+        }
     }
 
     function hideKeyboard() {
         const kb = document.getElementById('customKeyboard');
         if (kb) kb.style.display = 'none';
         
-        // Trả các khung panel về vị trí sát đáy ban đầu
         document.querySelectorAll('.bottom-control-panel').forEach(panel => {
             panel.style.transition = 'bottom 0.2s ease-out';
             panel.style.bottom = '44px';
         });
 
-        // Trả Modal sửa biển số về vị trí cũ
         const modalContent = document.querySelector('#editPlateModal > div');
         if (modalContent) {
             modalContent.style.transition = 'transform 0.2s ease-out';
             modalContent.style.transform = 'translateY(0)';
         }
 
-        // BỔ SUNG: Nếu đang đứng ở ô tìm kiếm xe ra, bấm đóng bàn phím sẽ xóa luôn ô tìm kiếm
-        const searchInput = document.getElementById('plateSearch');
-        if (activeInput === searchInput) {
-            searchInput.value = '';
-            document.getElementById('listResults').style.display = 'none';
-            document.getElementById('searchResult').style.display = 'none';
+        // Trả padding lại cho searchScrollArea
+        const scrollArea = document.getElementById('searchScrollArea');
+        if (scrollArea) {
+            scrollArea.style.paddingBottom = '15px';
         }
-
+        
         activeInput = null;
+    }
+
+    // Nút đóng trên bàn phím có thể phục vụ 2 mục đích (khi tìm kiếm thì thoát hẳn)
+    function handleKbCloseBtn() {
+        if (activeInput && activeInput.id === 'plateSearch') {
+            closeSearchMode(); 
+        } else {
+            hideKeyboard();
+        }
     }
 
     function kbPress(val) {
         if (!activeInput) return;
         activeInput.value += val;
-        // Kích hoạt sự kiện oninput để các hàm tìm kiếm/check chạy tự động
         activeInput.dispatchEvent(new Event('input'));
     }
 
@@ -1181,8 +1053,6 @@
 
     function kbEnter() {
         if (!activeInput) return;
-        
-        // Nút Enter mô phỏng việc gõ dấu chấm để kích hoạt hàm tự động lưu của bạn
         if (activeInput.id === 'plateIn' || activeInput.id === 'editPlateInput') {
             activeInput.value += '.'; 
             if (activeInput.id === 'plateIn') checkAutoSubmit(activeInput);
@@ -1191,67 +1061,47 @@
         hideKeyboard();
     }
 
-    // Ẩn bàn phím khi bấm ra ngoài các vùng nhập liệu
-    // Ẩn bàn phím khi bấm ra ngoài các vùng nhập liệu
     document.addEventListener('click', function(e) {
         if (!e.target.closest('#customKeyboard') && 
             e.target.id !== 'plateIn' && 
             e.target.id !== 'plateSearch' && 
             e.target.id !== 'editPlateInput' &&
-            e.target.id !== 'snapBtn' && /* SỬA TẠI ĐÂY: Thêm nút CHỤP vào danh sách ngoại trừ */
-            !e.target.closest('.btn-edit') // bỏ qua nút "Sửa biển số"
+            e.target.id !== 'snapBtn' &&
+            !e.target.closest('.btn-edit')
         ) {
             hideKeyboard();
         }
     });
 
-
-
-
     function isStorageSafe() {
-        // 1. Giới hạn số lượng (An toàn nhất là không quá 12-15 tác vụ kẹt lại)
         if (syncQueue.length >= 12) return false;
-
-        // 2. Kiểm tra dung lượng thực tế của LocalStorage (Giới hạn 4.2MB / 5MB tối đa)
         let totalBytes = 0;
         for (let key in localStorage) {
             if (localStorage.hasOwnProperty(key)) {
-                totalBytes += (localStorage[key].length + key.length) * 2; // JavaScript dùng 2 bytes cho mỗi ký tự
+                totalBytes += (localStorage[key].length + key.length) * 2; 
             }
         }
         if (totalBytes > 4.2 * 1024 * 1024) return false;
-
         return true;
     }
 
-
     function viewFailedSync() {
         let failedQueue = JSON.parse(localStorage.getItem('failed_sync_queue')) || [];
-        
         if (failedQueue.length === 0) {
             showToast("Tuyệt vời! Không có xe nào bị kẹt lỗi đồng bộ.", "success");
             return;
         }
         
-        // Hiển thị thông báo xác nhận và hỏi người dùng có muốn thử đồng bộ lại không
         let msg = `Có ${failedQueue.length} xe bị kẹt do lỗi máy chủ (hoặc mất mạng).\nBạn có muốn thử gửi lại lên hệ thống ngay bây giờ không?`;
-        
         if (confirm(msg)) {
             let syncQueue = JSON.parse(localStorage.getItem('saved_sync_queue')) || [];
-            
-            // Đặt lại số lần thử của các xe lỗi về 0
             failedQueue.forEach(task => task.retryCount = 0);
-            
-            // Đưa các xe lỗi vào lại hàng đợi chính
             syncQueue = syncQueue.concat(failedQueue);
             localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
-            
-            // Làm sạch danh sách lỗi
             localStorage.removeItem('failed_sync_queue');
-            
             showToast(`Đã chuyển ${failedQueue.length} xe vào hàng đợi! Hệ thống đang xử lý...`, "success");
             updateSyncBadge();
-            processQueue(); // Kích hoạt quá trình đồng bộ lại
+            processQueue(); 
         }
     }
 
