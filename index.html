@@ -325,7 +325,10 @@
     <div id="tab-tra" class="tab-content">
         <div class="stats-header">
             <h3>Xe đã xuất bãi <span id="countReturned" class="badge-success">0</span></h3>
-            <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-refresh" style="color: var(--danger); border-color: var(--danger);" onclick="viewFailedSync()">Lỗi đồng bộ</button>
+                <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
+            </div>
         </div>
         <div id="listReturned" class="list-cars"></div>
     </div>
@@ -435,6 +438,11 @@
     }
 
     function startFlow(flowType) {
+        if (!isStorageSafe()) {
+            showToast('Bộ nhớ đang đầy! Vui lòng chờ đồng bộ xong ảnh cũ để chụp tiếp.', 'error');
+            return; // Chặn lại, không bật camera
+        }
+
         currentFlow = flowType;
         currentCaptureStep = flowType; 
         startCamera();
@@ -691,24 +699,54 @@
 
     async function processQueue() {
         if (isSyncing || syncQueue.length === 0) return;
-        isSyncing = true; updateSyncBadge(); const currentTask = syncQueue[0];
+        isSyncing = true; 
+        updateSyncBadge(); 
+        
+        const currentTask = syncQueue[0];
+        
+        // Khởi tạo biến đếm số lần thử nếu chưa có
+        if (typeof currentTask.retryCount === 'undefined') {
+            currentTask.retryCount = 0;
+        }
+
         try {
             const response = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(currentTask) });
             const res = await response.json(); 
+            
             if (res.status === 'success') { 
+                // Đồng bộ thành công -> Xóa khỏi hàng đợi
                 syncQueue.shift(); 
                 localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); 
                 isDataLoaded = false; 
             } else { 
-                syncQueue.shift(); 
-                localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue)); 
-                showToast('Lỗi: ' + res.message, 'error'); 
+                // Máy chủ báo lỗi -> Tăng số lần thử
+                currentTask.retryCount++;
+                
+                if (currentTask.retryCount >= 3) {
+                    // Nếu thử thất bại 3 lần: Chuyển sang kho chứa lỗi để không làm kẹt các xe sau
+                    let failedQueue = JSON.parse(localStorage.getItem('failed_sync_queue')) || [];
+                    failedQueue.push(currentTask);
+                    localStorage.setItem('failed_sync_queue', JSON.stringify(failedQueue));
+                    
+                    syncQueue.shift(); // Xóa khỏi hàng đợi chính
+                    localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
+                    
+                    showToast('Máy chủ lỗi liên tục! Đã gác lại xe này để tải xe sau.', 'error');
+                } else {
+                    // Chưa quá 3 lần thì báo lỗi và chờ 5 giây rồi thử lại
+                    showToast(`Lỗi máy chủ (Thử lại lần ${currentTask.retryCount}/3): ` + res.message, 'warning'); 
+                    await new Promise(resolve => setTimeout(resolve, 5000)); 
+                }
             }
         } catch (error) { 
-            showToast('Mất mạng! Thử lại...', 'error'); 
+            // Lỗi mất mạng: Không tính vào số lần thử (retryCount), cứ chờ có mạng là tự gửi lại
+            showToast('Mất mạng! Hệ thống đang chờ kết nối lại...', 'error'); 
             await new Promise(resolve => setTimeout(resolve, 3000)); 
         }
-        isSyncing = false; updateSyncBadge(); processQueue(); 
+        
+        isSyncing = false; 
+        updateSyncBadge(); 
+        processQueue(); 
     }
 
     function checkAutoSubmit(inputElement) {
@@ -757,6 +795,10 @@
         syncQueue.push({ action: 'IN', licensePlate: plate, imageFront: capturedImages.front, imageBack: capturedImages.back, deviceId: myDeviceId });
         localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
         
+        // --- BỔ SUNG DÒNG NÀY ĐỂ CẬP NHẬT SỐ LƯỢNG NGAY LẬP TỨC ---
+        updateSyncBadge();
+        // ---------------------------------------------------------
+
         showToast('Đã lưu! Nhập xe tiếp theo', 'success');
         resetForm(); processQueue(); 
     }
@@ -768,6 +810,10 @@
         
         syncQueue.push({ action: 'OUT', licensePlate: plate, image: capturedImages.out, rowIndex: currentCarRowIndex, deviceId: myDeviceId });
         localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
+        
+        // --- BỔ SUNG DÒNG NÀY ĐỂ CẬP NHẬT SỐ LƯỢNG NGAY LẬP TỨC ---
+        updateSyncBadge();
+        // ---------------------------------------------------------
         
         showToast('Cho xe ra thành công!', 'success');
         resetForm(); processQueue();
@@ -785,23 +831,62 @@
     }
 
     function renderSearchList() {
-        const listDiv = document.getElementById('listResults'); listDiv.innerHTML = ''; 
-        if (currentMatches.length === 1) { selectCarFromSearch(0); } 
+        const listDiv = document.getElementById('listResults'); 
+        listDiv.innerHTML = ''; 
+        
+        if (currentMatches.length === 1) { 
+            selectCarFromSearch(0); 
+        } 
         else {
-            let html = `<div style="font-weight:600; color:var(--primary); text-align:center; font-size:13px; margin-bottom: 5px;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
-            currentMatches.forEach((car, index) => {
-                let displayImg = car.entryImgBack || car.entryImg;
-                
-                html += `<div class="stat-item" style="border: 2px solid var(--primary);" onclick="selectCarFromSearch(${index})">
-                            <div class="img-group">
-                                <img src="${car.entryImg}" style="display:none;" loading="lazy">
-                                <img src="${displayImg}" alt="Biển số" loading="lazy" onclick="openModal('${displayImg}', '${car.entryImg}', '${car.entryImgBack || ""}', ''); event.stopPropagation();">
-                            </div>
-                            <div class="stat-info"><strong style="color:var(--danger); font-size:16px;">${car.plate}</strong><span class="time">Vào: ${car.entryTime}</span><span class="emp">Nhận: ${car.employeeIn}</span></div>
-                            <div class="icon-out">TRẢ XE</div>
-                        </div>`;
+            // Tách thành 2 mảng: biển 4 số và biển 5 số (dựa vào độ dài ký tự của biển số)
+            let group4 = [];
+            let group5 = [];
+
+            currentMatches.forEach((car) => {
+                // Lọc lấy các ký tự chữ và số để đếm chính xác độ dài biển số
+                let cleanPlate = car.plate.replace(/[^a-zA-Z0-9]/g, '');
+                if (cleanPlate.length <= 4) {
+                    group4.push(car);
+                } else {
+                    group5.push(car);
+                }
             });
-            listDiv.innerHTML = html; listDiv.style.display = 'flex';
+
+            // Sắp xếp theo thứ tự A-Z cho từng nhóm
+            group4.sort((a, b) => a.plate.localeCompare(b.plate));
+            group5.sort((a, b) => a.plate.localeCompare(b.plate));
+
+            let html = `<div style="font-weight:600; color:var(--primary); text-align:center; font-size:13px; margin-bottom: 8px;">Phát hiện ${currentMatches.length} xe khớp:</div>`;
+            
+            // Hàm phụ để render các nút bấm biển số
+            function renderButtons(cars) {
+                let btnsHtml = `<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 6px;">`;
+                cars.forEach((car) => {
+                    // Tìm index gốc của xe trong mảng currentMatches để hàm selectCarFromSearch nhận diện đúng
+                    let originalIndex = currentMatches.findIndex(c => c.rowIndex === car.rowIndex);
+                    btnsHtml += `<button type="button" onclick="selectCarFromSearch(${originalIndex})" 
+                                style="background: #ffffff; border: 2px solid var(--primary); border-radius: 8px; padding: 8px 14px; font-size: 15px; font-weight: bold; color: var(--danger); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.1s; min-width: 90px;">
+                                ${car.plate}
+                             </button>`;
+                });
+                btnsHtml += `</div>`;
+                return btnsHtml;
+            }
+
+            // Hiển thị dòng Biển 4 số (nếu có)
+            if (group4.length > 0) {
+                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-muted); margin-bottom: 2px; text-align: left;">Biển 4 số:</div>`;
+                html += renderButtons(group4);
+            }
+
+            // Hiển thị dòng Biển 5 số (nếu có)
+            if (group5.length > 0) {
+                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-muted); margin-bottom: 2px; text-align: left;">Biển 5 số:</div>`;
+                html += renderButtons(group5);
+            }
+            
+            listDiv.innerHTML = html; 
+            listDiv.style.display = 'block'; 
         }
     }
 
@@ -813,29 +898,32 @@
     }
 
     function setupCheckoutForm(car) {
+        if (!isStorageSafe()) {
+            showToast('Bộ nhớ đang đầy! Vui lòng chờ đồng bộ xong để thao tác tiếp.', 'error');
+            return; // Dừng lại, không cho chuyển sang màn hình trả xe
+        }
+
+        // --- BỔ SUNG QUAN TRỌNG: Ngăn chặn lỗi ẩn kết quả và đóng bàn phím ---
+        activeInput = null; 
+        hideKeyboard(); 
+        // ----------------------------------------------------------------
+
         currentCarRowIndex = car.rowIndex; 
         document.getElementById('selectedPlate').innerText = car.plate;
         document.getElementById('resTime').innerText = car.entryTime;
-        document.getElementById('resEmp').innerText = car.employeeIn; 
+        document.getElementById('resEmp').innerText = car.employeeIn || '';
+        document.getElementById('resImgFront').src = car.entryImg || '';
+        document.getElementById('resImgBack').src = car.entryImgBack || car.entryImg || '';
         
-        document.getElementById('resImgFront').src = car.entryImg;
-        document.getElementById('resImgFront').onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack || '', ''); };
-        
-        const resImgBack = document.getElementById('resImgBack');
-        if (car.entryImgBack) { 
-            resImgBack.src = car.entryImgBack; 
-            resImgBack.style.display = 'inline-block'; 
-            resImgBack.onclick = function() { openModal(this.src, car.entryImg, car.entryImgBack || '', ''); }; 
-        } else { 
-            resImgBack.style.display = 'none'; 
-        }
-        
-        document.getElementById('listResults').style.display = 'none'; 
+        // Ẩn danh sách tìm kiếm và HIỂN THỊ khung kết quả xe ra
+        document.getElementById('listResults').style.display = 'none';
         document.getElementById('searchResult').style.display = 'block';
-        
-        capturedImages.out = ""; 
-        startCameraOut(); 
+
+        // Mở camera để chuẩn bị chụp ảnh xe xuất bãi
+        startCameraOut();
     }
+
+
 
     function editPlate(rowIndex, oldPlate) {
         editingRowIndex = rowIndex;
@@ -1067,6 +1155,14 @@
             modalContent.style.transform = 'translateY(0)';
         }
 
+        // BỔ SUNG: Nếu đang đứng ở ô tìm kiếm xe ra, bấm đóng bàn phím sẽ xóa luôn ô tìm kiếm
+        const searchInput = document.getElementById('plateSearch');
+        if (activeInput === searchInput) {
+            searchInput.value = '';
+            document.getElementById('listResults').style.display = 'none';
+            document.getElementById('searchResult').style.display = 'none';
+        }
+
         activeInput = null;
     }
 
@@ -1108,6 +1204,56 @@
             hideKeyboard();
         }
     });
+
+
+
+
+    function isStorageSafe() {
+        // 1. Giới hạn số lượng (An toàn nhất là không quá 12-15 tác vụ kẹt lại)
+        if (syncQueue.length >= 12) return false;
+
+        // 2. Kiểm tra dung lượng thực tế của LocalStorage (Giới hạn 4.2MB / 5MB tối đa)
+        let totalBytes = 0;
+        for (let key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) {
+                totalBytes += (localStorage[key].length + key.length) * 2; // JavaScript dùng 2 bytes cho mỗi ký tự
+            }
+        }
+        if (totalBytes > 4.2 * 1024 * 1024) return false;
+
+        return true;
+    }
+
+
+    function viewFailedSync() {
+        let failedQueue = JSON.parse(localStorage.getItem('failed_sync_queue')) || [];
+        
+        if (failedQueue.length === 0) {
+            showToast("Tuyệt vời! Không có xe nào bị kẹt lỗi đồng bộ.", "success");
+            return;
+        }
+        
+        // Hiển thị thông báo xác nhận và hỏi người dùng có muốn thử đồng bộ lại không
+        let msg = `Có ${failedQueue.length} xe bị kẹt do lỗi máy chủ (hoặc mất mạng).\nBạn có muốn thử gửi lại lên hệ thống ngay bây giờ không?`;
+        
+        if (confirm(msg)) {
+            let syncQueue = JSON.parse(localStorage.getItem('saved_sync_queue')) || [];
+            
+            // Đặt lại số lần thử của các xe lỗi về 0
+            failedQueue.forEach(task => task.retryCount = 0);
+            
+            // Đưa các xe lỗi vào lại hàng đợi chính
+            syncQueue = syncQueue.concat(failedQueue);
+            localStorage.setItem('saved_sync_queue', JSON.stringify(syncQueue));
+            
+            // Làm sạch danh sách lỗi
+            localStorage.removeItem('failed_sync_queue');
+            
+            showToast(`Đã chuyển ${failedQueue.length} xe vào hàng đợi! Hệ thống đang xử lý...`, "success");
+            updateSyncBadge();
+            processQueue(); // Kích hoạt quá trình đồng bộ lại
+        }
+    }
 
 </script>
 </body>
