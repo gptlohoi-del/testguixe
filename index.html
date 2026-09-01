@@ -64,7 +64,7 @@
 
 
 
-        
+
         .preview-box { text-align: center; }
         .preview-box img { max-width: 100%; max-height: 100px; border-radius: 8px; border: 1px solid var(--border); display: none; margin: 0 auto; object-fit: cover; cursor: zoom-in;}
         .loading { display: none; text-align: center; font-weight: 600; color: var(--primary); margin: 10px 0; font-size: 13px;}
@@ -283,9 +283,9 @@
     <!-- TAB: ĐÃ TRẢ -->
     <!-- TAB: ĐÃ TRẢ -->
     <div id="tab-tra" class="tab-content">
-        <div class="stats-header" style="flex-wrap: wrap; gap: 10px;">
+        <div class="stats-header" style=" gap: 5px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <h3 style="margin: 0;">Đã xuất bãi <span id="countReturned" class="badge-success">0</span></h3>
+                <h3 style="margin: 0;">Đã trả <span id="countReturned" class="badge-success">0</span></h3>
                 <select id="filterReturned" onchange="changeReturnedFilter()" style="padding: 4px; border-radius: 4px; border: 1px solid var(--border); font-size: 12px; outline: none; background: #fff;">
                     <option value="10">10 xe gần nhất</option>
                     <option value="today">Hôm nay</option>
@@ -299,6 +299,11 @@
                 <button class="btn-refresh" onclick="loadParkedCars()">Làm mới</button>
             </div>
         </div>
+
+
+
+
+
         <div id="listReturned" class="list-cars"></div>
     </div>
 
