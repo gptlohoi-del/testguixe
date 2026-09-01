@@ -46,7 +46,24 @@
         
         button.action-btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; margin-top: 5px; transition: 0.2s; }
         .btn-in { background-color: var(--success); } .btn-out { background-color: var(--danger); }
-        button:disabled { opacity: 0.7; cursor: not-allowed; }
+        button:disabled { 
+            background-color: #cbd5e1 !important; /* Chuyển nền thành màu xám */
+            color: #94a3b8 !important; /* Chuyển chữ thành màu xám đậm hơn */
+            opacity: 1; /* Tắt chế độ làm mờ */
+            cursor: not-allowed; 
+            box-shadow: none !important; /* Bỏ đổ bóng để nút trông thực sự "tắt" */
+        }
+                
+
+
+
+
+
+
+
+
+
+
         
         .preview-box { text-align: center; }
         .preview-box img { max-width: 100%; max-height: 100px; border-radius: 8px; border: 1px solid var(--border); display: none; margin: 0 auto; object-fit: cover; cursor: zoom-in;}
@@ -922,7 +939,7 @@
 
 
 
-    
+
     
     let timeDiff = parseTime(b.exitTime) - parseTime(a.exitTime);
     // Nếu cả 2 xe trả cùng 1 thời điểm (hoặc lỗi đọc thời gian), ưu tiên xe có dòng (rowIndex) lớn hơn lên trước
